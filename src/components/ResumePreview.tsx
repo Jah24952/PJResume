@@ -17,7 +17,7 @@ const ResumePreview = forwardRef<HTMLDivElement>((_, ref) => {
     >
       <div>
         <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>
-          {data.name || 'Your Name'}
+          {data.name || 'Your Names'}
         </h2>
         <p>{data.email || 'email@example.com'}</p>
       </div>
