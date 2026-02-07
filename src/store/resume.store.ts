@@ -50,6 +50,9 @@ export type ResumeData = {
   summary: string
   selectedTemplate: string
   themeColor: string
+  experienceLevel: string
+  resumeLanguage: string
+  educationLevel: string
 }
 
 /* ===== 2. State ของ Resume Builder ===== */
@@ -92,7 +95,10 @@ export const useResumeStore = create<ResumeState>((set) => ({
     certifications: [],
     summary: '',
     selectedTemplate: 'modern',
-    themeColor: '#437393'
+    themeColor: '#437393',
+    experienceLevel: '',
+    resumeLanguage: '',
+    educationLevel: ''
   },
 
   next: () =>

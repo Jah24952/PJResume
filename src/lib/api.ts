@@ -66,3 +66,16 @@ export async function fetchUsers() {
   if (!res.ok) throw new Error('Failed to fetch users')
   return res.json()
 }
+
+export async function changePassword(payload: any) {
+  const res = await fetch('https://project-rs-ats.project-rs-ats.workers.dev/auth/change-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error || 'Failed to change password')
+  }
+  return res.json()
+}

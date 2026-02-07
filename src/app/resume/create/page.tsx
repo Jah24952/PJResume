@@ -23,7 +23,8 @@ import {
   ChevronDown,
   Layout,
   Plus,
-  Trash2
+  Trash2,
+  ArrowLeft
 } from 'lucide-react'
 
 // Define Section Types for Sidebar
@@ -65,6 +66,9 @@ export default function ResumeCreatePage() {
     { id: 7, name: 'Classic Minimal', style: 'classic', color: '#000000' },
     { id: 8, name: 'Professional Blue', style: 'professional', color: '#3b82f6' },
   ]
+
+  const PREDEFINED_NATIONALITIES = ['Thai', 'American', 'British', 'Chinese', 'Japanese', 'Korean', 'German', 'French', 'Australian', 'Canadian', 'Indian', 'Singaporean', 'Malaysian', 'Indonesian', 'Filipino', 'Vietnamese', 'Myanmar', 'Laotian']
+  const [showCustomNationality, setShowCustomNationality] = useState(false)
 
   // Initialize Template from URL
   const searchParams = useSearchParams()
@@ -299,9 +303,14 @@ export default function ResumeCreatePage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Top Bar */}
       <header className="h-[60px] bg-[#9CC5DF] px-6 flex items-center justify-between shadow-sm relative z-20">
-        <Link href="/" className="text-2xl font-serif text-[#437393] font-bold">
-          SRG-TJS
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard" className="text-[#437393] hover:text-[#2c4f6d] transition-colors" title="Back to Dashboard">
+            <ArrowLeft size={24} />
+          </Link>
+          <Link href="/" className="text-2xl font-serif text-[#437393] font-bold">
+            SRG-TJS
+          </Link>
+        </div>
 
         {data.selectedTemplate && (
           <div className="text-xs font-bold px-3 py-1 bg-white/50 rounded-full text-[#437393] uppercase tracking-wider hidden md:block">
@@ -392,8 +401,62 @@ export default function ResumeCreatePage() {
                   <div><label className="text-sm text-gray-500">อีเมล</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.email} onChange={e => update('email', e.target.value)} placeholder="email@example.com" /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="text-sm text-gray-500">สัญชาติ</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.nationality} onChange={e => update('nationality', e.target.value)} placeholder="ไทย" /></div>
-                  <div><label className="text-sm text-gray-500">วันเกิด</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.birthDate} onChange={e => update('birthDate', e.target.value)} placeholder="DD/MM/YYYY" /></div>
+                  <div>
+                    <label className="text-sm text-gray-500">สัญชาติ</label>
+                    <select
+                      className="w-full p-3 border rounded-lg bg-gray-50 text-black appearance-none mb-2"
+                      value={PREDEFINED_NATIONALITIES.includes(data.nationality) ? data.nationality : 'Other'}
+                      onChange={e => {
+                        const val = e.target.value
+                        if (val === 'Other') {
+                          setShowCustomNationality(true)
+                          update('nationality', '')
+                        } else {
+                          setShowCustomNationality(false)
+                          update('nationality', val)
+                        }
+                      }}
+                    >
+                      <option value="">-- เลือกสัญชาติ --</option>
+                      <option value="Thai">Thai (ไทย)</option>
+                      <option value="American">American (สหรัฐอเมริกา)</option>
+                      <option value="British">British (สหราชอาณาจักร)</option>
+                      <option value="Chinese">Chinese (จีน)</option>
+                      <option value="Japanese">Japanese (ญี่ปุ่น)</option>
+                      <option value="Korean">Korean (เกาหลีใต้)</option>
+                      <option value="German">German (เยอรมนี)</option>
+                      <option value="French">French (ฝรั่งเศส)</option>
+                      <option value="Australian">Australian (ออสเตรเลีย)</option>
+                      <option value="Canadian">Canadian (แคนาดา)</option>
+                      <option value="Indian">Indian (อินเดีย)</option>
+                      <option value="Singaporean">Singaporean (สิงคโปร์)</option>
+                      <option value="Malaysian">Malaysian (มาเลเซีย)</option>
+                      <option value="Indonesian">Indonesian (อินโดนีเซีย)</option>
+                      <option value="Filipino">Filipino (ฟิลิปปินส์)</option>
+                      <option value="Vietnamese">Vietnamese (เวียดนาม)</option>
+                      <option value="Myanmar">Myanmar / Burmese (เมียนมา)</option>
+                      <option value="Laotian">Laotian (ลาว)</option>
+                      <option value="Other">Other (อื่นๆ - โปรดระบุ)</option>
+                    </select>
+                    {(showCustomNationality || (!PREDEFINED_NATIONALITIES.includes(data.nationality) && data.nationality !== '')) && (
+                      <input
+                        className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all placeholder-gray-400 text-black animate-in fade-in slide-in-from-top-1 duration-200 mt-2"
+                        placeholder="ระบุสัญชาติของคุณ..."
+                        value={data.nationality}
+                        onChange={e => update('nationality', e.target.value)}
+                        autoFocus
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">วันเกิด</label>
+                    <input
+                      type="date"
+                      className="w-full p-3 border rounded-lg bg-gray-50 text-black"
+                      value={data.birthDate}
+                      onChange={e => update('birthDate', e.target.value)}
+                    />
+                  </div>
                 </div>
                 <div><label className="text-sm text-gray-500">ลิงค์โซเชียล</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.socialLink} onChange={e => update('socialLink', e.target.value)} placeholder="URL" /></div>
               </div>
@@ -420,8 +483,8 @@ export default function ResumeCreatePage() {
                       <textarea className="w-full p-2 border rounded bg-gray-50 h-24 text-black" value={exp.description} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-sm text-gray-500">เริ่ม</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.startDate} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} placeholder="MM/YYYY" /></div>
-                      <div><label className="text-sm text-gray-500">สิ้นสุด</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.endDate} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} placeholder="Present" /></div>
+                      <div><label className="text-xs text-gray-500 block mb-1">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.startDate} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
+                      <div><label className="text-xs text-gray-500 block mb-1">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
                     </div>
                   </div>
                 ))}
@@ -440,8 +503,8 @@ export default function ResumeCreatePage() {
                       <div><label className="text-sm text-gray-500">สถานศึกษา</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.school} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-sm text-gray-500">เริ่ม</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} placeholder="YYYY" /></div>
-                      <div><label className="text-sm text-gray-500">สิ้นสุด</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} placeholder="YYYY" /></div>
+                      <div><label className="text-sm text-gray-500">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
                     </div>
                   </div>
                 ))}
@@ -500,24 +563,24 @@ export default function ResumeCreatePage() {
                   <h3 className="font-bold text-[#437393] mb-3 flex items-center gap-2">🤖 AI Generator Settings</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="text-xs text-gray-500 block mb-1">Job Style</label>
-                      <select className="w-full p-2 text-sm border rounded" value={jobStyle} onChange={e => setJobStyle(e.target.value)}>
+                      <label className="text-xs font-bold text-[#1e40af] block mb-1">Job Style</label>
+                      <select className="w-full p-2 text-sm border border-blue-200 rounded text-[#1e3a8a] bg-white font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" value={jobStyle} onChange={e => setJobStyle(e.target.value)}>
                         <option value="private">Private Sector (เอกชน)</option>
                         <option value="government">Government (ราชการ)</option>
                         <option value="specific">Specialist (เฉพาะทาง)</option>
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 block mb-1">Tone</label>
-                      <select className="w-full p-2 text-sm border rounded" value={tone} onChange={e => setTone(e.target.value)}>
+                      <label className="text-xs font-bold text-[#1e40af] block mb-1">Tone</label>
+                      <select className="w-full p-2 text-sm border border-blue-200 rounded text-[#1e3a8a] bg-white font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" value={tone} onChange={e => setTone(e.target.value)}>
                         <option value="professional">Professional (ทางการ)</option>
                         <option value="neutral">Neutral (ทั่วไป)</option>
                         <option value="creative">Creative (สร้างสรรค์)</option>
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 block mb-1">Language</label>
-                      <select className="w-full p-2 text-sm border rounded" value={aiLanguage} onChange={e => setAiLanguage(e.target.value)}>
+                      <label className="text-xs font-bold text-[#1e40af] block mb-1">Language</label>
+                      <select className="w-full p-2 text-sm border border-blue-200 rounded text-[#1e3a8a] bg-white font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" value={aiLanguage} onChange={e => setAiLanguage(e.target.value)}>
                         <option value="en">English</option>
                         <option value="th">Thai</option>
                       </select>

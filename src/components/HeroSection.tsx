@@ -1,4 +1,6 @@
+'use client';
 import Link from 'next/link';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function HeroSection() {
     return (
@@ -8,12 +10,19 @@ export default function HeroSection() {
                 <h2 className="text-3xl text-slate-500 font-normal">ทำเรซูเม่สอนไลน์ฟรี</h2>
 
                 <div className="pt-4">
-                    <Link
-                        href="/resume/create"
+                    <button
+                        onClick={() => {
+                            const user = useAuthStore.getState().user
+                            if (!user) {
+                                window.location.href = '/login'
+                            } else {
+                                window.location.href = '/resume/select-mode'
+                            }
+                        }}
                         className="inline-block px-12 py-4 border-2 border-slate-300 text-slate-600 text-xl rounded-2xl hover:bg-slate-50 transition-colors"
                     >
                         เริ่มสร้างเรซูเม่
-                    </Link>
+                    </button>
                 </div>
 
                 <p className="text-slate-500 text-lg pt-2">
@@ -22,34 +31,19 @@ export default function HeroSection() {
             </div>
 
             <div className="flex-1 relative">
-                {/* Placeholder for Resume Preview Request Image */}
-                <div className="relative w-full aspect-[3/4] bg-white shadow-2xl p-4 rounded-sm rotate-2 transform hover:rotate-0 transition-transform duration-500">
-                    <div className="w-full h-full bg-slate-50 border-2 border-slate-100 p-8 flex flex-col gap-4">
-                        {/* Simple mockup content */}
-                        <div className="flex gap-4 items-center border-b pb-4">
-                            <div className="w-16 h-16 bg-slate-200 rounded-full"></div>
-                            <div className="space-y-2">
-                                <div className="w-32 h-4 bg-slate-300 rounded"></div>
-                                <div className="w-24 h-3 bg-slate-200 rounded"></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="w-full h-2 bg-slate-200 rounded"></div>
-                            <div className="w-full h-2 bg-slate-200 rounded"></div>
-                            <div className="w-3/4 h-2 bg-slate-200 rounded"></div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 mt-4">
-                            <div className="space-y-2">
-                                <div className="w-20 h-4 bg-slate-300 rounded"></div>
-                                <div className="w-full h-2 bg-slate-200 rounded"></div>
-                                <div className="w-full h-2 bg-slate-200 rounded"></div>
-                            </div>
-                            <div className="space-y-2">
-                                <div className="w-20 h-4 bg-slate-300 rounded"></div>
-                                <div className="w-full h-2 bg-slate-200 rounded"></div>
-                                <div className="w-full h-2 bg-slate-200 rounded"></div>
-                            </div>
-                        </div>
+                {/* Resume Preview Image */}
+                <div className="relative w-full aspect-[3/4] max-w-[500px] mx-auto">
+                    {/* Decorative Background Elements */}
+                    <div className="absolute top-4 -right-4 w-full h-full bg-slate-200 rounded-lg transform rotate-6 opacity-40"></div>
+                    <div className="absolute top-2 -right-2 w-full h-full bg-slate-300 rounded-lg transform rotate-3 opacity-40"></div>
+
+                    {/* Main Resume Preview */}
+                    <div className="relative w-full h-full bg-white shadow-2xl rounded-lg overflow-hidden transform transition-all duration-500 hover:-translate-y-2 hover:shadow-3xl border border-slate-100">
+                        <img
+                            src="/hero-resume.png"
+                            alt="Resume Example"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                 </div>
             </div>

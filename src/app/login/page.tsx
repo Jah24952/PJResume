@@ -24,7 +24,7 @@ export default function LoginPage() {
 
             if (data.success) {
                 login(data.user)
-                router.push('/resume/templates') // Go to templates after login
+                router.push('/dashboard') // Go to dashboard after login
             } else {
                 setError(data.error || 'Login failed')
             }
