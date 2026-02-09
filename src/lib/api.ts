@@ -22,14 +22,13 @@ export async function analyzeATS(payload: {
 
 export async function saveResume(payload: any) {
   const res = await fetch(
-    'https://project-rs-ats.project-rs-ats.workers.dev/resumes',
+    'https://project-rs-ats.project-rs-ats.workers.dev/resume',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     }
   )
-
 
   if (!res.ok) {
     const error = await res.json()

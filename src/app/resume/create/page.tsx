@@ -24,8 +24,11 @@ import {
   Layout,
   Plus,
   Trash2,
-  ArrowLeft
+  ArrowLeft,
+  Upload,
+  X
 } from 'lucide-react'
+import { TEMPLATES } from '../../../lib/constants'
 
 // Define Section Types for Sidebar
 type SectionType = 'contact' | 'experience' | 'education' | 'skills' | 'languages' | 'summary' | 'certifications'
@@ -42,7 +45,7 @@ export default function ResumeCreatePage() {
   const [activeSection, setActiveSection] = useState<SectionType>('contact')
   const [isSaving, setIsSaving] = useState(false)
   const [newSkill, setNewSkill] = useState('')
-  const [showDownloadMenu, setShowDownloadMenu] = useState(false)
+
 
   // ATS State
   const [atsResult, setAtsResult] = useState<{
@@ -55,17 +58,7 @@ export default function ResumeCreatePage() {
   const [tone, setTone] = useState('professional')
   const [aiLanguage, setAiLanguage] = useState('en')
 
-  /* Real Template Configurations (Same as in templates page for reference) */
-  const TEMPLATES = [
-    { id: 1, name: 'Modern Blue', style: 'modern', color: '#437393' },
-    { id: 2, name: 'Classic Elegance', style: 'classic', color: '#333333' },
-    { id: 3, name: 'Creative Teal', style: 'creative', color: '#2dd4bf' },
-    { id: 4, name: 'Professional Gray', style: 'professional', color: '#94a3b8' },
-    { id: 5, name: 'Modern Orange', style: 'modern', color: '#f97316' },
-    { id: 6, name: 'Creative Purple', style: 'creative', color: '#a855f7' },
-    { id: 7, name: 'Classic Minimal', style: 'classic', color: '#000000' },
-    { id: 8, name: 'Professional Blue', style: 'professional', color: '#3b82f6' },
-  ]
+
 
   const PREDEFINED_NATIONALITIES = ['Thai', 'American', 'British', 'Chinese', 'Japanese', 'Korean', 'German', 'French', 'Australian', 'Canadian', 'Indian', 'Singaporean', 'Malaysian', 'Indonesian', 'Filipino', 'Vietnamese', 'Myanmar', 'Laotian']
   const [showCustomNationality, setShowCustomNationality] = useState(false)
@@ -162,16 +155,55 @@ export default function ResumeCreatePage() {
   const handleSave = async () => {
     try {
       setIsSaving(true)
-      // Map store data to backend expectation (socialLink -> linkedin)
+
+      // Transform Data for Backend (POST /resume)
       const payload = {
-        ...data,
+        user_id: user?.id,
+        resume_title: `Resume - ${new Date().toLocaleDateString('th-TH')}`,
+        language: aiLanguage,
+        name: data.name,
+        surname: data.surname, // Ensure surname is sent if backend supports it or merge with name if not
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
         linkedin: data.socialLink,
-        user_id: user?.id
+        jobTitle: data.jobTitle, // Backend might not have this column in root, but keeping for now
+        summary: data.summary,
+        profileImage: data.profileImage, // Send base64 image
+
+        // Map Experience
+        experience: data.experience.map(exp => ({
+          company: exp.company,
+          position: exp.position,
+          responsibility: exp.description, // Map description -> responsibility
+          start_date: exp.startDate,      // Map startDate -> start_date
+          end_date: exp.endDate           // Map endDate -> end_date
+        })),
+
+        // Map Education
+        education: data.education.map(edu => ({
+          institute: edu.school,          // Map school -> institute
+          degree: edu.degree,
+          major: edu.fieldOfStudy || '',  // Map fieldOfStudy -> major
+          start_year: edu.startDate,      // Map startDate -> start_year
+          end_year: edu.endDate           // Map endDate -> end_year
+        })),
+
+        // Map Skills
+        skills: data.skills.map(skill => ({
+          skill_name: skill,
+          proficiency_level: 'Intermediate' // Default level
+        }))
       }
-      await saveResume(payload)
-      alert('บันทึกข้อมูลเรียบร้อยแล้ว')
+
+      const res = await saveResume(payload)
+      if (res.success) {
+        alert('บันทึกข้อมูลเรียบร้อยแล้ว (Saved Successfully)')
+      } else {
+        throw new Error(res.error || 'Unknown error')
+      }
     } catch (err) {
-      alert('เกิดข้อผิดพลาดในการบันทึก')
+      alert('เกิดข้อผิดพลาดในการบันทึก (Save Failed)')
       console.error(err)
     } finally {
       setIsSaving(false)
@@ -187,7 +219,6 @@ export default function ResumeCreatePage() {
     const pageHeight = (canvas.height * pageWidth) / canvas.width
     pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight)
     pdf.save('resume.pdf')
-    setShowDownloadMenu(false)
   }
 
   const generateAISummary = async () => {
@@ -263,7 +294,7 @@ export default function ResumeCreatePage() {
   const handleAddEducation = () => {
     addItem('education', {
       id: crypto.randomUUID(),
-      degree: '', school: '', startDate: '', endDate: ''
+      degree: '', fieldOfStudy: '', school: '', startDate: '', endDate: ''
     })
   }
 
@@ -319,24 +350,12 @@ export default function ResumeCreatePage() {
         )}
 
         {/* Download Bar */}
-        <div className="relative">
-          <button
-            onClick={() => setShowDownloadMenu(!showDownloadMenu)}
-            className="bg-white/80 px-4 py-2 rounded-full flex items-center gap-2 text-[#437393] font-medium hover:bg-white transition-colors"
-          >
-            ดาวน์โหลด <ChevronDown size={18} />
-          </button>
-          {showDownloadMenu && (
-            <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-xl rounded-lg border border-gray-100 overflow-hidden">
-              <button onClick={exportPDF} className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2 text-gray-700">
-                <FileDown size={18} className="text-red-500" /> ดาวน์โหลด PDF
-              </button>
-              <button className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2 text-gray-700 opacity-50 cursor-not-allowed">
-                <FileText size={18} className="text-blue-600" /> ดาวน์โหลด Word
-              </button>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={exportPDF}
+          className="bg-white/80 px-4 py-2 rounded-full flex items-center gap-2 text-[#437393] font-medium hover:bg-white transition-colors"
+        >
+          <FileDown size={18} className="text-red-500" /> ดาวน์โหลด PDF
+        </button>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -392,6 +411,43 @@ export default function ResumeCreatePage() {
                   <div className="space-y-4">
                     <div><label className="text-sm text-gray-500">ชื่อจริง</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.name} onChange={e => update('name', e.target.value)} placeholder="ชื่อ" /></div>
                     <div><label className="text-sm text-gray-500">นามสกุล</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.surname} onChange={e => update('surname', e.target.value)} placeholder="นามสกุล" /></div>
+                  </div>
+
+                  {/* Profile Image */}
+                  <div className="relative group">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-100 flex items-center justify-center">
+                      {data.profileImage ? (
+                        <img src={data.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-16 h-16 text-gray-300" />
+                      )}
+                    </div>
+                    <label className="absolute bottom-0 right-0 bg-[#437393] text-white p-2 rounded-full cursor-pointer hover:bg-[#345b75] transition-colors shadow-sm">
+                      <Upload size={16} />
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            const reader = new FileReader()
+                            reader.onloadend = () => {
+                              update('profileImage', reader.result as string)
+                            }
+                            reader.readAsDataURL(file)
+                          }
+                        }}
+                      />
+                    </label>
+                    {data.profileImage && (
+                      <button
+                        onClick={() => update('profileImage', '')}
+                        className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors shadow-sm"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div><label className="text-sm text-gray-500">อาชีพ</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.jobTitle} onChange={e => update('jobTitle', e.target.value)} placeholder="อาชีพของคุณ" /></div>
@@ -499,7 +555,25 @@ export default function ResumeCreatePage() {
                   <div key={edu.id} className="bg-white border rounded-lg p-6 relative shadow-sm group">
                     <button onClick={() => removeItem('education', edu.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div><label className="text-sm text-gray-500">วุฒิการศึกษา</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.degree} onChange={e => updateItem('education', edu.id, { ...edu, degree: e.target.value })} /></div>
+                      <div>
+                        <label className="text-sm text-gray-500">วุฒิการศึกษา</label>
+                        <select
+                          className="w-full p-2 border rounded bg-gray-50 text-black h-[42px]"
+                          value={edu.degree}
+                          onChange={e => updateItem('education', edu.id, { ...edu, degree: e.target.value })}
+                        >
+                          <option value="">-- เลือกวุฒิการศึกษา --</option>
+                          <option value="ไม่มีวุฒิการศึกษา">ไม่มีวุฒิการศึกษา</option>
+                          <option value="ประถมศึกษา">ประถมศึกษา</option>
+                          <option value="มัธยมศึกษาตอนต้น (ม.3)">มัธยมศึกษาตอนต้น (ม.3)</option>
+                          <option value="มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)">มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)</option>
+                          <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
+                          <option value="ปริญญาตรี">ปริญญาตรี</option>
+                          <option value="ปริญญาโท">ปริญญาโท</option>
+                          <option value="ปริญญาเอก">ปริญญาเอก</option>
+                        </select>
+                      </div>
+                      <div><label className="text-sm text-gray-500">คณะ / สาขาวิชา</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.fieldOfStudy || ''} onChange={e => updateItem('education', edu.id, { ...edu, fieldOfStudy: e.target.value })} placeholder="เช่น วิศวกรรมศาสตร์" /></div>
                       <div><label className="text-sm text-gray-500">สถานศึกษา</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.school} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">

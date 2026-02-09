@@ -64,10 +64,10 @@ export default function SetupPage() {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-5xl mx-auto w-full p-6 md:p-12 pb-40">
+            <main className="flex-1 max-w-5xl mx-auto w-full p-6 md:p-12 pb-40 md:pb-40">
 
                 {/* 1. Experience Level */}
-                <section className="mb-24 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 scroll-mt-24">
+                <section className="mb-24 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 scroll-mt-24 ">
                     <div className="text-center mb-10">
                         <h2 className="text-2xl font-bold text-[#437393] mb-3">คุณทำงานมานานแค่ไหนแล้ว?</h2>
                         <p className="text-slate-500">เราจะค้นหาเทมเพลตที่ดีที่สุดสำหรับระดับประสบการณ์ของคุณ</p>

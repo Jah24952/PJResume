@@ -17,6 +17,7 @@ export type Education = {
   school: string
   startDate: string
   endDate: string
+  fieldOfStudy?: string
 }
 
 export type Language = {

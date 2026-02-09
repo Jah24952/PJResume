@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useResumeStore } from '@/store/resume.store'
-import { ArrowLeft, ArrowRight, User, Briefcase, GraduationCap, CheckSquare, FileText, Plus, Trash2, Globe, Award } from 'lucide-react'
+import { ArrowLeft, ArrowRight, User, Briefcase, GraduationCap, CheckSquare, FileText, Plus, Trash2, Globe, Award, Upload, X } from 'lucide-react'
 import Link from 'next/link'
 
 // Wizard Steps Configuration
@@ -50,6 +50,45 @@ export default function ResumeWizardPage() {
             case 1: // Contact
                 return (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                        {/* Profile Image Upload */}
+                        <div className="flex justify-center mb-6">
+                            <div className="relative group">
+                                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-slate-100 flex items-center justify-center">
+                                    {data.profileImage ? (
+                                        <img src={data.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User className="w-16 h-16 text-slate-300" />
+                                    )}
+                                </div>
+                                <label className="absolute bottom-0 right-0 bg-[#437393] text-white p-2 rounded-full cursor-pointer hover:bg-[#345b75] transition-colors shadow-sm">
+                                    <Upload size={16} />
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0]
+                                            if (file) {
+                                                const reader = new FileReader()
+                                                reader.onloadend = () => {
+                                                    update('profileImage', reader.result as string)
+                                                }
+                                                reader.readAsDataURL(file)
+                                            }
+                                        }}
+                                    />
+                                </label>
+                                {data.profileImage && (
+                                    <button
+                                        onClick={() => update('profileImage', '')}
+                                        className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors shadow-sm"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div><label className="text-sm font-bold text-slate-700 mb-1 block">ชื่อจริง</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.name} onChange={e => update('name', e.target.value)} placeholder="ชื่อจริงของคุณ" /></div>
                             <div><label className="text-sm font-bold text-slate-700 mb-1 block">นามสกุล</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.surname} onChange={e => update('surname', e.target.value)} placeholder="นามสกุลของคุณ" /></div>
@@ -114,7 +153,25 @@ export default function ResumeWizardPage() {
                             <div key={edu.id} className="bg-white border p-6 rounded-xl shadow-sm relative group hover:border-[#437393] transition-colors">
                                 <button onClick={() => removeItem('education', edu.id)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={20} /></button>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">วุฒิการศึกษา / คณะ</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.degree} onChange={e => updateItem('education', edu.id, { ...edu, degree: e.target.value })} /></div>
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500 mb-1 block">วุฒิการศึกษา</label>
+                                        <select
+                                            className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none"
+                                            value={edu.degree}
+                                            onChange={e => updateItem('education', edu.id, { ...edu, degree: e.target.value })}
+                                        >
+                                            <option value="">-- เลือกวุฒิการศึกษา --</option>
+                                            <option value="ไม่มีวุฒิการศึกษา">ไม่มีวุฒิการศึกษา</option>
+                                            <option value="ประถมศึกษา">ประถมศึกษา</option>
+                                            <option value="มัธยมศึกษาตอนต้น (ม.3)">มัธยมศึกษาตอนต้น (ม.3)</option>
+                                            <option value="มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)">มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)</option>
+                                            <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
+                                            <option value="ปริญญาตรี">ปริญญาตรี</option>
+                                            <option value="ปริญญาโท">ปริญญาโท</option>
+                                            <option value="ปริญญาเอก">ปริญญาเอก</option>
+                                        </select>
+                                    </div>
+                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">คณะ / สาขาวิชา</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.fieldOfStudy || ''} onChange={e => updateItem('education', edu.id, { ...edu, fieldOfStudy: e.target.value })} placeholder="เช่น วิศวกรรมศาสตร์" /></div>
                                     <div><label className="text-xs font-bold text-slate-500 mb-1 block">สถาบันการศึกษา</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.school} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
@@ -123,7 +180,7 @@ export default function ResumeWizardPage() {
                                 </div>
                             </div>
                         ))}
-                        <button onClick={() => addItem('education', { id: crypto.randomUUID(), degree: '', school: '', startDate: '', endDate: '' })} className="w-full py-4 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex justify-center items-center gap-2 hover:bg-[#437393]/5 transition-colors">
+                        <button onClick={() => addItem('education', { id: crypto.randomUUID(), degree: '', fieldOfStudy: '', school: '', startDate: '', endDate: '' })} className="w-full py-4 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex justify-center items-center gap-2 hover:bg-[#437393]/5 transition-colors">
                             <Plus size={20} /> เพิ่มประวัติการศึกษา
                         </button>
                     </div>
@@ -211,7 +268,7 @@ export default function ResumeWizardPage() {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-3xl mx-auto w-full p-6 md:p-12 pb-32">
+            <main className="flex-1 max-w-3xl mx-auto w-full p-6 md:p-12 pb-32 md:pb-40">
                 {/* Progress Bar */}
                 <div className="mb-10">
                     <div className="flex justify-between mb-2 px-2">
