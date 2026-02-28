@@ -54,6 +54,15 @@ export async function fetchResumeById(id: string) {
   return res.json()
 }
 
+export async function deleteResume(id: number) {
+  const res = await fetch(
+    `https://project-rs-ats.project-rs-ats.workers.dev/resume/${id}`,
+    { method: 'DELETE' }
+  )
+  if (!res.ok) throw new Error('Failed to delete resume')
+  return res.json()
+}
+
 export async function fetchAdminStats() {
   const res = await fetch('https://project-rs-ats.project-rs-ats.workers.dev/admin/stats')
   if (!res.ok) throw new Error('Failed to fetch stats')

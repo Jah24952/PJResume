@@ -61,7 +61,7 @@ export default function LoginPage() {
                             <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-slate-600 focus:ring-slate-500" />
                             จดจำฉัน
                         </label>
-                        <a href="#" className="hover:underline">ลืมรหัสผ่าน?</a>
+                        <Link href="/forgot-password" className="hover:underline">ลืมรหัสผ่าน?</Link>
                     </div>
 
                     <button

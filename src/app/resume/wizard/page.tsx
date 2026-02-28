@@ -18,9 +18,10 @@ const STEPS = [
 export default function ResumeWizardPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const templateId = searchParams.get('template')
 
     const { data, update, addItem, removeItem, updateItem, addSkill, removeSkill } = useResumeStore()
+    const queryTemplateId = searchParams.get('template')
+    const templateId = (queryTemplateId && queryTemplateId !== 'undefined') ? queryTemplateId : data.selectedTemplate || 'modern'
 
     const [currentStep, setCurrentStep] = useState(1)
     const [newSkill, setNewSkill] = useState('')
@@ -30,7 +31,7 @@ export default function ResumeWizardPage() {
 
     const nextStep = () => {
         if (isLastStep) {
-            router.push(`/resume/create?template=${templateId || '1'}`)
+            router.push(`/resume/create?template=${templateId}`)
         } else {
             setCurrentStep(prev => prev + 1)
             window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -90,19 +91,19 @@ export default function ResumeWizardPage() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">ชื่อจริง</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.name} onChange={e => update('name', e.target.value)} placeholder="ชื่อจริงของคุณ" /></div>
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">นามสกุล</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.surname} onChange={e => update('surname', e.target.value)} placeholder="นามสกุลของคุณ" /></div>
+                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">ชื่อจริง</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.name || ''} onChange={e => update('name', e.target.value)} placeholder="ชื่อจริงของคุณ" /></div>
+                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">นามสกุล</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.surname || ''} onChange={e => update('surname', e.target.value)} placeholder="นามสกุลของคุณ" /></div>
                         </div>
-                        <div><label className="text-sm font-bold text-slate-700 mb-1 block">อาชีพ / ตำแหน่งงานที่ต้องการสมัคร</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.jobTitle} onChange={e => update('jobTitle', e.target.value)} placeholder="เช่น Marketing Manager, Software Engineer" /></div>
+                        <div><label className="text-sm font-bold text-slate-700 mb-1 block">อาชีพ / ตำแหน่งงานที่ต้องการสมัคร</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.jobTitle || ''} onChange={e => update('jobTitle', e.target.value)} placeholder="เช่น Marketing Manager, Software Engineer" /></div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">เบอร์โทรศัพท์</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.phone} onChange={e => update('phone', e.target.value)} placeholder="08x-xxx-xxxx" /></div>
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">อีเมล</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.email} onChange={e => update('email', e.target.value)} placeholder="email@example.com" /></div>
+                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">เบอร์โทรศัพท์</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.phone || ''} onChange={e => update('phone', e.target.value)} placeholder="08x-xxx-xxxx" /></div>
+                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">อีเมล</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.email || ''} onChange={e => update('email', e.target.value)} placeholder="email@example.com" /></div>
                         </div>
-                        <div><label className="text-sm font-bold text-slate-700 mb-1 block">ที่อยู่</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.address} onChange={e => update('address', e.target.value)} placeholder="ที่อยู่ปัจจุบัน" /></div>
+                        <div><label className="text-sm font-bold text-slate-700 mb-1 block">ที่อยู่</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.address || ''} onChange={e => update('address', e.target.value)} placeholder="ที่อยู่ปัจจุบัน" /></div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">LinkedIn / Portfolio URL</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.socialLink} onChange={e => update('socialLink', e.target.value)} placeholder="https://..." /></div>
+                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">LinkedIn / Portfolio URL</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.socialLink || ''} onChange={e => update('socialLink', e.target.value)} placeholder="https://..." /></div>
                         </div>
                     </div>
                 )
@@ -121,16 +122,16 @@ export default function ResumeWizardPage() {
                             <div key={exp.id} className="bg-white border p-6 rounded-xl shadow-sm relative group hover:border-[#437393] transition-colors">
                                 <button onClick={() => removeItem('experience', exp.id)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={20} /></button>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">ตำแหน่ง</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.position} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">บริษัท</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.company} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">ตำแหน่ง</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.position || ''} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">บริษัท</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.company || ''} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
                                 </div>
                                 <div className="mb-4">
                                     <label className="text-xs font-bold text-slate-500 mb-1 block">รายละเอียดความรับผิดชอบ</label>
-                                    <textarea className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none h-24" value={exp.description} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} placeholder="อธิบายหน้าที่ความรับผิดชอบและผลงานของคุณ" />
+                                    <textarea className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none h-24" value={exp.description || ''} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} placeholder="อธิบายหน้าที่ความรับผิดชอบและผลงานของคุณ" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.startDate} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.endDate} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.startDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
                                 </div>
                             </div>
                         ))}
@@ -157,7 +158,7 @@ export default function ResumeWizardPage() {
                                         <label className="text-xs font-bold text-slate-500 mb-1 block">วุฒิการศึกษา</label>
                                         <select
                                             className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none"
-                                            value={edu.degree}
+                                            value={edu.degree || ''}
                                             onChange={e => updateItem('education', edu.id, { ...edu, degree: e.target.value })}
                                         >
                                             <option value="">-- เลือกวุฒิการศึกษา --</option>
@@ -172,11 +173,11 @@ export default function ResumeWizardPage() {
                                         </select>
                                     </div>
                                     <div><label className="text-xs font-bold text-slate-500 mb-1 block">คณะ / สาขาวิชา</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.fieldOfStudy || ''} onChange={e => updateItem('education', edu.id, { ...edu, fieldOfStudy: e.target.value })} placeholder="เช่น วิศวกรรมศาสตร์" /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สถาบันการศึกษา</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.school} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สถาบันการศึกษา</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.school || ''} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.startDate} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.endDate} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
                                 </div>
                             </div>
                         ))}
@@ -242,7 +243,7 @@ export default function ResumeWizardPage() {
                         <textarea
                             className="w-full h-48 p-4 border rounded-xl bg-white focus:ring-2 focus:ring-[#437393] outline-none text-slate-700 leading-relaxed shadow-sm"
                             placeholder="ตัวอย่าง: นักการตลาดดิจิทัลที่มีประสบการณ์ 3 ปี เชี่ยวชาญด้าน SEO และ Content Marketing..."
-                            value={data.summary}
+                            value={data.summary || ''}
                             onChange={e => update('summary', e.target.value)}
                         />
                     </div>

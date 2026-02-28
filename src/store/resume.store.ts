@@ -32,6 +32,34 @@ export type Certification = {
   year: string
 }
 
+export type AICustomSchema = {
+  layoutType: 'one-column' | 'two-column-left' | 'two-column-right'
+  theme: {
+    primaryColor: string
+    secondaryColor: string
+    backgroundColor: string
+    textColor: string
+    fontFamily: string
+    headingStyle: string
+    headingColor: string
+  }
+  structure: {
+    header: {
+      alignment: 'left' | 'center' | 'right'
+      hasBackground: boolean
+      showProfileImage: boolean
+      profileImageShape: 'circle' | 'square' | 'rounded'
+    }
+    sidebarStyle?: 'transparent' | 'fill' | 'border'
+    mainColumn: string[]
+    sideColumn: string[]
+  }
+  decorations: {
+    sectionDivider: 'none' | 'solid' | 'dashed'
+    itemStyle?: 'default' | 'card' | 'line-left'
+  }
+}
+
 export type ResumeData = {
   name: string
   surname: string
@@ -54,6 +82,11 @@ export type ResumeData = {
   experienceLevel: string
   resumeLanguage: string
   educationLevel: string
+  fontFamily: string
+  fontSize: string
+  lineHeight: string
+  headingStyle: string
+  aiTemplateSchema?: AICustomSchema
 }
 
 /* ===== 2. State ของ Resume Builder ===== */
@@ -72,7 +105,10 @@ type ResumeState = {
   addSkill: (skill: string) => void
   removeSkill: (skill: string) => void
   setTemplate: (template: string, color: string) => void
+  setAiSchema: (schema: AICustomSchema) => void
   setResumeData: (data: ResumeData) => void
+  setLanguage: (lang: 'th' | 'en') => void
+  updateCustomization: (customization: Partial<ResumeData>) => void
 }
 
 /* ===== 3. Zustand Store ===== */
@@ -99,7 +135,11 @@ export const useResumeStore = create<ResumeState>((set) => ({
     themeColor: '#437393',
     experienceLevel: '',
     resumeLanguage: '',
-    educationLevel: ''
+    educationLevel: '',
+    fontFamily: "'Prompt', sans-serif",
+    fontSize: 'text-sm',
+    lineHeight: 'leading-relaxed',
+    headingStyle: 'uppercase'
   },
 
   next: () =>
@@ -169,5 +209,30 @@ export const useResumeStore = create<ResumeState>((set) => ({
       }
     })),
 
-  setResumeData: (data) => set({ data })
+  setAiSchema: (schema) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        aiTemplateSchema: schema,
+        selectedTemplate: 'ai-custom'
+      }
+    })),
+
+  setResumeData: (data) => set({ data }),
+
+  setLanguage: (lang: 'th' | 'en') =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        resumeLanguage: lang
+      }
+    })),
+
+  updateCustomization: (customization: Partial<ResumeData>) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        ...customization
+      }
+    }))
 }))

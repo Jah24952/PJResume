@@ -5,6 +5,8 @@ export const TEMPLATES = [
         name: 'Modern Blue',
         style: 'modern',
         color: '#437393',
+        tags: ["Modern UI"],
+        atsScore: 85,
         categories: {
             language: ['ภาษาอังกฤษ', 'ภาษาไทย'],
             type: ['จบใหม่ / นักศึกษา', 'คนมีประสบการณ์'],
@@ -19,6 +21,8 @@ export const TEMPLATES = [
         name: 'Classic Elegance',
         style: 'classic',
         color: '#333333',
+        tags: ["ATS-Friendly","Corporate"],
+        atsScore: 95,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์'],
@@ -33,6 +37,8 @@ export const TEMPLATES = [
         name: 'Creative Teal',
         style: 'creative',
         color: '#2dd4bf',
+        tags: ["Creative Design"],
+        atsScore: 70,
         categories: {
             language: ['ภาษาอังกฤษ', 'ภาษาไทย'],
             type: ['จบใหม่ / นักศึกษา'],
@@ -47,6 +53,8 @@ export const TEMPLATES = [
         name: 'Professional Gray',
         style: 'professional',
         color: '#94a3b8',
+        tags: ["ATS-Friendly","Corporate"],
+        atsScore: 95,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์'],
@@ -61,6 +69,8 @@ export const TEMPLATES = [
         name: 'Modern Orange',
         style: 'modern',
         color: '#f97316',
+        tags: ["Modern UI"],
+        atsScore: 85,
         categories: {
             language: ['ภาษาไทย'],
             type: ['จบใหม่ / นักศึกษา'],
@@ -75,6 +85,8 @@ export const TEMPLATES = [
         name: 'Creative Purple',
         style: 'creative',
         color: '#a855f7',
+        tags: ["Creative Design"],
+        atsScore: 70,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['จบใหม่ / นักศึกษา', 'คนมีประสบการณ์'],
@@ -89,6 +101,8 @@ export const TEMPLATES = [
         name: 'Classic Minimal',
         style: 'classic',
         color: '#000000',
+        tags: ["ATS-Friendly","Corporate"],
+        atsScore: 95,
         categories: {
             language: ['ภาษาอังกฤษ', 'ภาษาไทย'],
             type: ['คนมีประสบการณ์', 'จบใหม่ / นักศึกษา'],
@@ -103,6 +117,8 @@ export const TEMPLATES = [
         name: 'Professional Blue',
         style: 'professional',
         color: '#3b82f6',
+        tags: ["ATS-Friendly","Corporate"],
+        atsScore: 95,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์'],
@@ -118,6 +134,8 @@ export const TEMPLATES = [
         name: 'Tech Lead',
         style: 'modern',
         color: '#334155', // Slate 700
+        tags: ["Modern UI"],
+        atsScore: 85,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์'],
@@ -132,6 +150,8 @@ export const TEMPLATES = [
         name: 'UX Designer',
         style: 'creative',
         color: '#ec4899', // Pink 500
+        tags: ["Creative Design"],
+        atsScore: 70,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['จบใหม่ / นักศึกษา', 'คนมีประสบการณ์'],
@@ -146,6 +166,8 @@ export const TEMPLATES = [
         name: 'Marketing Pro',
         style: 'modern',
         color: '#ef4444', // Red 500
+        tags: ["Modern UI"],
+        atsScore: 85,
         categories: {
             language: ['ภาษาไทย', 'ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์'],
@@ -160,6 +182,8 @@ export const TEMPLATES = [
         name: 'Finance Analyst',
         style: 'professional',
         color: '#10b981', // Emerald 500
+        tags: ["ATS-Friendly","Corporate"],
+        atsScore: 95,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['จบใหม่ / นักศึกษา', 'คนมีประสบการณ์'],
@@ -174,6 +198,8 @@ export const TEMPLATES = [
         name: 'HR Manager',
         style: 'professional',
         color: '#7e22ce', // Purple 700
+        tags: ["ATS-Friendly","Corporate"],
+        atsScore: 95,
         categories: {
             language: ['ภาษาไทย', 'ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์'],
@@ -188,6 +214,8 @@ export const TEMPLATES = [
         name: 'Academic Scholar',
         style: 'classic',
         color: '#991b1b', // Red 800
+        tags: ["ATS-Friendly","Corporate"],
+        atsScore: 95,
         categories: {
             language: ['ภาษาอังกฤษ', 'ภาษาไทย'],
             type: ['คนมีประสบการณ์'],
@@ -202,6 +230,8 @@ export const TEMPLATES = [
         name: 'Industrial Engineer',
         style: 'modern',
         color: '#64748b', // Slate 500
+        tags: ["Modern UI"],
+        atsScore: 85,
         categories: {
             language: ['ภาษาไทย', 'ภาษาอังกฤษ'],
             type: ['จบใหม่ / นักศึกษา', 'คนมีประสบการณ์'],
@@ -216,6 +246,8 @@ export const TEMPLATES = [
         name: 'Government Officer',
         style: 'classic',
         color: '#4b5563', // Gray 600
+        tags: ["ATS-Friendly","Corporate"],
+        atsScore: 95,
         categories: {
             language: ['ภาษาไทย'],
             type: ['คนมีประสบการณ์'],
@@ -230,6 +262,8 @@ export const TEMPLATES = [
         name: 'Business Startup',
         style: 'modern',
         color: '#8b5cf6', // Violet 500
+        tags: ["Modern UI"],
+        atsScore: 85,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์'],
@@ -245,6 +279,8 @@ export const TEMPLATES = [
         name: 'Wanida (Sales)',
         style: 'soft-block',
         color: '#fb923c', // Orange
+        tags: ["Modern UI"],
+        atsScore: 70,
         categories: {
             language: ['ภาษาไทย'],
             type: ['คนมีประสบการณ์', 'จบใหม่ / นักศึกษา'],
@@ -259,6 +295,8 @@ export const TEMPLATES = [
         name: 'Claudia (Creative)',
         style: 'creative-curve',
         color: '#a855f7', // Purple
+        tags: ["Creative Design"],
+        atsScore: 70,
         categories: {
             language: ['ภาษาอังกฤษ', 'ภาษาไทย'],
             type: ['จบใหม่ / นักศึกษา', 'คนมีประสบการณ์'],
@@ -273,6 +311,8 @@ export const TEMPLATES = [
         name: 'Connor (Tech)',
         style: 'tech-dark',
         color: '#000000', // Black
+        tags: ["Dark Mode","Developer"],
+        atsScore: 70,
         categories: {
             language: ['ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์', 'จบใหม่ / นักศึกษา'],
@@ -287,6 +327,8 @@ export const TEMPLATES = [
         name: 'Olivia (Engineer)',
         style: 'modern-curve',
         color: '#f97316', // Orange Red
+        tags: ["Modern UI"],
+        atsScore: 85,
         categories: {
             language: ['ภาษาไทย', 'ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์'],
@@ -301,6 +343,8 @@ export const TEMPLATES = [
         name: 'Olivia (Healthcare)',
         style: 'professional-box',
         color: '#3b82f6', // Blue
+        tags: ["Corporate"],
+        atsScore: 70,
         categories: {
             language: ['ภาษาไทย', 'ภาษาอังกฤษ'],
             type: ['คนมีประสบการณ์', 'จบใหม่ / นักศึกษา'],

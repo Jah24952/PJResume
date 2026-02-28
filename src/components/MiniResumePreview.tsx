@@ -5,6 +5,10 @@ type TemplateStyle = 'modern' | 'classic' | 'creative' | 'professional' | 'soft-
 interface MiniResumePreviewProps {
     style: TemplateStyle
     color: string
+    fontFamily?: string
+    fontSize?: string
+    lineHeight?: string
+    headingStyle?: string
 }
 
 export default function MiniResumePreview({ style, color }: MiniResumePreviewProps) {

@@ -1,9 +1,10 @@
 'use client'
 import { generateSummary, rewriteText, translateText } from '@/lib/ai'
 import { useResumeStore } from '@/store/resume.store'
-import { useAuthStore } from '@/store/auth.store' // Add this
-import { useRouter } from 'next/navigation' // Add this
+import { useAuthStore } from '@/store/auth.store'
+import { useRouter } from 'next/navigation'
 import ResumePreview from '@/components/ResumePreview'
+import { t } from '@/lib/i18n'
 import { analyzeATS, saveResume, fetchResumeById } from '@/lib/api'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -118,8 +119,9 @@ export default function ResumeCreatePage() {
                 endDate: e.end_year
               })) || [],
               skills: r.skills?.map((s: any) => s.skill_name) || [],
-              selectedTemplate: 'modern',
-              themeColor: '#437393'
+              // Fix Template Loading
+              selectedTemplate: TEMPLATES.find(t => t.id === r.selected_template_id)?.style || 'modern',
+              themeColor: TEMPLATES.find(t => t.id === r.selected_template_id)?.color || '#437393',
             }
 
             setResumeData(mappedData)
@@ -159,6 +161,8 @@ export default function ResumeCreatePage() {
       // Transform Data for Backend (POST /resume)
       const payload = {
         user_id: user?.id,
+        // Add selected_template_id
+        selected_template_id: TEMPLATES.find(t => t.style === data.selectedTemplate && t.color === data.themeColor)?.id || 1,
         resume_title: `Resume - ${new Date().toLocaleDateString('th-TH')}`,
         language: aiLanguage,
         name: data.name,
@@ -255,7 +259,7 @@ export default function ResumeCreatePage() {
       }
     } catch (e) {
       console.error(e)
-      alert('Rewrite Failed')
+      alert(t('action.rewrite', data.resumeLanguage as 'en' | 'th') + ' Failed')
     }
   }
 
@@ -321,13 +325,13 @@ export default function ResumeCreatePage() {
 
   // --- Sidebar Menu Items ---
   const menuItems: { id: SectionType; label: string; icon: any }[] = [
-    { id: 'contact', label: 'ข้อมูลการติดต่อ', icon: User },
-    { id: 'experience', label: 'ประสบการณ์', icon: Briefcase },
-    { id: 'education', label: 'การศึกษา', icon: GraduationCap },
-    { id: 'skills', label: 'ทักษะ', icon: CheckSquare },
-    { id: 'languages', label: 'ภาษา', icon: Globe },
-    { id: 'summary', label: 'สรุป', icon: FileText },
-    { id: 'certifications', label: 'การรับรองและหลักสูตร', icon: Award },
+    { id: 'contact', label: t('section.contact', data.resumeLanguage as 'en' | 'th'), icon: User },
+    { id: 'experience', label: t('section.experience', data.resumeLanguage as 'en' | 'th'), icon: Briefcase },
+    { id: 'education', label: t('section.education', data.resumeLanguage as 'en' | 'th'), icon: GraduationCap },
+    { id: 'skills', label: t('section.skills', data.resumeLanguage as 'en' | 'th'), icon: CheckSquare },
+    { id: 'languages', label: t('section.languages', data.resumeLanguage as 'en' | 'th'), icon: Globe },
+    { id: 'summary', label: t('section.summary', data.resumeLanguage as 'en' | 'th'), icon: FileText },
+    { id: 'certifications', label: t('section.certifications', data.resumeLanguage as 'en' | 'th'), icon: Award },
   ]
 
   return (
@@ -335,7 +339,7 @@ export default function ResumeCreatePage() {
       {/* Top Bar */}
       <header className="h-[60px] bg-[#9CC5DF] px-6 flex items-center justify-between shadow-sm relative z-20">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="text-[#437393] hover:text-[#2c4f6d] transition-colors" title="Back to Dashboard">
+          <Link href="/dashboard" className="text-[#437393] hover:text-[#2c4f6d] transition-colors" title={t('nav.back.dashboard', data.resumeLanguage as 'en' | 'th')}>
             <ArrowLeft size={24} />
           </Link>
           <Link href="/" className="text-2xl font-serif text-[#437393] font-bold">
@@ -349,13 +353,31 @@ export default function ResumeCreatePage() {
           </div>
         )}
 
-        {/* Download Bar */}
-        <button
-          onClick={exportPDF}
-          className="bg-white/80 px-4 py-2 rounded-full flex items-center gap-2 text-[#437393] font-medium hover:bg-white transition-colors"
-        >
-          <FileDown size={18} className="text-red-500" /> ดาวน์โหลด PDF
-        </button>
+        <div className="flex items-center gap-4">
+          {/* Language Switcher */}
+          <div className="flex bg-white/50 rounded-lg p-1">
+            <button
+              onClick={() => useResumeStore.getState().setLanguage('th')}
+              className={`px-3 py-1 text-sm font-bold rounded-md transition-colors ${data.resumeLanguage === 'th' ? 'bg-[#437393] text-white shadow' : 'text-[#437393] hover:bg-white/70'}`}
+            >
+              TH
+            </button>
+            <button
+              onClick={() => useResumeStore.getState().setLanguage('en')}
+              className={`px-3 py-1 text-sm font-bold rounded-md transition-colors ${data.resumeLanguage === 'en' ? 'bg-[#437393] text-white shadow' : 'text-[#437393] hover:bg-white/70'}`}
+            >
+              EN
+            </button>
+          </div>
+
+          {/* Download Bar */}
+          <button
+            onClick={exportPDF}
+            className="bg-white/80 px-4 py-2 rounded-full flex items-center gap-2 text-[#437393] font-medium hover:bg-white transition-colors cursor-pointer"
+          >
+            <FileDown size={18} className="text-red-500" /> {t('nav.download.pdf', data.resumeLanguage as 'en' | 'th')}
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -385,7 +407,7 @@ export default function ResumeCreatePage() {
           {/* Color / Template Preview (Placeholder) */}
           <div className="mt-auto p-4 space-y-4">
             <Link href="/resume/templates" className="block w-full text-center py-2 border border-[#437393] text-[#437393] rounded hover:bg-blue-50 text-sm font-bold">
-              เปลี่ยนเทมเพลต
+              {t('nav.change.template', data.resumeLanguage as 'en' | 'th')}
             </Link>
           </div>
         </aside>
@@ -398,7 +420,7 @@ export default function ResumeCreatePage() {
                 {menuItems.find(m => m.id === activeSection)?.label}
               </h1>
               <button onClick={handleSave} disabled={isSaving} className="text-[#437393] border border-[#437393] px-4 py-2 rounded hover:bg-blue-50 text-sm">
-                {isSaving ? 'Saving...' : 'Save Data'}
+                {isSaving ? t('nav.saving', data.resumeLanguage as 'en' | 'th') : t('nav.save', data.resumeLanguage as 'en' | 'th')}
               </button>
             </div>
 
@@ -409,8 +431,8 @@ export default function ResumeCreatePage() {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="grid grid-cols-[1fr_auto] gap-6">
                   <div className="space-y-4">
-                    <div><label className="text-sm text-gray-500">ชื่อจริง</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.name} onChange={e => update('name', e.target.value)} placeholder="ชื่อ" /></div>
-                    <div><label className="text-sm text-gray-500">นามสกุล</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.surname} onChange={e => update('surname', e.target.value)} placeholder="นามสกุล" /></div>
+                    <div><label className="text-sm text-gray-500">{t('field.firstName', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.name} onChange={e => update('name', e.target.value)} placeholder={t('field.firstName', data.resumeLanguage as 'en' | 'th')} /></div>
+                    <div><label className="text-sm text-gray-500">{t('field.lastName', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.surname} onChange={e => update('surname', e.target.value)} placeholder={t('field.lastName', data.resumeLanguage as 'en' | 'th')} /></div>
                   </div>
 
                   {/* Profile Image */}
@@ -450,15 +472,15 @@ export default function ResumeCreatePage() {
                     )}
                   </div>
                 </div>
-                <div><label className="text-sm text-gray-500">อาชีพ</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.jobTitle} onChange={e => update('jobTitle', e.target.value)} placeholder="อาชีพของคุณ" /></div>
-                <div><label className="text-sm text-gray-500">ที่อยู่</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.address} onChange={e => update('address', e.target.value)} placeholder="ที่อยู่" /></div>
+                <div><label className="text-sm text-gray-500">{t('field.jobTitle', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.jobTitle} onChange={e => update('jobTitle', e.target.value)} /></div>
+                <div><label className="text-sm text-gray-500">{t('field.address', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.address} onChange={e => update('address', e.target.value)} /></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="text-sm text-gray-500">เบอร์โทรศัพท์</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.phone} onChange={e => update('phone', e.target.value)} placeholder="08x-xxx-xxxx" /></div>
-                  <div><label className="text-sm text-gray-500">อีเมล</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.email} onChange={e => update('email', e.target.value)} placeholder="email@example.com" /></div>
+                  <div><label className="text-sm text-gray-500">{t('field.phone', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.phone} onChange={e => update('phone', e.target.value)} placeholder="08x-xxx-xxxx" /></div>
+                  <div><label className="text-sm text-gray-500">{t('field.email', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.email} onChange={e => update('email', e.target.value)} placeholder="email@example.com" /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-gray-500">สัญชาติ</label>
+                    <label className="text-sm text-gray-500">{t('field.nationality', data.resumeLanguage as 'en' | 'th')}</label>
                     <select
                       className="w-full p-3 border rounded-lg bg-gray-50 text-black appearance-none mb-2"
                       value={PREDEFINED_NATIONALITIES.includes(data.nationality) ? data.nationality : 'Other'}
@@ -505,7 +527,7 @@ export default function ResumeCreatePage() {
                     )}
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">วันเกิด</label>
+                    <label className="text-sm text-gray-500">{t('field.birthDate', data.resumeLanguage as 'en' | 'th')}</label>
                     <input
                       type="date"
                       className="w-full p-3 border rounded-lg bg-gray-50 text-black"
@@ -514,7 +536,7 @@ export default function ResumeCreatePage() {
                     />
                   </div>
                 </div>
-                <div><label className="text-sm text-gray-500">ลิงค์โซเชียล</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.socialLink} onChange={e => update('socialLink', e.target.value)} placeholder="URL" /></div>
+                <div><label className="text-sm text-gray-500">{t('field.socialLink', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.socialLink} onChange={e => update('socialLink', e.target.value)} placeholder="URL" /></div>
               </div>
             )}
 
@@ -525,26 +547,26 @@ export default function ResumeCreatePage() {
                   <div key={exp.id} className="bg-white border rounded-lg p-6 relative shadow-sm group">
                     <button onClick={() => removeItem('experience', exp.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div><label className="text-sm text-gray-500">ตำแหน่ง</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.position} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
-                      <div><label className="text-sm text-gray-500">บริษัท</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.company} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Position' : 'ตำแหน่ง'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.position} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Company' : 'บริษัท'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.company} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
                     </div>
                     <div className="mb-4">
                       <label className="text-sm text-gray-500 flex justify-between items-center mb-1">
-                        รายละเอียด
+                        {data.resumeLanguage === 'en' ? 'Description' : 'รายละเอียด'}
                         <div className="flex gap-2">
-                          <button onClick={() => handleRewrite(exp.id, exp.description)} className="text-xs text-[#437393] hover:underline flex items-center gap-1">✨ Rewrite</button>
-                          <button onClick={() => handleTranslate(exp.description, (val) => updateItem('experience', exp.id, { ...exp, description: val }))} className="text-xs text-gray-500 hover:text-black flex items-center gap-1"><Globe size={12} /> Translate</button>
+                          <button onClick={() => handleRewrite(exp.id, exp.description)} className="text-xs text-[#437393] hover:underline flex items-center gap-1">✨ {t('action.rewrite', data.resumeLanguage as 'en' | 'th')}</button>
+                          <button onClick={() => handleTranslate(exp.description, (val) => updateItem('experience', exp.id, { ...exp, description: val }))} className="text-xs text-gray-500 hover:text-black flex items-center gap-1"><Globe size={12} /> {t('action.translate', data.resumeLanguage as 'en' | 'th')}</button>
                         </div>
                       </label>
                       <textarea className="w-full p-2 border rounded bg-gray-50 h-24 text-black" value={exp.description} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-xs text-gray-500 block mb-1">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.startDate} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
-                      <div><label className="text-xs text-gray-500 block mb-1">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
+                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'Start Date' : 'เริ่ม'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.startDate} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
+                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
                     </div>
                   </div>
                 ))}
-                <button onClick={handleAddExperience} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">+ เพิ่มประสบการณ์</button>
+                <button onClick={handleAddExperience} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">{t('action.add.experience', data.resumeLanguage as 'en' | 'th')}</button>
               </div>
             )}
 
@@ -556,33 +578,49 @@ export default function ResumeCreatePage() {
                     <button onClick={() => removeItem('education', edu.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
-                        <label className="text-sm text-gray-500">วุฒิการศึกษา</label>
+                        <label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'วุฒิการศึกษา' : 'Degree'}</label>
                         <select
                           className="w-full p-2 border rounded bg-gray-50 text-black h-[42px]"
                           value={edu.degree}
                           onChange={e => updateItem('education', edu.id, { ...edu, degree: e.target.value })}
                         >
-                          <option value="">-- เลือกวุฒิการศึกษา --</option>
-                          <option value="ไม่มีวุฒิการศึกษา">ไม่มีวุฒิการศึกษา</option>
-                          <option value="ประถมศึกษา">ประถมศึกษา</option>
-                          <option value="มัธยมศึกษาตอนต้น (ม.3)">มัธยมศึกษาตอนต้น (ม.3)</option>
-                          <option value="มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)">มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)</option>
-                          <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
-                          <option value="ปริญญาตรี">ปริญญาตรี</option>
-                          <option value="ปริญญาโท">ปริญญาโท</option>
-                          <option value="ปริญญาเอก">ปริญญาเอก</option>
+                          {data.resumeLanguage === 'th' ? (
+                            <>
+                              <option value="">-- เลือกวุฒิการศึกษา --</option>
+                              <option value="ไม่มีวุฒิการศึกษา">ไม่มีวุฒิการศึกษา</option>
+                              <option value="ประถมศึกษา">ประถมศึกษา</option>
+                              <option value="มัธยมศึกษาตอนต้น (ม.3)">มัธยมศึกษาตอนต้น (ม.3)</option>
+                              <option value="มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)">มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)</option>
+                              <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
+                              <option value="ปริญญาตรี">ปริญญาตรี</option>
+                              <option value="ปริญญาโท">ปริญญาโท</option>
+                              <option value="ปริญญาเอก">ปริญญาเอก</option>
+                            </>
+                          ) : (
+                            <>
+                              <option value="">-- Select Degree --</option>
+                              <option value="None">None</option>
+                              <option value="Primary School">Primary School</option>
+                              <option value="Middle School">Middle School</option>
+                              <option value="High School">High School</option>
+                              <option value="Associate Degree">Associate Degree</option>
+                              <option value="Bachelor's Degree">Bachelor's Degree</option>
+                              <option value="Master's Degree">Master's Degree</option>
+                              <option value="Doctorate">Doctorate</option>
+                            </>
+                          )}
                         </select>
                       </div>
-                      <div><label className="text-sm text-gray-500">คณะ / สาขาวิชา</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.fieldOfStudy || ''} onChange={e => updateItem('education', edu.id, { ...edu, fieldOfStudy: e.target.value })} placeholder="เช่น วิศวกรรมศาสตร์" /></div>
-                      <div><label className="text-sm text-gray-500">สถานศึกษา</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.school} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'คณะ / สาขาวิชา' : 'Field of Study'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.fieldOfStudy || ''} onChange={e => updateItem('education', edu.id, { ...edu, fieldOfStudy: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สถานศึกษา' : 'School/University'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.school} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-sm text-gray-500">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
-                      <div><label className="text-sm text-gray-500">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
                     </div>
                   </div>
                 ))}
-                <button onClick={handleAddEducation} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">+ เพิ่มการศึกษา</button>
+                <button onClick={handleAddEducation} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">{t('action.add.education', data.resumeLanguage as 'en' | 'th')}</button>
               </div>
             )}
 
@@ -598,8 +636,8 @@ export default function ResumeCreatePage() {
                     ))}
                   </div>
                   <div className="flex gap-2">
-                    <input className="flex-1 p-2 border rounded bg-gray-50 text-black" placeholder="เพิ่มทักษะ..." value={newSkill} onChange={e => setNewSkill(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSkill()} />
-                    <button onClick={handleAddSkill} className="bg-[#9CC5DF] text-white px-4 py-2 rounded">เพิ่ม</button>
+                    <input className="flex-1 p-2 border rounded bg-gray-50 text-black" value={newSkill} onChange={e => setNewSkill(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSkill()} />
+                    <button onClick={handleAddSkill} className="bg-[#9CC5DF] text-white px-4 py-2 rounded">{t('action.add', data.resumeLanguage as 'en' | 'th')}</button>
                   </div>
                 </div>
               </div>
@@ -612,11 +650,11 @@ export default function ResumeCreatePage() {
                   <div key={lang.id} className="bg-white border rounded-lg p-4 flex gap-4 items-center relative group">
                     <button onClick={() => removeItem('languages', lang.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="flex-1">
-                      <label className="text-sm text-gray-500">ภาษา</label>
+                      <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Language' : 'ภาษา'}</label>
                       <input className="w-full p-2 border rounded bg-gray-50 text-black" value={lang.language} onChange={e => updateItem('languages', lang.id, { ...lang, language: e.target.value })} placeholder="English" />
                     </div>
                     <div className="w-1/3">
-                      <label className="text-sm text-gray-500">ระดับ</label>
+                      <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Level' : 'ระดับ'}</label>
                       <select className="w-full p-2 border rounded bg-gray-50 text-black" value={lang.level} onChange={e => updateItem('languages', lang.id, { ...lang, level: e.target.value })}>
                         <option value="Native">Native</option>
                         <option value="Fluent">Fluent</option>
@@ -626,7 +664,7 @@ export default function ResumeCreatePage() {
                     </div>
                   </div>
                 ))}
-                <button onClick={handleAddLanguage} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">+ เพิ่มภาษา</button>
+                <button onClick={handleAddLanguage} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">{t('action.add.language', data.resumeLanguage as 'en' | 'th')}</button>
               </div>
             )}
 
@@ -662,13 +700,13 @@ export default function ResumeCreatePage() {
                   </div>
                 </div>
 
-                <textarea className="w-full h-64 p-4 border rounded-lg bg-gray-50 text-black" placeholder="เขียนสรุปเกี่ยวกับตัวคุณ..." value={data.summary} onChange={e => update('summary', e.target.value)} />
+                <textarea className="w-full h-64 p-4 border rounded-lg bg-gray-50 text-black" placeholder={t('placeholder.summary', data.resumeLanguage as 'en' | 'th')} value={data.summary} onChange={e => update('summary', e.target.value)} />
                 <div className="flex gap-2">
                   <button onClick={generateAISummary} className="flex-1 text-[#437393] border border-[#437393] px-4 py-2 rounded hover:bg-blue-50 flex justify-center gap-2 items-center font-medium">
                     ✨ Generate Summary
                   </button>
                   <button onClick={() => handleTranslate(data.summary, (val) => update('summary', val))} className="text-gray-600 border px-4 py-2 rounded hover:bg-gray-100 flex items-center gap-2">
-                    <Globe size={18} /> Translate
+                    <Globe size={18} /> {t('action.translate', data.resumeLanguage as 'en' | 'th')}
                   </button>
                 </div>
               </div>
@@ -681,16 +719,16 @@ export default function ResumeCreatePage() {
                   <div key={cert.id} className="bg-white border rounded-lg p-4 flex gap-4 items-center relative group">
                     <button onClick={() => removeItem('certifications', cert.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="flex-1">
-                      <label className="text-sm text-gray-500">ชื่อใบรับรอง / หลักสูตร</label>
+                      <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Certification Name' : 'ชื่อใบรับรอง / หลักสูตร'}</label>
                       <input className="w-full p-2 border rounded bg-gray-50 text-black" value={cert.name} onChange={e => updateItem('certifications', cert.id, { ...cert, name: e.target.value })} />
                     </div>
                     <div className="w-1/3">
-                      <label className="text-sm text-gray-500">ปีที่ได้รับ</label>
+                      <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Year' : 'ปีที่ได้รับ'}</label>
                       <input className="w-full p-2 border rounded bg-gray-50 text-black" value={cert.year} onChange={e => updateItem('certifications', cert.id, { ...cert, year: e.target.value })} placeholder="YYYY" />
                     </div>
                   </div>
                 ))}
-                <button onClick={handleAddCertification} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">+ เพิ่มการรับรอง</button>
+                <button onClick={handleAddCertification} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">{t('action.add.certification', data.resumeLanguage as 'en' | 'th')}</button>
               </div>
             )}
 

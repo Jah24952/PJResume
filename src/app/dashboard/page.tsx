@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/auth.store'
 import { useRouter } from 'next/navigation'
-import { fetchResumes, changePassword } from '@/lib/api'
-import { FileText, Plus, Edit, Trash2, Download, LogOut, ArrowLeft, Settings, User } from 'lucide-react'
+import { fetchResumes, changePassword, deleteResume } from '@/lib/api'
+import { FileText, Plus, Edit, Trash2, Download, LogOut, ArrowLeft, Settings, User, Search } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
@@ -12,6 +12,10 @@ export default function DashboardPage() {
     const [resumes, setResumes] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState<'resumes' | 'settings'>('resumes')
+
+    // Search and Pagination State
+    const [searchQuery, setSearchQuery] = useState('')
+    const [visibleCount, setVisibleCount] = useState(3)
 
     // Password Change State
     const [passForm, setPassForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' })
@@ -92,6 +96,35 @@ export default function DashboardPage() {
         }
     }
 
+    const handleDelete = async (resumeId: number) => {
+        if (!confirm('Are you sure you want to delete this resume? This action cannot be undone.')) return
+
+        try {
+            const res = await deleteResume(resumeId)
+            if (res.success) {
+                // Remove from state
+                setResumes(prev => prev.filter(r => r.resume_id !== resumeId))
+            } else {
+                alert('Failed to delete resume: ' + res.error)
+            }
+        } catch (err) {
+            alert('Failed to delete resume')
+            console.error(err)
+        }
+    }
+
+    // Filter resumes based on search query
+    const filteredResumes = resumes.filter(resume =>
+        (resume.resume_title || 'Untitled Resume').toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+    // Sliced resumes for display
+    const displayedResumes = filteredResumes.slice(0, visibleCount)
+
+    const handleLoadMore = () => {
+        setVisibleCount(prev => prev + 3)
+    }
+
     if (loading) return <div className="min-h-screen flex items-center justify-center text-[#437393]">Loading...</div>
 
     return (
@@ -142,88 +175,128 @@ export default function DashboardPage() {
                 {/* Tab Content: Resumes */}
                 {activeTab === 'resumes' && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                        <div className="flex justify-end mb-6">
+                        <div className="flex flex-col md:flex-row justify-between mb-6 gap-4">
+                            {/* Search Bar */}
+                            <div className="relative flex-1 max-w-md">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Search size={18} className="text-gray-500" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="ค้นหาชื่อเรซูเม่..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all text-gray-800 placeholder-gray-500 font-medium"
+                                />
+                            </div>
+
                             <Link
                                 href="/resume/select-mode"
-                                className="bg-[#437393] text-white px-6 py-2 rounded-full flex items-center gap-2 hover:bg-[#355b74] transition-colors shadow-md transform hover:scale-105"
+                                className="bg-[#437393] text-white px-6 py-2 rounded-xl flex items-center justify-center gap-2 hover:bg-[#355b74] transition-colors shadow-sm whitespace-nowrap"
                             >
-                                <Plus size={20} /> Create New Resume
+                                <Plus size={18} /> สร้างเรซูเม่ใหม่
                             </Link>
                         </div>
 
-                        {resumes.length === 0 ? (
+                        {filteredResumes.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border-dashed border-2 border-gray-200 text-center">
-                                <FileText size={64} className="text-gray-200 mb-4" />
-                                <h3 className="text-xl font-medium text-gray-600 mb-2">No resumes yet</h3>
-                                <p className="text-gray-400 mb-6">Create your first professional resume today.</p>
-                                <Link href="/resume/select-mode" className="text-[#437393] font-bold hover:underline">
-                                    Get Started &rarr;
-                                </Link>
+                                <FileText size={48} className="text-gray-300 mb-4" />
+                                <h3 className="text-lg font-medium text-gray-600 mb-2">
+                                    {searchQuery ? 'ไม่พบเรซูเม่ที่ค้นหา' : 'ยังไม่มีเรซูเม่'}
+                                </h3>
+                                {!searchQuery && (
+                                    <Link href="/resume/select-mode" className="text-[#437393] font-bold hover:underline mt-2">
+                                        เริ่มสร้างเรซูเม่ &rarr;
+                                    </Link>
+                                )}
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {resumes.map((resume) => {
-                                    const completeness = calculateCompleteness(resume)
-                                    return (
-                                        <div key={resume.resume_id} className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all group overflow-hidden flex flex-col">
-                                            <div className="h-40 bg-gray-100 flex items-center justify-center relative">
-                                                <div className="absolute top-2 right-2 bg-white/80 backdrop-blur px-2 py-1 rounded text-xs font-semibold text-gray-600 shadow-sm z-10">
-                                                    {resume.language?.toUpperCase() || 'EN'}
+                            <>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {displayedResumes.map((resume) => {
+                                        const completeness = calculateCompleteness(resume)
+                                        return (
+                                            <div key={resume.resume_id} className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all flex flex-col relative overflow-hidden">
+
+                                                {/* Delete Button (Top Right) */}
+                                                <button
+                                                    onClick={() => handleDelete(resume.resume_id)}
+                                                    className="absolute top-3 right-3 z-10 p-2 text-red-500 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+                                                    title="ลบประวัติ"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+
+                                                {/* Card Header (Icon Area) */}
+                                                <div className="h-32 bg-gray-50 flex items-center justify-center relative border-b border-gray-100">
+                                                    <div className="absolute top-3 left-3 bg-white px-2 py-1 rounded text-xs font-semibold text-gray-500 shadow-sm border border-gray-100">
+                                                        {resume.language?.toUpperCase() || 'EN'}
+                                                    </div>
+                                                    <FileText size={40} className="text-gray-300" />
                                                 </div>
-                                                <FileText size={48} className="text-gray-300" />
-                                                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                    <Link
-                                                        href={`/resume/create?id=${resume.resume_id}`}
-                                                        className="bg-white p-2 rounded-full text-gray-700 hover:text-[#437393] shadow-sm transform hover:scale-110 transition-transform"
-                                                        title="Edit"
-                                                    >
-                                                        <Edit size={18} />
-                                                    </Link>
-                                                    <button className="bg-white p-2 rounded-full text-gray-700 hover:text-green-600 shadow-sm transform hover:scale-110 transition-transform" title="Download PDF">
-                                                        <Download size={18} />
-                                                    </button>
+
+                                                {/* Card Body */}
+                                                <div className="p-5 flex-1 flex flex-col">
+                                                    <h3 className="font-bold text-gray-800 text-lg mb-2 truncate pr-10">{resume.resume_title || 'Untitled Resume'}</h3>
+
+                                                    <div className="mt-1 mb-5 space-y-2">
+                                                        <div className="flex justify-between text-xs text-gray-500">
+                                                            <span>สร้างเมื่อ:</span>
+                                                            <span>{new Date(resume.created_at || Date.now()).toLocaleDateString('th-TH')}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-xs text-gray-500">
+                                                            <span>แก้ไขล่าสุด:</span>
+                                                            <span>{new Date(resume.updated_at).toLocaleDateString('th-TH')}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-auto mb-5">
+                                                        <div className="flex justify-between items-center mb-1.5">
+                                                            <span className="text-xs font-semibold text-gray-600">ความสมบูรณ์</span>
+                                                            <span className={`text-xs font-bold ${completeness === 100 ? 'text-green-600' : 'text-[#437393]'}`}>
+                                                                {completeness}%
+                                                            </span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                                            <div
+                                                                className={`h-1.5 rounded-full transition-all duration-500 ${completeness === 100 ? 'bg-green-500' : 'bg-[#437393]'}`}
+                                                                style={{ width: `${completeness}%` }}
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Primary Actions */}
+                                                    <div className="grid grid-cols-2 gap-3 mt-2">
+                                                        <Link
+                                                            href={`/resume/create?id=${resume.resume_id}`}
+                                                            className="flex items-center justify-center gap-1.5 py-2 px-3 bg-[#437393]/10 text-[#437393] hover:bg-[#437393]/20 rounded-lg text-sm font-semibold transition-colors"
+                                                        >
+                                                            <Edit size={16} /> แก้ไข
+                                                        </Link>
+                                                        <button
+                                                            className="flex items-center justify-center gap-1.5 py-2 px-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-semibold transition-colors"
+                                                        >
+                                                            <Download size={16} /> ดาวน์โหลด
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        )
+                                    })}
+                                </div>
 
-                                            <div className="p-5 flex-1 flex flex-col">
-                                                <h3 className="font-bold text-gray-800 text-lg mb-1 truncate">{resume.resume_title || 'Untitled Resume'}</h3>
-
-                                                <div className="mt-2 mb-4 space-y-1">
-                                                    <div className="flex justify-between text-xs text-gray-500">
-                                                        <span>Created:</span>
-                                                        <span>{new Date(resume.created_at || Date.now()).toLocaleDateString()}</span>
-                                                    </div>
-                                                    <div className="flex justify-between text-xs text-gray-500">
-                                                        <span>Updated:</span>
-                                                        <span>{new Date(resume.updated_at).toLocaleDateString()}</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-auto">
-                                                    <div className="flex justify-between items-center mb-1">
-                                                        <span className="text-xs font-semibold text-gray-600">Completeness</span>
-                                                        <span className={`text-xs font-bold ${completeness === 100 ? 'text-green-600' : 'text-[#437393]'}`}>
-                                                            {completeness}%
-                                                        </span>
-                                                    </div>
-                                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                                        <div
-                                                            className={`h-2 rounded-full transition-all duration-500 ${completeness === 100 ? 'bg-green-500' : 'bg-[#437393]'}`}
-                                                            style={{ width: `${completeness}%` }}
-                                                        ></div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex justify-end pt-4 mt-4 border-t border-gray-100">
-                                                    <button className="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
-                                                        <Trash2 size={14} /> Delete
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
+                                {/* Load More Button */}
+                                {filteredResumes.length > visibleCount && (
+                                    <div className="flex justify-center mt-8">
+                                        <button
+                                            onClick={handleLoadMore}
+                                            className="px-6 py-2.5 bg-white border border-gray-300 text-gray-600 font-medium rounded-full hover:bg-gray-50 transition-colors shadow-sm"
+                                        >
+                                            ดูเพิ่มเติม
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 )}
