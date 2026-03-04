@@ -33,31 +33,7 @@ export type Certification = {
 }
 
 export type AICustomSchema = {
-  layoutType: 'one-column' | 'two-column-left' | 'two-column-right'
-  theme: {
-    primaryColor: string
-    secondaryColor: string
-    backgroundColor: string
-    textColor: string
-    fontFamily: string
-    headingStyle: string
-    headingColor: string
-  }
-  structure: {
-    header: {
-      alignment: 'left' | 'center' | 'right'
-      hasBackground: boolean
-      showProfileImage: boolean
-      profileImageShape: 'circle' | 'square' | 'rounded'
-    }
-    sidebarStyle?: 'transparent' | 'fill' | 'border'
-    mainColumn: string[]
-    sideColumn: string[]
-  }
-  decorations: {
-    sectionDivider: 'none' | 'solid' | 'dashed'
-    itemStyle?: 'default' | 'card' | 'line-left'
-  }
+  html: string
 }
 
 export type ResumeData = {
@@ -205,7 +181,9 @@ export const useResumeStore = create<ResumeState>((set) => ({
       data: {
         ...state.data,
         selectedTemplate: template,
-        themeColor: color
+        themeColor: color,
+        // Preserve AI schema when staying on ai-custom; clear it when switching to a regular template
+        aiTemplateSchema: template === 'ai-custom' ? state.data.aiTemplateSchema : undefined
       }
     })),
 

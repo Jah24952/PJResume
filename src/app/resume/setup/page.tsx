@@ -43,8 +43,8 @@ export default function SetupPage() {
         update('resumeLanguage', selections.resumeLanguage)
         update('educationLevel', selections.educationLevel)
 
-        // Navigate to templates
-        router.push('/resume/templates')
+        // Navigate to the 5-step wizard
+        router.push('/resume/wizard')
     }
 
     const isComplete = selections.experienceLevel && selections.resumeLanguage && selections.educationLevel

@@ -31,7 +31,7 @@ export default function ResumeWizardPage() {
 
     const nextStep = () => {
         if (isLastStep) {
-            router.push(`/resume/create?template=${templateId}`)
+            router.push('/resume/templates')
         } else {
             setCurrentStep(prev => prev + 1)
             window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -314,7 +314,7 @@ export default function ResumeWizardPage() {
                     onClick={nextStep}
                     className="px-8 py-3 rounded-lg bg-[#437393] text-white hover:bg-[#365d75] font-bold transition-transform active:scale-95 shadow-lg flex items-center gap-2"
                 >
-                    {isLastStep ? 'เสร็จสิ้น & ไปที่หน้าหลัก' : 'ถัดไป'} {!isLastStep && <ArrowRight size={18} />}
+                    {isLastStep ? 'เลือกรูปแบบเทมเพลต' : 'ถัดไป'} {!isLastStep && <ArrowRight size={18} />}
                 </button>
             </div>
         </div>

@@ -8,7 +8,7 @@ import { t } from '@/lib/i18n'
 import { analyzeATS, saveResume, fetchResumeById } from '@/lib/api'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import {
@@ -36,6 +36,14 @@ type SectionType = 'contact' | 'experience' | 'education' | 'skills' | 'language
 
 
 export default function ResumeCreatePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResumeCreateContent />
+    </Suspense>
+  )
+}
+
+function ResumeCreateContent() {
   const previewRef = useRef<HTMLDivElement>(null)
 
   // FIXED: Added setTemplate to destructuring
@@ -147,6 +155,8 @@ export default function ResumeCreatePage() {
 
   useEffect(() => {
     if (templateId) {
+      // Skip lookup for ai-custom — schema is already stored via setAiSchema
+      if (templateId === 'ai-custom') return
       const t = TEMPLATES.find(t => t.id === Number(templateId))
       if (t) {
         setTemplate(t.style, t.color)
@@ -370,13 +380,22 @@ export default function ResumeCreatePage() {
             </button>
           </div>
 
-          {/* Download Bar */}
-          <button
-            onClick={exportPDF}
-            className="bg-white/80 px-4 py-2 rounded-full flex items-center gap-2 text-[#437393] font-medium hover:bg-white transition-colors cursor-pointer"
-          >
-            <FileDown size={18} className="text-red-500" /> {t('nav.download.pdf', data.resumeLanguage as 'en' | 'th')}
-          </button>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/resume/templates"
+              className="bg-[#437393] px-5 py-2 rounded-full flex items-center gap-2 text-white font-bold hover:bg-[#2c4f6d] transition-colors shadow-md"
+            >
+              <Layout size={18} /> เลือกเทมเพลต (Select Template)
+            </Link>
+
+            <button
+              onClick={exportPDF}
+              className="bg-white px-4 py-2 rounded-full flex items-center gap-2 text-[#437393] font-medium hover:bg-slate-50 transition-colors shadow-sm"
+            >
+              <FileDown size={18} className="text-red-500" /> {t('nav.download.pdf', data.resumeLanguage as 'en' | 'th')}
+            </button>
+          </div>
         </div>
       </header>
 

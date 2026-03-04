@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -221,7 +221,7 @@ export default function TemplateSelectionPage() {
                             lineHeight: customizedData.lineHeight,
                             headingStyle: customizedData.headingStyle
                         });
-                        router.push(`/resume/wizard?template=${customizedData.selectedTemplate}`);
+                        router.push(`/resume/create?template=${customizedData.selectedTemplate}`);
                     }}
                 />
             )}
@@ -232,7 +232,7 @@ export default function TemplateSelectionPage() {
                     onSuccess={(schema) => {
                         setShowAIModal(false);
                         setAiSchema(schema);
-                        router.push(`/resume/wizard?template=ai-custom`);
+                        router.push(`/resume/create?template=ai-custom`);
                     }}
                 />
             )}
@@ -426,128 +426,186 @@ function CustomizationModal({ template, onClose, onConfirm }: {
 }
 
 function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSuccess: (data: any) => void }) {
-    const [career, setCareer] = useState('')
-    const [companyType, setCompanyType] = useState('Corporate')
-    const [tone, setTone] = useState('Professional')
-    const [customPrompt, setCustomPrompt] = useState('')
+    const [selectedChips, setSelectedChips] = useState<string[]>([])
+    const [extraText, setExtraText] = useState('')
     const [loading, setLoading] = useState(false)
 
+    const QUICK_CHIPS = [
+        { emoji: '🎨', label: 'สีสดใส โดดเด่น' },
+        { emoji: '🖋️', label: 'มินิมอล เรียบหรู' },
+        { emoji: '💜', label: 'โทนสีม่วง' },
+        { emoji: '💙', label: 'โทนสีน้ำเงิน' },
+        { emoji: '🌸', label: 'สีชมพูพาสเทล' },
+        { emoji: '⚫', label: 'สีเข้ม ดูน่าเชื่อถือ' },
+        { emoji: '📊', label: '2 คอลัมน์ sidebar' },
+        { emoji: '🤩', label: 'Creative สายดีไซน์' },
+        { emoji: '💼', label: 'Professional สายธุรกิจ' },
+        { emoji: '💻', label: 'Techy สาย IT' },
+        { emoji: '🎓', label: 'นักศึกษา จบใหม่' },
+        { emoji: '🏛️', label: 'ราชการ / การศึกษา' },
+    ]
+
+    const toggleChip = (label: string) => {
+        setSelectedChips(prev =>
+            prev.includes(label) ? prev.filter(c => c !== label) : [...prev, label]
+        )
+    }
+
+    // Count: each chip = 1 item, typed text = 1 item
+    const itemCount = selectedChips.length + (extraText.trim() ? 1 : 0)
+    const MIN_ITEMS = 2
+    const canGenerate = itemCount >= MIN_ITEMS && !loading
+
+    const { data: resumeData } = useResumeStore()
+
     const handleGenerate = async () => {
-        if (!career) return alert('กรุณาระบุสายงาน หรือ ตำแหน่งที่คุณต้องการสมัคร')
+        if (itemCount < MIN_ITEMS) return
+
+        // Combine chips + extra text into one description for the AI
+        const parts = [...selectedChips]
+        if (extraText.trim()) parts.push(extraText.trim())
+        const userDescription = parts.join(', ')
 
         setLoading(true)
         try {
-            const res = await fetch('http://localhost:8787/ai/generate-custom-template', {
+            const res = await fetch('https://project-rs-ats.project-rs-ats.workers.dev/ai/generate-custom-template', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tone, career, companyType, language: 'th', customPrompt })
+                body: JSON.stringify({
+                    userDescription,
+                    language: 'th',
+                    resumeData
+                })
             })
             const data = await res.json()
-            if (data.success && data.schema) {
+            if (data.success && data.schema && Object.keys(data.schema).length > 0) {
                 onSuccess(data.schema)
             } else {
-                alert('เกิดข้อผิดพลาดในการดึงข้อมูลจาก AI ลองอีกครั้ง')
+                alert('AI ไม่สามารถสร้างเทมเพลตได้ในขณะนี้ ลองเลือกสไตล์ใหม่แล้วลองอีกครั้ง')
             }
         } catch (error) {
-            console.error('AI match error:', error)
-            alert('ไม่สามารถเชื่อมต่อ AI ได้ในขณะนี้')
+            console.error('AI generate error:', error)
+            alert('ไม่สามารถเชื่อมต่อ AI ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต')
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 animate-in zoom-in-95 relative border border-gray-100">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
+            <div
+                className="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative overflow-hidden flex flex-col max-h-[90vh]"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Gradient blobs */}
+                <div className="absolute -top-12 -right-12 w-52 h-52 bg-purple-400/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-12 -left-12 w-52 h-52 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none" />
 
-                {/* Decorative background */}
-                <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-t-3xl -z-10 blur-xl"></div>
+                <div className="p-8 pb-0 relative">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-5">
+                        <div>
+                            <h2 className="text-2xl font-bold flex items-center gap-2">
+                                <span>✨</span>
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-500">
+                                    AI ออกแบบเรซูเม่ให้คุณ
+                                </span>
+                            </h2>
+                            <p className="text-sm text-gray-400 mt-1">เลือกอย่างน้อย 2 อย่าง เพื่อให้ AI ออกแบบได้ตรงกับคุณที่สุด</p>
+                        </div>
+                        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 ml-4">✕</button>
+                    </div>
 
-                <div className="flex justify-between items-center mb-8 relative">
-                    <h2 className="text-2xl font-bold flex items-center gap-2">
-                        <span className="text-2xl">✨</span>
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
-                            AI Template Match
-                        </span>
-                    </h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
+                    {/* Progress Bar */}
+                    <div className="mb-5">
+                        <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-xs font-semibold text-gray-500">
+                                {itemCount === 0 ? 'ยังไม่ได้เลือก' : `เลือกแล้ว ${itemCount} อย่าง`}
+                            </span>
+                            <span className={`text-xs font-bold ${itemCount >= MIN_ITEMS ? 'text-green-500' : 'text-orange-400'}`}>
+                                {itemCount >= MIN_ITEMS ? '✓ พร้อมสร้างแล้ว!' : `ต้องการอีก ${MIN_ITEMS - itemCount} อย่าง`}
+                            </span>
+                        </div>
+                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full rounded-full transition-all duration-500 ${itemCount >= MIN_ITEMS ? 'bg-green-400' : 'bg-purple-400'}`}
+                                style={{ width: `${Math.min((itemCount / MIN_ITEMS) * 100, 100)}%` }}
+                            />
+                        </div>
+                    </div>
                 </div>
 
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">สายงาน / อาชีพ (Career Field) <span className="text-red-500">*</span></label>
-                        <input
-                            type="text"
-                            value={career}
-                            onChange={e => setCareer(e.target.value)}
-                            placeholder="เช่น Programmer, นักการตลาด, วิศวกร..."
-                            className="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder:text-gray-300 shadow-sm"
+                {/* Scrollable chip + text area */}
+                <div className="overflow-y-auto px-8 pb-2 flex-1">
+                    {/* Quick Chips */}
+                    <div className="mb-4">
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2.5">กดเลือกสไตล์ที่ชอบ (เลือกได้หลายอย่าง)</p>
+                        <div className="flex flex-wrap gap-2">
+                            {QUICK_CHIPS.map(chip => {
+                                const active = selectedChips.includes(chip.label)
+                                return (
+                                    <button
+                                        key={chip.label}
+                                        onClick={() => toggleChip(chip.label)}
+                                        className={`text-sm px-3 py-1.5 rounded-full border transition-all font-medium ${active
+                                            ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200 scale-105'
+                                            : 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
+                                            }`}
+                                    >
+                                        {chip.emoji} {chip.label}
+                                        {active && <span className="ml-1 text-purple-200">✓</span>}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Extra free-text */}
+                    <div className="relative mb-2">
+                        <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
+                            เพิ่มรายละเอียด (ไม่บังคับ แต่ช่วยให้ AI ออกแบบตรงกว่า)
+                        </label>
+                        <textarea
+                            value={extraText}
+                            onChange={e => setExtraText(e.target.value)}
+                            placeholder="เช่น: สายงาน UX Designer, บริษัท Startup, ต้องการรูปภาพโปรไฟล์แบบวงกลม..."
+                            rows={2}
+                            className="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-purple-400 focus:ring-4 focus:ring-purple-100 outline-none transition-all resize-none text-gray-800 placeholder:text-gray-300 text-sm"
                         />
                     </div>
-
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">ประเภทองค์กร (Company Type)</label>
-                        <select
-                            value={companyType}
-                            onChange={e => setCompanyType(e.target.value)}
-                            className="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none bg-white shadow-sm"
-                        >
-                            <option value="Startup">🚀 Startup / เอเจนซี่ (คล่องตัว, สมัยใหม่)</option>
-                            <option value="Corporate">🏢 Corporate / บริษัทมหาชน (มั่นคง, เป็นทางการ)</option>
-                            <option value="Government">🏛️ Government / ราชการ (อนุรักษ์นิยม, ระเบียบชัดเจน)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">โทนของออกแบบ (Tone & Style)</label>
-                        <select
-                            value={tone}
-                            onChange={e => setTone(e.target.value)}
-                            className="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none bg-white shadow-sm"
-                        >
-                            <option value="Minimal">🖋️ Minimal (เรียบง่าย, สะอาดตา)</option>
-                            <option value="Professional">💼 Professional (น่าเชื่อถือ, ดูเป็นมืออาชีพ)</option>
-                            <option value="Creative">🎨 Creative (โดดเด่น, มีดึงดูด)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">คำสั่งเพิ่มเติม (Optional)</label>
-                        <textarea
-                            value={customPrompt}
-                            onChange={e => setCustomPrompt(e.target.value)}
-                            placeholder="เช่น ขอโทนสีชมพูพาสเทล, จัดเรียงแบบ 2 คอลัมน์, เอาแบบดู Cyberpunk..."
-                            rows={3}
-                            className="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none shadow-sm resize-none"
-                        ></textarea>
-                    </div>
                 </div>
 
-                <div className="mt-8">
+                {/* Bottom actions — always visible */}
+                <div className="px-8 pb-8 pt-4 relative">
+                    {/* Warning message when under minimum */}
+                    {itemCount > 0 && itemCount < MIN_ITEMS && (
+                        <div className="mb-3 flex items-center gap-2 text-sm text-orange-600 bg-orange-50 border border-orange-200 rounded-xl px-4 py-2.5">
+                            <span>⚠️</span>
+                            <span>เลือกอย่างน้อย {MIN_ITEMS} อย่าง เพื่อให้ AI ออกแบบได้ดีและ ATS-friendly กว่านี้</span>
+                        </div>
+                    )}
+
                     <button
                         onClick={handleGenerate}
-                        disabled={loading}
-                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg disabled:opacity-50 transition-all flex justify-center items-center gap-3 group relative overflow-hidden"
+                        disabled={!canGenerate}
+                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-4 px-6 rounded-2xl transition-all flex justify-center items-center gap-3 hover:shadow-xl hover:shadow-purple-500/30 disabled:cursor-not-allowed active:scale-[0.98]"
                     >
                         {loading ? (
-                            <span className="flex items-center gap-2 relative z-10">
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <>
+                                <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                 </svg>
-                                ⏳ ให้ AI ประมวลผล...
-                            </span>
+                                <span>AI กำลังออกแบบให้คุณ...</span>
+                            </>
                         ) : (
-                            <span className="relative z-10 flex items-center gap-2 group-hover:scale-105 transition-transform">
-                                🚀 สร้างเทมเพลตเรซูเม่เลย
-                            </span>
+                            <>✨ ให้ AI สร้างเรซูเม่ให้ฉัน</>
                         )}
-                        {!loading && <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>}
                     </button>
-                    <p className="text-center text-xs text-gray-400 mt-4">
-                        AI จะเลือก Layout, สี, ฟอนต์ และจัด Section ให้เหมาะสมแบบอัตโนมัติ
-                    </p>
+                    <p className="text-center text-xs text-gray-400 mt-3">AI จะเลือกสี, Layout, ฟอนต์ และจัดวาง Section ให้เหมาะกับที่คุณเลือก</p>
                 </div>
             </div>
         </div>
     )
 }
+
