@@ -428,6 +428,7 @@ function CustomizationModal({ template, onClose, onConfirm }: {
 function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSuccess: (data: any) => void }) {
     const [selectedChips, setSelectedChips] = useState<string[]>([])
     const [extraText, setExtraText] = useState('')
+    const [includeProfileImage, setIncludeProfileImage] = useState(true)
     const [loading, setLoading] = useState(false)
 
     const QUICK_CHIPS = [
@@ -464,6 +465,11 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
         // Combine chips + extra text into one description for the AI
         const parts = [...selectedChips]
         if (extraText.trim()) parts.push(extraText.trim())
+        if (includeProfileImage) {
+            parts.push('[REQ: MUST INCLUDE A PROFILE IMAGE PLACEHOLDER]')
+        } else {
+            parts.push('[REQ: DO NOT INCLUDE A PROFILE IMAGE PLACEHOLDER]')
+        }
         const userDescription = parts.join(', ')
 
         setLoading(true)
@@ -480,6 +486,8 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
             const data = await res.json()
             if (data.success && data.schema && Object.keys(data.schema).length > 0) {
                 onSuccess(data.schema)
+            } else if (data.isRateLimit) {
+                alert('ขณะนี้เกินขีดจำกัดการใช้งาน AI ชั่วคราว กรุณารอประมาณ 1 นาทีแล้วกดสร้างใหม่อีกครั้ง')
             } else {
                 alert('AI ไม่สามารถสร้างเทมเพลตได้ในขณะนี้ ลองเลือกสไตล์ใหม่แล้วลองอีกครั้ง')
             }
@@ -577,6 +585,26 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
 
                 {/* Bottom actions — always visible */}
                 <div className="px-8 pb-8 pt-4 relative">
+                    {/* Image Toggle */}
+                    <div className="relative mb-4 flex items-center justify-between bg-purple-50 p-4 border border-purple-100 rounded-2xl">
+                        <div>
+                            <label className="block text-sm font-bold text-purple-900">
+                                ใส่รูปโปรไฟล์
+                            </label>
+                            <p className="text-xs text-purple-600 mt-0.5">ให้ AI เตรียมพื้นที่สำหรับรูปภาพของคุณ</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                value=""
+                                className="sr-only peer"
+                                checked={includeProfileImage}
+                                onChange={() => setIncludeProfileImage(!includeProfileImage)}
+                            />
+                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                        </label>
+                    </div>
+
                     {/* Warning message when under minimum */}
                     {itemCount > 0 && itemCount < MIN_ITEMS && (
                         <div className="mb-3 flex items-center gap-2 text-sm text-orange-600 bg-orange-50 border border-orange-200 rounded-xl px-4 py-2.5">

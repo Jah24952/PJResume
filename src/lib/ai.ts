@@ -6,6 +6,7 @@ export async function generateSummary(payload: {
   jobStyle?: string
   tone?: string
   language?: string
+  experienceLevel?: string
 }) {
   const res = await fetch(
     'https://project-rs-ats.project-rs-ats.workers.dev/ai/summary',
@@ -23,6 +24,7 @@ export async function rewriteText(payload: {
   text: string
   jobStyle?: string
   language?: string
+  experienceLevel?: string
 }) {
   const res = await fetch(
     'https://project-rs-ats.project-rs-ats.workers.dev/ai/rewrite',

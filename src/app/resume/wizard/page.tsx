@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useResumeStore } from '@/store/resume.store'
 import { ArrowLeft, ArrowRight, User, Briefcase, GraduationCap, CheckSquare, FileText, Plus, Trash2, Globe, Award, Upload, X } from 'lucide-react'
@@ -16,6 +16,14 @@ const STEPS = [
 ]
 
 export default function ResumeWizardPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-500">กำลังโหลด...</div>}>
+            <ResumeWizardContent />
+        </Suspense>
+    )
+}
+
+function ResumeWizardContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -25,11 +33,38 @@ export default function ResumeWizardPage() {
 
     const [currentStep, setCurrentStep] = useState(1)
     const [newSkill, setNewSkill] = useState('')
+    const [errors, setErrors] = useState<Record<string, string>>({})
+
+    const validateContact = () => {
+        const newErrors: Record<string, string> = {}
+        if (!data.name?.trim()) newErrors.name = 'กรุณากรอกชื่อจริง'
+        if (!data.surname?.trim()) newErrors.surname = 'กรุณากรอกนามสกุล'
+        if (!data.jobTitle?.trim()) newErrors.jobTitle = 'กรุณากรอกตำแหน่งงานที่ต้องการ'
+
+        if (!data.phone?.trim()) {
+            newErrors.phone = 'กรุณากรอกเบอร์โทรศัพท์'
+        } else if (!/^\d{10}$/.test(data.phone.replace(/-/g, '').trim())) {
+            newErrors.phone = 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลักเท่านั้น'
+        }
+
+        if (!data.email?.trim()) {
+            newErrors.email = 'กรุณากรอกอีเมล'
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
+            newErrors.email = 'รูปแบบอีเมลไม่ถูกต้อง'
+        }
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
 
     const isFirstStep = currentStep === 1
     const isLastStep = currentStep === STEPS.length
 
     const nextStep = () => {
+        if (currentStep === 1) {
+            if (!validateContact()) return
+        }
+
         if (isLastStep) {
             router.push('/resume/templates')
         } else {
@@ -91,19 +126,79 @@ export default function ResumeWizardPage() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">ชื่อจริง</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.name || ''} onChange={e => update('name', e.target.value)} placeholder="ชื่อจริงของคุณ" /></div>
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">นามสกุล</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.surname || ''} onChange={e => update('surname', e.target.value)} placeholder="นามสกุลของคุณ" /></div>
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 mb-1 block">ชื่อจริง <span className="text-red-500">*</span></label>
+                                <input className={`w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all ${errors.name ? 'border-red-500' : ''}`} value={data.name || ''} onChange={e => { update('name', e.target.value); if (errors.name) setErrors(prev => ({ ...prev, name: '' })) }} placeholder="ชื่อจริงของคุณ" />
+                                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                            </div>
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 mb-1 block">นามสกุล <span className="text-red-500">*</span></label>
+                                <input className={`w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all ${errors.surname ? 'border-red-500' : ''}`} value={data.surname || ''} onChange={e => { update('surname', e.target.value); if (errors.surname) setErrors(prev => ({ ...prev, surname: '' })) }} placeholder="นามสกุลของคุณ" />
+                                {errors.surname && <p className="text-red-500 text-xs mt-1">{errors.surname}</p>}
+                            </div>
                         </div>
-                        <div><label className="text-sm font-bold text-slate-700 mb-1 block">อาชีพ / ตำแหน่งงานที่ต้องการสมัคร</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.jobTitle || ''} onChange={e => update('jobTitle', e.target.value)} placeholder="เช่น Marketing Manager, Software Engineer" /></div>
+                        <div>
+                            <label className="text-sm font-bold text-slate-700 mb-1 block">อาชีพ / ตำแหน่งงานที่ต้องการสมัคร <span className="text-red-500">*</span></label>
+                            <input className={`w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all ${errors.jobTitle ? 'border-red-500' : ''}`} value={data.jobTitle || ''} onChange={e => { update('jobTitle', e.target.value); if (errors.jobTitle) setErrors(prev => ({ ...prev, jobTitle: '' })) }} placeholder="เช่น Marketing Manager, Software Engineer" />
+                            {errors.jobTitle && <p className="text-red-500 text-xs mt-1">{errors.jobTitle}</p>}
+                        </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">เบอร์โทรศัพท์</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.phone || ''} onChange={e => update('phone', e.target.value)} placeholder="08x-xxx-xxxx" /></div>
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">อีเมล</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.email || ''} onChange={e => update('email', e.target.value)} placeholder="email@example.com" /></div>
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 mb-1 block">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>
+                                <input className={`w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all ${errors.phone ? 'border-red-500' : ''}`} value={data.phone || ''} onChange={e => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                    update('phone', val);
+                                    if (!val.trim()) setErrors(prev => ({ ...prev, phone: 'กรุณากรอกเบอร์โทรศัพท์' }));
+                                    else if (val.length < 10) setErrors(prev => ({ ...prev, phone: 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลักเท่านั้น' }));
+                                    else setErrors(prev => { const n = { ...prev }; delete n.phone; return n; });
+                                }} placeholder="08xxxxxxxx" />
+                                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                            </div>
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 mb-1 block">อีเมล <span className="text-red-500">*</span></label>
+                                <input className={`w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all ${errors.email ? 'border-red-500' : ''}`} value={data.email || ''} onChange={e => {
+                                    const val = e.target.value;
+                                    update('email', val);
+                                    if (!val.trim()) setErrors(prev => ({ ...prev, email: 'กรุณากรอกอีเมล' }));
+                                    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) setErrors(prev => ({ ...prev, email: 'รูปแบบอีเมลไม่ถูกต้อง' }));
+                                    else setErrors(prev => { const n = { ...prev }; delete n.email; return n; });
+                                }} placeholder="email@example.com" />
+                                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                            </div>
                         </div>
                         <div><label className="text-sm font-bold text-slate-700 mb-1 block">ที่อยู่</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.address || ''} onChange={e => update('address', e.target.value)} placeholder="ที่อยู่ปัจจุบัน" /></div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label className="text-sm font-bold text-slate-700 mb-1 block">LinkedIn / Portfolio URL</label><input className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all" value={data.socialLink || ''} onChange={e => update('socialLink', e.target.value)} placeholder="https://..." /></div>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <label className="text-sm font-bold text-slate-700">ช่องทางการติดต่ออื่นๆ และ โซเชียลมีเดีย</label>
+                                <button onClick={() => addItem('socialLinks', { id: crypto.randomUUID(), platform: 'LinkedIn', url: '' })} className="text-xs flex items-center gap-1 text-[#437393] hover:underline font-bold bg-blue-50 px-3 py-1.5 rounded-full"><Plus size={14} /> เพิ่มช่องทางติดต่อ</button>
+                            </div>
+
+                            {data.socialLinks?.length === 0 && (
+                                <div className="text-sm text-slate-400 italic text-center py-4 bg-slate-50 rounded-lg border border-dashed text-black">ยังไม่มีช่องทางการติดต่อเพิ่มเติม</div>
+                            )}
+
+                            {data.socialLinks?.map(social => (
+                                <div key={social.id} className="flex gap-3 relative group items-start">
+                                    <div className="w-1/3">
+                                        <select className="w-full p-3 border rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all text-sm text-black" value={social.platform} onChange={e => updateItem('socialLinks', social.id, { ...social, platform: e.target.value })}>
+                                            <option value="LinkedIn">LinkedIn</option>
+                                            <option value="Portfolio">Portfolio</option>
+                                            <option value="GitHub">GitHub</option>
+                                            <option value="Facebook">Facebook</option>
+                                            <option value="LINE ID">LINE ID</option>
+                                            <option value="Behance">Behance</option>
+                                            <option value="Dribbble">Dribbble</option>
+                                            <option value="Other">อื่นๆ</option>
+                                        </select>
+                                    </div>
+                                    <div className="flex-1 relative">
+                                        <input className="w-full p-3 border rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all text-sm text-black" value={social.url} onChange={e => updateItem('socialLinks', social.id, { ...social, url: e.target.value })} placeholder="ลิงก์ หรือ ไอดีติดต่อ (เช่น john.doe)" />
+                                        <button onClick={() => removeItem('socialLinks', social.id)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )

@@ -47,25 +47,93 @@ export default React.forwardRef<HTMLDivElement, Props>(function AICustomTemplate
         });
 
         // 3. Process Skills List
+        const displaySkills = [
+            ...(data.skills || []),
+            ...(data.hardSkills || []),
+            ...(data.softSkills || [])
+        ].filter(Boolean);
+
         const skillsRegex = /<!-- SKILLS_START -->([\s\S]*?)<!-- SKILLS_END -->/g;
         html = html.replace(skillsRegex, (match, blueprint) => {
-            if (!data.skills || data.skills.length === 0) return '';
-            return data.skills.map(skill => {
+            if (displaySkills.length === 0) return '';
+            return displaySkills.map(skill => {
                 let itemHtml = blueprint;
                 itemHtml = itemHtml.replace(/\{\{SKILL_NAME\}\}/g, skill || '');
                 return itemHtml;
             }).join('\n');
         });
 
-        // 4. Process Singular Fields
+        // 3a. Process Hard Skills List
+        const hardSkillsRegex = /<!-- HARDSKILLS_START -->([\s\S]*?)<!-- HARDSKILLS_END -->/g;
+        html = html.replace(hardSkillsRegex, (match, blueprint) => {
+            if (!data.hardSkills || data.hardSkills.length === 0) return '';
+            return data.hardSkills.map(skill => {
+                let itemHtml = blueprint;
+                itemHtml = itemHtml.replace(/\{\{HARDSKILL_NAME\}\}/g, skill || '');
+                return itemHtml;
+            }).join('\n');
+        });
+
+        // 3b. Process Soft Skills List
+        const softSkillsRegex = /<!-- SOFTSKILLS_START -->([\s\S]*?)<!-- SOFTSKILLS_END -->/g;
+        html = html.replace(softSkillsRegex, (match, blueprint) => {
+            if (!data.softSkills || data.softSkills.length === 0) return '';
+            return data.softSkills.map(skill => {
+                let itemHtml = blueprint;
+                itemHtml = itemHtml.replace(/\{\{SOFTSKILL_NAME\}\}/g, skill || '');
+                return itemHtml;
+            }).join('\n');
+        });
+
+        // 4. Process Languages List
+        const langRegex = /<!-- LANGUAGES_START -->([\s\S]*?)<!-- LANGUAGES_END -->/g;
+        html = html.replace(langRegex, (match, blueprint) => {
+            if (!data.languages || data.languages.length === 0) return '';
+            return data.languages.map(lang => {
+                let itemHtml = blueprint;
+                itemHtml = itemHtml.replace(/\{\{LANG_NAME\}\}/g, lang.language || '');
+                itemHtml = itemHtml.replace(/\{\{LANG_LEVEL\}\}/g, lang.level || '');
+                return itemHtml;
+            }).join('\n');
+        });
+
+        // 5. Process Certifications List
+        const certRegex = /<!-- CERTS_START -->([\s\S]*?)<!-- CERTS_END -->/g;
+        html = html.replace(certRegex, (match, blueprint) => {
+            if (!data.certifications || data.certifications.length === 0) return '';
+            return data.certifications.map(cert => {
+                let itemHtml = blueprint;
+                itemHtml = itemHtml.replace(/\{\{CERT_NAME\}\}/g, cert.name || '');
+                itemHtml = itemHtml.replace(/\{\{CERT_YEAR\}\}/g, cert.year || '');
+                return itemHtml;
+            }).join('\n');
+        });
+
+        // 6. Process Singular Fields
         html = html.replace(/\{\{NAME\}\}/g, data.name || '');
         html = html.replace(/\{\{SURNAME\}\}/g, data.surname || '');
         html = html.replace(/\{\{JOB_TITLE\}\}/g, data.jobTitle || '');
         html = html.replace(/\{\{PHONE\}\}/g, data.phone || '');
         html = html.replace(/\{\{EMAIL\}\}/g, data.email || '');
         html = html.replace(/\{\{ADDRESS\}\}/g, data.address || '');
-        html = html.replace(/\{\{SOCIAL_LINK\}\}/g, data.socialLink || '');
+
+        const linkedin = data.socialLinks?.find(s => s.platform === 'LinkedIn')?.url || '';
+        const defaultPortfolio = data.socialLinks?.find(s => s.platform !== 'LinkedIn')?.url || '';
+
+        html = html.replace(/\{\{SOCIAL_LINK\}\}/g, linkedin);
+        html = html.replace(/\{\{PORTFOLIO_LINK\}\}/g, defaultPortfolio);
         html = html.replace(/\{\{SUMMARY\}\}/g, data.summary || '');
+
+        // 8. Process Profile Image
+        const profileImageFallback = `
+            <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                <span style="font-size: clamp(1rem, 50%, 4rem); font-weight: bold; opacity: 0.5;">${(data.name?.charAt(0) || '').toUpperCase()}</span>
+            </div>
+        `;
+        const profileImageHtml = data.profileImage
+            ? `<img src="${data.profileImage}" class="w-full h-full object-cover" alt="Profile" />`
+            : profileImageFallback;
+        html = html.replace(/\{\{PROFILE_IMAGE\}\}/g, profileImageHtml);
 
         return html;
     }, [schema?.html, data])

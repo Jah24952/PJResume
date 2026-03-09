@@ -32,11 +32,18 @@ export type Certification = {
   year: string
 }
 
+export type SocialLink = {
+  id: string
+  platform: string
+  url: string
+}
+
 export type AICustomSchema = {
   html: string
 }
 
 export type ResumeData = {
+  resumeTitle: string
   name: string
   surname: string
   jobTitle: string
@@ -45,14 +52,17 @@ export type ResumeData = {
   email: string
   nationality: string
   birthDate: string
-  socialLink: string
+  socialLinks: SocialLink[]
   profileImage: string
   experience: Experience[]
   education: Education[]
   skills: string[]
+  hardSkills: string[]
+  softSkills: string[]
   languages: Language[]
   certifications: Certification[]
   summary: string
+  portfolioUrl: string
   selectedTemplate: string
   themeColor: string
   experienceLevel: string
@@ -75,11 +85,15 @@ type ResumeState = {
     field: keyof ResumeData,
     value: any
   ) => void
-  addItem: (field: 'experience' | 'education' | 'languages' | 'certifications', item: any) => void
-  removeItem: (field: 'experience' | 'education' | 'languages' | 'certifications', id: string) => void
-  updateItem: (field: 'experience' | 'education' | 'languages' | 'certifications', id: string, item: any) => void
+  addItem: (field: 'experience' | 'education' | 'languages' | 'certifications' | 'socialLinks', item: any) => void
+  removeItem: (field: 'experience' | 'education' | 'languages' | 'certifications' | 'socialLinks', id: string) => void
+  updateItem: (field: 'experience' | 'education' | 'languages' | 'certifications' | 'socialLinks', id: string, item: any) => void
   addSkill: (skill: string) => void
   removeSkill: (skill: string) => void
+  addHardSkill: (skill: string) => void
+  removeHardSkill: (skill: string) => void
+  addSoftSkill: (skill: string) => void
+  removeSoftSkill: (skill: string) => void
   setTemplate: (template: string, color: string) => void
   setAiSchema: (schema: AICustomSchema) => void
   setResumeData: (data: ResumeData) => void
@@ -91,6 +105,7 @@ type ResumeState = {
 export const useResumeStore = create<ResumeState>((set) => ({
   step: 1,
   data: {
+    resumeTitle: '',
     name: '',
     surname: '',
     jobTitle: '',
@@ -99,14 +114,17 @@ export const useResumeStore = create<ResumeState>((set) => ({
     email: '',
     nationality: '',
     birthDate: '',
-    socialLink: '',
+    socialLinks: [],
     profileImage: '',
     experience: [],
     education: [],
     skills: [],
+    hardSkills: [],
+    softSkills: [],
     languages: [],
     certifications: [],
     summary: '',
+    portfolioUrl: '',
     selectedTemplate: 'modern',
     themeColor: '#437393',
     experienceLevel: '',
@@ -173,6 +191,38 @@ export const useResumeStore = create<ResumeState>((set) => ({
       data: {
         ...state.data,
         skills: state.data.skills.filter((s) => s !== skill)
+      }
+    })),
+
+  addHardSkill: (skill) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        hardSkills: [...state.data.hardSkills, skill]
+      }
+    })),
+
+  removeHardSkill: (skill) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        hardSkills: state.data.hardSkills.filter((s) => s !== skill)
+      }
+    })),
+
+  addSoftSkill: (skill) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        softSkills: [...state.data.softSkills, skill]
+      }
+    })),
+
+  removeSoftSkill: (skill) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        softSkills: state.data.softSkills.filter((s) => s !== skill)
       }
     })),
 

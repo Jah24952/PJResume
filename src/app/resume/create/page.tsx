@@ -32,7 +32,7 @@ import {
 import { TEMPLATES } from '../../../lib/constants'
 
 // Define Section Types for Sidebar
-type SectionType = 'contact' | 'experience' | 'education' | 'skills' | 'languages' | 'summary' | 'certifications'
+type SectionType = 'contact' | 'experience' | 'education' | 'skills' | 'languages' | 'summary' | 'certifications' | 'portfolio'
 
 
 export default function ResumeCreatePage() {
@@ -53,8 +53,9 @@ function ResumeCreateContent() {
 
   const [activeSection, setActiveSection] = useState<SectionType>('contact')
   const [isSaving, setIsSaving] = useState(false)
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false) // New state for modal
   const [newSkill, setNewSkill] = useState('')
-
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   // ATS State
   const [atsResult, setAtsResult] = useState<{
@@ -100,6 +101,33 @@ function ResumeCreateContent() {
             const nameParts = r.resume_title ? r.resume_title.split(' ') : ['My', 'Resume'] // Fallback
             // We need user name actually
 
+            // Helper for parsing arrays from DB safely
+            const safeParseArray = (jsonString: any) => {
+              if (!jsonString) return []
+              try {
+                return JSON.parse(jsonString)
+              } catch (e) {
+                console.error('Failed to parse array:', jsonString)
+                return []
+              }
+            }
+
+            const parseSocialLinks = (portfolioUrl: any, linkedinUrl: any) => {
+              let links = []
+              if (portfolioUrl) {
+                try {
+                  const parsed = JSON.parse(portfolioUrl)
+                  if (Array.isArray(parsed)) return parsed
+                } catch (e) {
+                  links.push({ id: crypto.randomUUID(), platform: 'Portfolio', url: portfolioUrl })
+                }
+              }
+              if (linkedinUrl && links.length === 0) {
+                links.push({ id: crypto.randomUUID(), platform: 'LinkedIn', url: linkedinUrl })
+              }
+              return links
+            }
+
             const mappedData = {
               ...data,
               // Load saved contact info if available, otherwise keep current or fallback
@@ -107,8 +135,8 @@ function ResumeCreateContent() {
               email: r.email || data.email,
               phone: r.phone || data.phone,
               address: r.address || data.address,
-              linkedin: r.linkedin || data.socialLink, // Note: schema says linkedin, store says socialLink
-              socialLink: r.linkedin || data.socialLink,
+              linkedin: r.linkedin,
+              socialLinks: parseSocialLinks(r.portfolio_url, r.linkedin),
 
               summary: r.summary || '',
               experience: r.experience?.map((e: any) => ({
@@ -127,9 +155,15 @@ function ResumeCreateContent() {
                 endDate: e.end_year
               })) || [],
               skills: r.skills?.map((s: any) => s.skill_name) || [],
+              hardSkills: safeParseArray(r.hard_skills),
+              softSkills: safeParseArray(r.soft_skills),
+              portfolioUrl: r.portfolio_url || '',
               // Fix Template Loading
-              selectedTemplate: TEMPLATES.find(t => t.id === r.selected_template_id)?.style || 'modern',
-              themeColor: TEMPLATES.find(t => t.id === r.selected_template_id)?.color || '#437393',
+              selectedTemplate: r.selected_template_id === 99 ? 'ai-custom' : TEMPLATES.find(t => t.id === r.selected_template_id)?.style || 'modern',
+              themeColor: r.ai_theme_color || (r.selected_template_id === 99 ? undefined : TEMPLATES.find(t => t.id === r.selected_template_id)?.color) || '#437393',
+              fontFamily: r.ai_font_family || 'Inter',
+              resumeTitle: r.resume_title || '',
+              aiTemplateSchema: r.ai_template_html ? { html: r.ai_template_html } : undefined
             }
 
             setResumeData(mappedData)
@@ -166,24 +200,55 @@ function ResumeCreateContent() {
 
   const handleSave = async () => {
     try {
+      const newErrors: Record<string, string> = {}
+      if (!data.name?.trim()) newErrors.name = 'กรุณากรอกชื่อจริง'
+      if (!data.surname?.trim()) newErrors.surname = 'กรุณากรอกนามสกุล'
+      if (!data.jobTitle?.trim()) newErrors.jobTitle = 'กรุณากรอกตำแหน่งงาน'
+
+      if (!data.phone?.trim()) {
+        newErrors.phone = 'กรุณากรอกเบอร์โทรศัพท์'
+      } else if (!/^\d{10}$/.test(data.phone.replace(/-/g, '').trim())) {
+        newErrors.phone = 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก'
+      }
+
+      if (!data.email?.trim()) {
+        newErrors.email = 'กรุณากรอกอีเมล'
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
+        newErrors.email = 'รูปแบบอีเมลไม่ถูกต้อง'
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors)
+        setIsSaveModalOpen(false)
+        setActiveSection('contact')
+        alert('กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วนและถูกต้องในหัวข้อข้อมูลส่วนตัว')
+        return
+      }
+      setErrors({})
+
       setIsSaving(true)
 
       // Transform Data for Backend (POST /resume)
       const payload = {
         user_id: user?.id,
         // Add selected_template_id
-        selected_template_id: TEMPLATES.find(t => t.style === data.selectedTemplate && t.color === data.themeColor)?.id || 1,
-        resume_title: `Resume - ${new Date().toLocaleDateString('th-TH')}`,
+        selected_template_id: data.selectedTemplate === 'ai-custom'
+          ? 99
+          : TEMPLATES.find(t => t.style === data.selectedTemplate && t.color === data.themeColor)?.id || 1,
+        resume_title: data.resumeTitle || `Resume - ${new Date().toLocaleDateString('th-TH')}`,
         language: aiLanguage,
         name: data.name,
         surname: data.surname, // Ensure surname is sent if backend supports it or merge with name if not
         email: data.email,
         phone: data.phone,
         address: data.address,
-        linkedin: data.socialLink,
+        linkedin: data.socialLinks?.find(s => s.platform === 'LinkedIn')?.url || '',
         jobTitle: data.jobTitle, // Backend might not have this column in root, but keeping for now
         summary: data.summary,
         profileImage: data.profileImage, // Send base64 image
+        ai_template_html: data.aiTemplateSchema?.html || null,
+        ai_theme_color: data.themeColor || null,
+        ai_font_family: data.fontFamily || null,
 
         // Map Experience
         experience: data.experience.map(exp => ({
@@ -207,7 +272,12 @@ function ResumeCreateContent() {
         skills: data.skills.map(skill => ({
           skill_name: skill,
           proficiency_level: 'Intermediate' // Default level
-        }))
+        })),
+
+        // New Dynamic Fields
+        portfolio_url: JSON.stringify(data.socialLinks || []),
+        hard_skills: data.hardSkills || [],
+        soft_skills: data.softSkills || []
       }
 
       const res = await saveResume(payload)
@@ -221,6 +291,7 @@ function ResumeCreateContent() {
       console.error(err)
     } finally {
       setIsSaving(false)
+      setIsSaveModalOpen(false) // Close modal after save finishes
     }
   }
 
@@ -236,20 +307,19 @@ function ResumeCreateContent() {
   }
 
   const generateAISummary = async () => {
-    const expStr = data.experience.map(e => `${e.position} at ${e.company}`).join(', ')
-    const eduStr = data.education.map(e => `${e.degree} at ${e.school}`).join(', ')
-    const skillStr = data.skills.join(', ')
     try {
-      const result = await generateSummary({
-        name: data.name,
-        experience: expStr,
-        education: eduStr,
-        skills: skillStr,
+      const payload = {
+        name: `${data.name} ${data.surname}`,
+        experience: data.experience.map(e => `${e.position} at ${e.company}`).join(', '),
+        education: data.education.map(e => `${e.degree} from ${e.school}`).join(', '),
+        skills: data.skills.join(', '),
         jobStyle,
         tone,
-        language: aiLanguage
-      })
-      update('summary', result.summary)
+        language: aiLanguage,
+        experienceLevel: data.experienceLevel
+      }
+      const res = await generateSummary(payload)
+      update('summary', res.summary)
     } catch (e) {
       console.error(e)
       alert('AI Summary Failed')
@@ -259,13 +329,14 @@ function ResumeCreateContent() {
   const handleRewrite = async (id: string, text: string) => {
     if (!text) return
     try {
-      const res = await rewriteText({ text, jobStyle, language: aiLanguage })
+      const res = await rewriteText({
+        text,
+        language: data.resumeLanguage,
+        jobStyle,
+        experienceLevel: data.experienceLevel
+      })
       if (res.rewritten) {
-        // Find experience and update
-        const exp = data.experience.find(e => e.id === id)
-        if (exp) {
-          updateItem('experience', id, { ...exp, description: res.rewritten })
-        }
+        updateItem('experience', id, { ...data.experience.find(e => e.id === id), description: res.rewritten })
       }
     } catch (e) {
       console.error(e)
@@ -333,16 +404,51 @@ function ResumeCreateContent() {
     }
   }
 
-  // --- Sidebar Menu Items ---
-  const menuItems: { id: SectionType; label: string; icon: any }[] = [
-    { id: 'contact', label: t('section.contact', data.resumeLanguage as 'en' | 'th'), icon: User },
-    { id: 'experience', label: t('section.experience', data.resumeLanguage as 'en' | 'th'), icon: Briefcase },
-    { id: 'education', label: t('section.education', data.resumeLanguage as 'en' | 'th'), icon: GraduationCap },
-    { id: 'skills', label: t('section.skills', data.resumeLanguage as 'en' | 'th'), icon: CheckSquare },
-    { id: 'languages', label: t('section.languages', data.resumeLanguage as 'en' | 'th'), icon: Globe },
-    { id: 'summary', label: t('section.summary', data.resumeLanguage as 'en' | 'th'), icon: FileText },
-    { id: 'certifications', label: t('section.certifications', data.resumeLanguage as 'en' | 'th'), icon: Award },
-  ]
+  // --- Sidebar Menu Items (Dynamic based on Experience Level) ---
+  const getMenuItems = (): { id: SectionType; label: string; icon: any }[] => {
+    const isThai = data.resumeLanguage === 'th'
+    const baseContact = { id: 'contact' as SectionType, label: t('section.contact', data.resumeLanguage as 'en' | 'th'), icon: User }
+    const baseEducation = { id: 'education' as SectionType, label: t('section.education', data.resumeLanguage as 'en' | 'th'), icon: GraduationCap }
+    const baseSkills = { id: 'skills' as SectionType, label: isThai ? 'ทักษะความสามารถ' : 'Skills', icon: CheckSquare }
+    const basePortfolio = { id: 'portfolio' as SectionType, label: isThai ? 'แฟ้มสะสมผลงาน (Portfolio)' : 'Portfolio', icon: Globe }
+    const baseSummary = { id: 'summary' as SectionType, label: t('section.summary', data.resumeLanguage as 'en' | 'th'), icon: FileText }
+    const baseCertifications = { id: 'certifications' as SectionType, label: t('section.certifications', data.resumeLanguage as 'en' | 'th'), icon: Award }
+    const baseLanguages = { id: 'languages' as SectionType, label: t('section.languages', data.resumeLanguage as 'en' | 'th'), icon: Globe }
+
+    if (data.experienceLevel === 'Intern') {
+      return [
+        baseContact,
+        baseEducation,
+        { id: 'experience' as SectionType, label: isThai ? 'โปรเจคที่ทำ / กิจกรรม' : 'Projects & Activities', icon: Briefcase },
+        baseSkills,
+        basePortfolio,
+        baseLanguages
+      ]
+    } else if (data.experienceLevel === 'Entry Level') {
+      return [
+        baseContact,
+        baseEducation,
+        { id: 'experience' as SectionType, label: isThai ? 'ประสบการณ์ฝึกงาน / โปรเจค' : 'Internships & Projects', icon: Briefcase },
+        baseSkills,
+        basePortfolio,
+        baseCertifications,
+        baseLanguages
+      ]
+    } else {
+      // Experienced
+      return [
+        baseContact,
+        baseSummary,
+        { id: 'experience' as SectionType, label: isThai ? 'ประสบการณ์ทำงาน / ผลงาน' : 'Work Experience', icon: Briefcase },
+        baseSkills,
+        baseCertifications,
+        baseLanguages,
+        baseEducation // Moved Education to the bottom for experienced pros
+      ]
+    }
+  }
+
+  const menuItems = getMenuItems()
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -438,9 +544,11 @@ function ResumeCreateContent() {
               <h1 className="text-2xl font-bold text-[#437393]">
                 {menuItems.find(m => m.id === activeSection)?.label}
               </h1>
-              <button onClick={handleSave} disabled={isSaving} className="text-[#437393] border border-[#437393] px-4 py-2 rounded hover:bg-blue-50 text-sm">
-                {isSaving ? t('nav.saving', data.resumeLanguage as 'en' | 'th') : t('nav.save', data.resumeLanguage as 'en' | 'th')}
-              </button>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setIsSaveModalOpen(true)} disabled={isSaving} className="text-[#437393] border border-[#437393] px-4 py-2 rounded hover:bg-blue-50 text-sm">
+                  {isSaving ? t('nav.saving', data.resumeLanguage as 'en' | 'th') : t('nav.save', data.resumeLanguage as 'en' | 'th')}
+                </button>
+              </div>
             </div>
 
             {/* FORM CONTENT */}
@@ -450,8 +558,16 @@ function ResumeCreateContent() {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="grid grid-cols-[1fr_auto] gap-6">
                   <div className="space-y-4">
-                    <div><label className="text-sm text-gray-500">{t('field.firstName', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.name} onChange={e => update('name', e.target.value)} placeholder={t('field.firstName', data.resumeLanguage as 'en' | 'th')} /></div>
-                    <div><label className="text-sm text-gray-500">{t('field.lastName', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.surname} onChange={e => update('surname', e.target.value)} placeholder={t('field.lastName', data.resumeLanguage as 'en' | 'th')} /></div>
+                    <div>
+                      <label className="text-sm text-gray-500">{t('field.firstName', data.resumeLanguage as 'en' | 'th')} <span className="text-red-500">*</span></label>
+                      <input className={`w-full p-3 border rounded-lg bg-gray-50 text-black ${errors.name ? 'border-red-500' : ''}`} value={data.name} onChange={e => { update('name', e.target.value); if (errors.name) setErrors(prev => ({ ...prev, name: '' })) }} placeholder={t('field.firstName', data.resumeLanguage as 'en' | 'th')} />
+                      {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-500">{t('field.lastName', data.resumeLanguage as 'en' | 'th')} <span className="text-red-500">*</span></label>
+                      <input className={`w-full p-3 border rounded-lg bg-gray-50 text-black ${errors.surname ? 'border-red-500' : ''}`} value={data.surname} onChange={e => { update('surname', e.target.value); if (errors.surname) setErrors(prev => ({ ...prev, surname: '' })) }} placeholder={t('field.lastName', data.resumeLanguage as 'en' | 'th')} />
+                      {errors.surname && <p className="text-red-500 text-xs mt-1">{errors.surname}</p>}
+                    </div>
                   </div>
 
                   {/* Profile Image */}
@@ -491,11 +607,35 @@ function ResumeCreateContent() {
                     )}
                   </div>
                 </div>
-                <div><label className="text-sm text-gray-500">{t('field.jobTitle', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.jobTitle} onChange={e => update('jobTitle', e.target.value)} /></div>
+                <div>
+                  <label className="text-sm text-gray-500">{t('field.jobTitle', data.resumeLanguage as 'en' | 'th')} <span className="text-red-500">*</span></label>
+                  <input className={`w-full p-3 border rounded-lg bg-gray-50 text-black ${errors.jobTitle ? 'border-red-500' : ''}`} value={data.jobTitle} onChange={e => { update('jobTitle', e.target.value); if (errors.jobTitle) setErrors(prev => ({ ...prev, jobTitle: '' })) }} />
+                  {errors.jobTitle && <p className="text-red-500 text-xs mt-1">{errors.jobTitle}</p>}
+                </div>
                 <div><label className="text-sm text-gray-500">{t('field.address', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.address} onChange={e => update('address', e.target.value)} /></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="text-sm text-gray-500">{t('field.phone', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.phone} onChange={e => update('phone', e.target.value)} placeholder="08x-xxx-xxxx" /></div>
-                  <div><label className="text-sm text-gray-500">{t('field.email', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.email} onChange={e => update('email', e.target.value)} placeholder="email@example.com" /></div>
+                  <div>
+                    <label className="text-sm text-gray-500">{t('field.phone', data.resumeLanguage as 'en' | 'th')} <span className="text-red-500">*</span></label>
+                    <input className={`w-full p-3 border rounded-lg bg-gray-50 text-black ${errors.phone ? 'border-red-500' : ''}`} value={data.phone} onChange={e => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      update('phone', val);
+                      if (!val.trim()) setErrors(prev => ({ ...prev, phone: 'กรุณากรอกเบอร์โทรศัพท์' }));
+                      else if (val.length < 10) setErrors(prev => ({ ...prev, phone: 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลักเท่านั้น' }));
+                      else setErrors(prev => { const n = { ...prev }; delete n.phone; return n; });
+                    }} placeholder="08xxxxxxxx" />
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">{t('field.email', data.resumeLanguage as 'en' | 'th')} <span className="text-red-500">*</span></label>
+                    <input className={`w-full p-3 border rounded-lg bg-gray-50 text-black ${errors.email ? 'border-red-500' : ''}`} value={data.email} onChange={e => {
+                      const val = e.target.value;
+                      update('email', val);
+                      if (!val.trim()) setErrors(prev => ({ ...prev, email: 'กรุณากรอกอีเมล' }));
+                      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) setErrors(prev => ({ ...prev, email: 'รูปแบบอีเมลไม่ถูกต้อง' }));
+                      else setErrors(prev => { const n = { ...prev }; delete n.email; return n; });
+                    }} placeholder="email@example.com" />
+                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -555,7 +695,37 @@ function ResumeCreateContent() {
                     />
                   </div>
                 </div>
-                <div><label className="text-sm text-gray-500">{t('field.socialLink', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.socialLink} onChange={e => update('socialLink', e.target.value)} placeholder="URL" /></div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm text-gray-500">ช่องทางการติดต่ออื่นๆ และ โซเชียลมีเดีย</label>
+                    <button onClick={() => addItem('socialLinks', { id: crypto.randomUUID(), platform: 'LinkedIn', url: '' })} className="text-xs flex items-center gap-1 text-[#437393] hover:underline bg-blue-50 px-3 py-1.5 rounded-full"><Plus size={14} /> เพิ่มช่องทางติดต่อ</button>
+                  </div>
+
+                  {data.socialLinks?.length === 0 && (
+                    <div className="text-sm text-gray-400 italic text-center py-4 bg-gray-50 rounded-lg border border-dashed">ยังไม่มีช่องทางการติดต่อเพิ่มเติม</div>
+                  )}
+
+                  {data.socialLinks?.map(social => (
+                    <div key={social.id} className="flex gap-3 relative group items-start">
+                      <div className="w-1/3">
+                        <select className="w-full p-3 border rounded-lg bg-gray-50 text-black outline-none transition-all text-sm" value={social.platform} onChange={e => updateItem('socialLinks', social.id, { ...social, platform: e.target.value })}>
+                          <option value="LinkedIn">LinkedIn</option>
+                          <option value="Portfolio">Portfolio</option>
+                          <option value="GitHub">GitHub</option>
+                          <option value="Facebook">Facebook</option>
+                          <option value="LINE ID">LINE ID</option>
+                          <option value="Behance">Behance</option>
+                          <option value="Dribbble">Dribbble</option>
+                          <option value="Other">อื่นๆ</option>
+                        </select>
+                      </div>
+                      <div className="flex-1 relative">
+                        <input className="w-full p-3 border rounded-lg bg-gray-50 focus:bg-white focus:ring-1 focus:ring-[#437393] text-black outline-none transition-all text-sm" value={social.url} onChange={e => updateItem('socialLinks', social.id, { ...social, url: e.target.value })} placeholder="ลิงก์ หรือ ไอดีติดต่อ (เช่น john.doe)" />
+                        <button onClick={() => removeItem('socialLinks', social.id)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -643,20 +813,92 @@ function ResumeCreateContent() {
               </div>
             )}
 
-            {/* 4. Skills */}
+            {/* 4. Skills (Split into Hard and Soft Skills via store data) */}
             {activeSection === 'skills' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+                {/* Hard Skills Block */}
                 <div className="bg-white border rounded-lg p-6 shadow-sm">
+                  <h3 className="font-bold text-[#437393] mb-4">Hard Skills (ทักษะทางวิชาชีพ)</h3>
                   <div className="flex gap-2 flex-wrap mb-4">
-                    {data.skills.map(skill => (
+                    {data.hardSkills.map(skill => (
                       <span key={skill} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                        {skill} <button onClick={() => removeSkill(skill)} className="hover:text-red-500">×</button>
+                        {skill} <button onClick={() => useResumeStore.getState().removeHardSkill(skill)} className="hover:text-red-500">×</button>
                       </span>
                     ))}
                   </div>
                   <div className="flex gap-2">
-                    <input className="flex-1 p-2 border rounded bg-gray-50 text-black" value={newSkill} onChange={e => setNewSkill(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSkill()} />
-                    <button onClick={handleAddSkill} className="bg-[#9CC5DF] text-white px-4 py-2 rounded">{t('action.add', data.resumeLanguage as 'en' | 'th')}</button>
+                    <input
+                      className="flex-1 p-2 border rounded bg-gray-50 text-black"
+                      placeholder={data.resumeLanguage === 'th' ? "เช่น React, Excel, SEO" : "e.g., React, Excel, SEO"}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                          useResumeStore.getState().addHardSkill(e.currentTarget.value.trim());
+                          e.currentTarget.value = '';
+                        }
+                      }}
+                    />
+                    <button onClick={(e) => {
+                      const input = e.currentTarget.previousSibling as HTMLInputElement;
+                      if (input.value.trim()) {
+                        useResumeStore.getState().addHardSkill(input.value.trim());
+                        input.value = '';
+                      }
+                    }} className="bg-[#9CC5DF] text-white px-4 py-2 rounded">{t('action.add', data.resumeLanguage as 'en' | 'th')}</button>
+                  </div>
+                </div>
+
+                {/* Soft Skills Block */}
+                <div className="bg-white border rounded-lg p-6 shadow-sm mt-6">
+                  <h3 className="font-bold text-[#437393] mb-4">Soft Skills (ทักษะทางสังคมและการทำงาน)</h3>
+                  <div className="flex gap-2 flex-wrap mb-4">
+                    {data.softSkills.map(skill => (
+                      <span key={skill} className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                        {skill} <button onClick={() => useResumeStore.getState().removeSoftSkill(skill)} className="hover:text-red-500">×</button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      className="flex-1 p-2 border rounded bg-gray-50 text-black"
+                      placeholder={data.resumeLanguage === 'th' ? "เช่น การสื่อสาร, ความเป็นผู้นำ, การแก้ปัญหา" : "e.g., Leadership, Communication"}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                          useResumeStore.getState().addSoftSkill(e.currentTarget.value.trim());
+                          e.currentTarget.value = '';
+                        }
+                      }}
+                    />
+                    <button onClick={(e) => {
+                      const input = e.currentTarget.previousSibling as HTMLInputElement;
+                      if (input.value.trim()) {
+                        useResumeStore.getState().addSoftSkill(input.value.trim());
+                        input.value = '';
+                      }
+                    }} className="bg-[#9CC5DF] text-white px-4 py-2 rounded">{t('action.add', data.resumeLanguage as 'en' | 'th')}</button>
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* Portfolio (NEW) */}
+            {activeSection === 'portfolio' && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-white border rounded-lg p-6 shadow-sm">
+                  <h3 className="font-bold text-[#437393] mb-2">{data.resumeLanguage === 'th' ? 'ลิงก์แฟ้มสะสมผลงาน (Portfolio URL)' : 'Portfolio Link'}</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    {data.resumeLanguage === 'th'
+                      ? 'เพิ่มลิงก์รวมผลงานออนไลน์เพื่อให้ HR หรือกรรมการดูตัวอย่างงานจริงของคุณ (เช่น GitHub, Behance, Google Drive)'
+                      : 'Add a link to your online portfolio (e.g., GitHub, Behance, Google Drive).'}
+                  </p>
+                  <div>
+                    <input
+                      className="w-full p-3 border rounded-lg bg-gray-50 text-black"
+                      value={data.portfolioUrl}
+                      onChange={e => update('portfolioUrl', e.target.value)}
+                      placeholder="https://yourawesomeportfolio.com"
+                    />
                   </div>
                 </div>
               </div>
@@ -762,6 +1004,57 @@ function ResumeCreateContent() {
         </div>
 
       </div>
+
+      {/* Save Modal */}
+      {isSaveModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl shadow-2xl w-[90%] max-w-md p-6 animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-bold text-[#437393] mb-2">
+              {data.resumeLanguage === 'th' ? 'บันทึกเรซูเม่' : 'Save Resume'}
+            </h2>
+            <p className="text-sm text-gray-500 mb-6">
+              {data.resumeLanguage === 'th' ? 'ตั้งชื่อเพื่อให้ง่ายต่อการค้นหาในภายหลัง' : 'Name your resume to easily find it later.'}
+            </p>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {data.resumeLanguage === 'th' ? 'ชื่อเรซูเม่ (Resume Title)' : 'Resume Title'}
+              </label>
+              <input
+                type="text"
+                autoFocus
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all"
+                placeholder={`Resume - ${new Date().toLocaleDateString('th-TH')}`}
+                value={data.resumeTitle}
+                onChange={(e) => update('resumeTitle', e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSave()
+                  }
+                }}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setIsSaveModalOpen(false)}
+                className="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm font-medium"
+                disabled={isSaving}
+              >
+                {t('action.cancel', data.resumeLanguage as 'en' | 'th')}
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-6 py-2 bg-[#437393] text-white rounded-lg hover:bg-[#2c4f6d] transition-colors text-sm font-medium shadow-sm disabled:opacity-70 flex items-center gap-2"
+              >
+                {isSaving && <span className="animate-spin text-white">⏳</span>}
+                {isSaving ? t('nav.saving', data.resumeLanguage as 'en' | 'th') : t('nav.save', data.resumeLanguage as 'en' | 'th')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

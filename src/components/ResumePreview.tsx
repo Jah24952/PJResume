@@ -21,6 +21,8 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     return `${baseClasses.replace(/\buppercase\b/g, '')} ${headingStyle}`.trim().replace(/\s+/g, ' ')
   }
 
+  // Remove merged displaySkills var to render skills separately based on type
+
   // --- AI Custom Template Logic ---
   if (selectedTemplate === 'ai-custom') {
     return (
@@ -56,7 +58,14 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             {data.phone && <div className="flex items-center gap-2"><Phone size={14} /> {data.phone}</div>}
             {data.email && <div className="flex items-center gap-2"><Mail size={14} /> {data.email}</div>}
             {data.address && <div className="flex items-center gap-2"><MapPin size={14} /> {data.address}</div>}
-            {data.socialLink && <div className="flex items-center gap-2"><Globe size={14} /> {data.socialLink}</div>}
+            {data.socialLinks?.filter(l => l.url.trim()).map(link => (
+              <div key={link.id} className="flex items-center gap-2">
+                <Globe size={14} />
+                <a href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
+                  {link.platform === 'Other' ? '' : `${link.platform}: `}{link.url.replace(/^https?:\/\//, '')}
+                </a>
+              </div>
+            ))}
           </div>
 
           {/* Education */}
@@ -71,15 +80,41 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             ))}
           </div>
 
-          {/* Skills */}
-          <div className="space-y-4 text-sm">
-            <h3 className={getHeadingClass("uppercase font-bold tracking-widest border-b border-white/30 pb-2 mb-3")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-            <div className="flex flex-wrap gap-2">
-              {data.skills.map(skill => (
-                <span key={skill} className="bg-white/20 px-2 py-1 rounded text-xs">{skill}</span>
-              ))}
+          {/* Legacy Skills */}
+          {data.skills && data.skills.length > 0 && (
+            <div className="space-y-4 text-sm">
+              <h3 className={getHeadingClass("uppercase font-bold tracking-widest border-b border-white/30 pb-2 mb-3")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.skills.map(skill => (
+                  <span key={skill} className="bg-white/20 px-2 py-1 rounded text-xs">{skill}</span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Hard Skills */}
+          {data.hardSkills && data.hardSkills.length > 0 && (
+            <div className="space-y-4 text-sm">
+              <h3 className={getHeadingClass("uppercase font-bold tracking-widest border-b border-white/30 pb-2 mb-3")}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.hardSkills.map(skill => (
+                  <span key={skill} className="bg-white/20 px-2 py-1 rounded text-xs">{skill}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Soft Skills */}
+          {data.softSkills && data.softSkills.length > 0 && (
+            <div className="space-y-4 text-sm">
+              <h3 className={getHeadingClass("uppercase font-bold tracking-widest border-b border-white/30 pb-2 mb-3")}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.softSkills.map(skill => (
+                  <span key={skill} className="bg-white/20 px-2 py-1 rounded text-xs">{skill}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Content */}
@@ -152,12 +187,22 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
         <div className="text-center border-b-2 border-black pb-6 mb-8">
           <h1 className={getHeadingClass("text-4xl font-bold uppercase tracking-widest mb-2")}>{data.name} {data.surname}</h1>
           <p className="text-lg italic text-gray-600 mb-4">{data.jobTitle}</p>
-          <div className="flex justify-center gap-4 text-sm text-gray-700 italic">
-            {data.phone && <span>{data.phone}</span>}
-            <span>|</span>
-            {data.email && <span>{data.email}</span>}
-            <span>|</span>
-            {data.address && <span>{data.address}</span>}
+          <div className="flex flex-wrap justify-center items-center gap-2 text-sm text-gray-700 italic">
+            {[
+              data.phone && <span key="phone">{data.phone}</span>,
+              data.email && <span key="email">{data.email}</span>,
+              data.address && <span key="address">{data.address}</span>,
+              ...(data.socialLinks?.filter(l => l.url.trim()).map(link => (
+                <a key={link.id} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="hover:underline break-all text-gray-700">
+                  {link.platform === 'Other' ? '' : `${link.platform}: `}{link.url.replace(/^https?:\/\//, '')}
+                </a>
+              )) || [])
+            ].filter(Boolean).map((item, index, arr) => (
+              <span key={index} className="flex items-center gap-2">
+                {item}
+                {index < arr.length - 1 && <span>|</span>}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -194,13 +239,53 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 </div>
               ))}
             </section>
-            <section>
-              <h3 className={getHeadingClass("text-center font-bold uppercase tracking-widest text-lg mb-6 border-b border-gray-200 pb-2")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-              <div className="text-center leading-loose">
-                {data.skills.join(' • ')}
-              </div>
+            <section className="space-y-6">
+              {data.skills && data.skills.length > 0 && (
+                <div>
+                  <h3 className={getHeadingClass("text-center font-bold uppercase tracking-widest text-lg mb-6 border-b border-gray-200 pb-2")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
+                  <div className="text-center leading-loose">{data.skills.join(' • ')}</div>
+                </div>
+              )}
+              {data.hardSkills && data.hardSkills.length > 0 && (
+                <div>
+                  <h3 className={getHeadingClass("text-center font-bold uppercase tracking-widest text-lg mb-6 border-b border-gray-200 pb-2")}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
+                  <div className="text-center leading-loose">{data.hardSkills.join(' • ')}</div>
+                </div>
+              )}
+              {data.softSkills && data.softSkills.length > 0 && (
+                <div>
+                  <h3 className={getHeadingClass("text-center font-bold uppercase tracking-widest text-lg mb-6 border-b border-gray-200 pb-2")}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
+                  <div className="text-center leading-loose">{data.softSkills.join(' • ')}</div>
+                </div>
+              )}
             </section>
           </div>
+
+          {(data.languages.length > 0 || data.certifications.length > 0) && (
+            <div className="grid grid-cols-2 gap-12 pt-4">
+              {data.languages.length > 0 ? (
+                <section>
+                  <h3 className={getHeadingClass("text-center font-bold uppercase tracking-widest text-lg mb-6 border-b border-gray-200 pb-2")}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}</h3>
+                  <div className="space-y-2 text-center text-gray-800">
+                    {data.languages.map(l => <div key={l.id} className="flex justify-center items-baseline gap-2"><span className="font-bold">{l.language}</span> <span className="text-sm italic text-gray-600">({l.level})</span></div>)}
+                  </div>
+                </section>
+              ) : <div></div>}
+              {data.certifications.length > 0 ? (
+                <section>
+                  <h3 className={getHeadingClass("text-center font-bold uppercase tracking-widest text-lg mb-6 border-b border-gray-200 pb-2")}>{t('section.certifications', data.resumeLanguage as 'en' | 'th')}</h3>
+                  <div className="space-y-4 text-center">
+                    {data.certifications.map(c => (
+                      <div key={c.id}>
+                        <div className="font-bold text-gray-800">{c.name}</div>
+                        <div className="text-sm italic text-gray-600">{c.year}</div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : <div></div>}
+            </div>
+          )}
         </div>
       </div>
     )
@@ -239,17 +324,49 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 {data.email && <div className="flex items-center gap-2"><Mail size={16} /> {data.email}</div>}
                 {data.phone && <div className="flex items-center gap-2"><Phone size={16} /> {data.phone}</div>}
                 {data.address && <div className="flex items-center gap-2"><MapPin size={16} /> {data.address}</div>}
-              </div>
-            </div>
-
-            <div>
-              <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-              <div className="flex flex-wrap gap-2">
-                {data.skills.map(skill => (
-                  <span key={skill} className="px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700">{skill}</span>
+                {data.socialLinks?.filter(l => l.url.trim()).map(link => (
+                  <div key={link.id} className="flex items-center gap-2">
+                    <Globe size={16} />
+                    <a href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
+                      {link.platform === 'Other' ? '' : `${link.platform}: `}{link.url.replace(/^https?:\/\//, '')}
+                    </a>
+                  </div>
                 ))}
               </div>
             </div>
+
+            {data.skills && data.skills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.skills.map(skill => (
+                    <span key={skill} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.hardSkills && data.hardSkills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.hardSkills.map(skill => (
+                    <span key={skill} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.softSkills && data.softSkills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.softSkills.map(skill => (
+                    <span key={skill} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
@@ -263,6 +380,20 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 ))}
               </div>
             </div>
+
+            {data.languages.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}</h3>
+                <div className="space-y-2">
+                  {data.languages.map(l => (
+                    <div key={l.id} className="flex justify-between text-sm text-gray-700">
+                      <span className="font-bold">{l.language}</span>
+                      <span className="text-gray-500">{l.level}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column */}
@@ -288,6 +419,21 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 ))}
               </div>
             </div>
+
+            {data.certifications.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("font-bold text-lg mb-6 uppercase border-b-2 inline-block pb-1")} style={{ borderColor: themeColor, color: themeColor }}>{t('section.certifications', data.resumeLanguage as 'en' | 'th')}</h3>
+                <div className="space-y-5 border-l-2 border-gray-100 pl-6 ml-2">
+                  {data.certifications.map(c => (
+                    <div key={c.id} className="relative">
+                      <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 border-white bg-gray-300"></div>
+                      <div className="font-bold text-lg text-gray-800">{c.name}</div>
+                      <div className="text-sm text-gray-500 font-medium">{c.year}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -318,17 +464,56 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               {data.phone && <div className="flex items-center gap-2"><Phone size={14} style={{ color: primary }} /> {data.phone}</div>}
               {data.email && <div className="flex items-center gap-2"><Mail size={14} style={{ color: primary }} /> {data.email}</div>}
               {data.address && <div className="flex items-center gap-2"><MapPin size={14} style={{ color: primary }} /> {data.address}</div>}
+              {data.portfolioUrl && <div className="flex items-center gap-2"><Globe size={14} style={{ color: primary }} /> <a href={data.portfolioUrl} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">{data.portfolioUrl.replace(/^https?:\/\//, '')}</a></div>}
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h3 className={getHeadingClass("font-bold text-gray-800 border-b pb-2 mb-2 uppercase")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-            <div className="flex flex-wrap gap-2">
-              {data.skills.map(skill => (
-                <span key={skill} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">{skill}</span>
-              ))}
+          {data.skills && data.skills.length > 0 && (
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h3 className={getHeadingClass("font-bold text-gray-800 border-b pb-2 mb-2 uppercase")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.skills.map(skill => (
+                  <span key={skill} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">{skill}</span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {data.hardSkills && data.hardSkills.length > 0 && (
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h3 className={getHeadingClass("font-bold text-gray-800 border-b pb-2 mb-2 uppercase")}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.hardSkills.map(skill => (
+                  <span key={skill} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">{skill}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {data.softSkills && data.softSkills.length > 0 && (
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h3 className={getHeadingClass("font-bold text-gray-800 border-b pb-2 mb-2 uppercase")}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.softSkills.map(skill => (
+                  <span key={skill} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">{skill}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {data.languages.length > 0 && (
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h3 className={getHeadingClass("font-bold text-gray-800 border-b pb-2 mb-2 uppercase")}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}</h3>
+              <div className="space-y-2 border-l-2 pl-2" style={{ borderColor: primary }}>
+                {data.languages.map(l => (
+                  <div key={l.id} className="flex justify-between items-center text-sm">
+                    <span className="font-bold text-gray-700">{l.language}</span>
+                    <span className="text-gray-500 text-xs">{l.level}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Content */}
@@ -369,6 +554,20 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               ))}
             </div>
           </div>
+
+          {data.certifications.length > 0 && (
+            <div>
+              <div className={getHeadingClass("inline-block text-white px-4 py-1 rounded-r-full font-bold mb-4 text-lg uppercase")} style={{ backgroundColor: primary }}>{t('section.certifications', data.resumeLanguage as 'en' | 'th')}</div>
+              <div className="space-y-4 ml-4">
+                {data.certifications.map(c => (
+                  <div key={c.id} className="bg-gray-50 p-4 rounded-lg border-l-4" style={{ borderColor: primary }}>
+                    <div className="font-bold text-gray-800">{c.name}</div>
+                    <div className="text-sm text-gray-500 mt-1 font-medium">{c.year}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -395,17 +594,55 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 {data.phone && <div className="flex items-center gap-2 justify-center"><Phone size={14} /> {data.phone}</div>}
                 {data.email && <div className="flex items-center gap-2 justify-center"><Mail size={14} /> {data.email}</div>}
                 {data.address && <div className="flex items-center gap-2 justify-center text-center"><MapPin size={14} /> {data.address}</div>}
+                {data.portfolioUrl && <div className="flex items-center gap-2 justify-center text-center"><Globe size={14} /> <a href={data.portfolioUrl} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">{data.portfolioUrl.replace(/^https?:\/\//, '')}</a></div>}
               </div>
             </div>
 
-            <div>
-              <h3 className={getHeadingClass("text-center font-bold tracking-widest border-b border-white/20 pb-2 mb-4")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {data.skills.map(skill => (
-                  <span key={skill} className="bg-white/20 px-3 py-1 rounded-full text-xs">{skill}</span>
-                ))}
+            {data.skills && data.skills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("text-center font-bold tracking-widest border-b border-white/20 pb-2 mb-4")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {data.skills.map(skill => (
+                    <span key={skill} className="bg-white/20 px-3 py-1 rounded-full text-xs">{skill}</span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {data.hardSkills && data.hardSkills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("text-center font-bold tracking-widest border-b border-white/20 pb-2 mb-4")}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {data.hardSkills.map(skill => (
+                    <span key={skill} className="bg-white/20 px-3 py-1 rounded-full text-xs">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.softSkills && data.softSkills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("text-center font-bold tracking-widest border-b border-white/20 pb-2 mb-4")}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {data.softSkills.map(skill => (
+                    <span key={skill} className="bg-white/20 px-3 py-1 rounded-full text-xs">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.languages.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("text-center font-bold tracking-widest border-b border-white/20 pb-2 mb-4")}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}</h3>
+                <div className="space-y-2 text-sm text-center">
+                  {data.languages.map(l => (
+                    <div key={l.id} className="text-white">
+                      <span className="font-bold">{l.language}</span> <span className="text-white/70 italic">({l.level})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="absolute bottom-0 right-0 w-20 h-20 bg-white opacity-10 rounded-tl-full"></div>
@@ -451,6 +688,22 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 ))}
               </div>
             </div>
+
+            {data.certifications.length > 0 && (
+              <div className="bg-gray-50 p-6 rounded-2xl border-2 border-dashed" style={{ borderColor: primary }}>
+                <h3 className={getHeadingClass("font-bold text-xl mb-4 flex items-center gap-2")} style={{ color: primary }}>
+                  <span>{t('section.certifications', data.resumeLanguage as 'en' | 'th')}</span>
+                </h3>
+                <div className="space-y-4">
+                  {data.certifications.map(c => (
+                    <div key={c.id}>
+                      <div className="font-bold text-gray-800">{c.name}</div>
+                      <div className="text-sm text-gray-500">{c.year}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -484,17 +737,60 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <div className="break-all">root@: {data.email}</div>
                 <div>tel: {data.phone}</div>
                 <div>loc: {data.address}</div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className={getHeadingClass("font-bold text-black border-b-2 border-black pb-2 mb-4")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}_SET</h3>
-              <div className="flex flex-wrap gap-2">
-                {data.skills.map(skill => (
-                  <span key={skill} className="bg-black text-white px-2 py-1 text-xs font-bold">{skill}</span>
+                {data.socialLinks?.filter(l => l.url.trim()).map(link => (
+                  <div key={link.id} className="break-all">
+                    {link.platform === 'Other' ? 'web' : link.platform.toLowerCase()}: <a href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="hover:text-green-400 underline">{link.url.replace(/^https?:\/\//, '')}</a>
+                  </div>
                 ))}
               </div>
             </div>
+
+            {data.skills && data.skills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("font-bold text-black border-b-2 border-black pb-2 mb-4")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}_SET</h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.skills.map(skill => (
+                    <span key={skill} className="bg-black text-white px-2 py-1 text-xs font-bold">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.hardSkills && data.hardSkills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("font-bold text-black border-b-2 border-black pb-2 mb-4 mt-8")}>{data.resumeLanguage === 'en' ? 'HARD_SKILLS' : 'HARD_SKILLS'}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.hardSkills.map(skill => (
+                    <span key={skill} className="bg-black text-white px-2 py-1 text-xs font-bold">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.softSkills && data.softSkills.length > 0 && (
+              <div>
+                <h3 className={getHeadingClass("font-bold text-black border-b-2 border-black pb-2 mb-4 mt-8")}>{data.resumeLanguage === 'en' ? 'SOFT_SKILLS' : 'SOFT_SKILLS'}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.softSkills.map(skill => (
+                    <span key={skill} className="bg-black text-white px-2 py-1 text-xs font-bold">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.languages.length > 0 && (
+              <div className="mt-8">
+                <h3 className={getHeadingClass("font-bold text-black border-b-2 border-black pb-2 mb-4")}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}_SYS</h3>
+                <div className="space-y-2 text-sm">
+                  {data.languages.map(l => (
+                    <div key={l.id} className="flex justify-between">
+                      <span className="font-bold">{l.language}</span>
+                      <span className="text-gray-500">[{l.level}]</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </aside>
 
           <main className="p-8 space-y-8">
@@ -531,6 +827,20 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 ))}
               </div>
             </section>
+
+            {data.certifications.length > 0 && (
+              <section>
+                <h3 className={getHeadingClass("font-bold text-2xl text-black border-l-4 border-black pl-4 mb-4")}>AUTH_KEY // {t('section.certifications', data.resumeLanguage as 'en' | 'th')}</h3>
+                <div className="space-y-4">
+                  {data.certifications.map(c => (
+                    <div key={c.id}>
+                      <div className="font-bold">{c.name}</div>
+                      <div className="text-green-600 font-mono text-xs">{c.year}</div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </main>
         </div>
       </div>
@@ -568,6 +878,14 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                   {data.phone && <div className="flex items-center gap-3"><Phone size={18} style={{ color: primary }} /> {data.phone}</div>}
                   {data.email && <div className="flex items-center gap-3"><Mail size={18} style={{ color: primary }} /> {data.email}</div>}
                   {data.address && <div className="flex items-center gap-3"><MapPin size={18} style={{ color: primary }} /> {data.address}</div>}
+                  {data.socialLinks?.filter(l => l.url.trim()).map(link => (
+                    <div key={link.id} className="flex items-center gap-3">
+                      <Globe size={18} style={{ color: primary }} />
+                      <a href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
+                        {link.platform === 'Other' ? '' : `${link.platform}: `}{link.url.replace(/^https?:\/\//, '')}
+                      </a>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -576,14 +894,50 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <p className="text-gray-600 leading-relaxed text-justify">{data.summary}</p>
               </div>
 
-              <div>
-                <h3 className={getHeadingClass("font-bold text-xl mb-4 border-b-2 pb-2")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {data.skills.map(skill => (
-                    <span key={skill} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-lg text-sm font-medium">{skill}</span>
-                  ))}
+              {data.skills && data.skills.length > 0 && (
+                <div>
+                  <h3 className={getHeadingClass("font-bold text-xl mb-4 border-b-2 pb-2")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {data.skills.map(skill => (
+                      <span key={skill} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-lg text-sm font-medium">{skill}</span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+              {data.hardSkills && data.hardSkills.length > 0 && (
+                <div>
+                  <h3 className={getHeadingClass("font-bold text-xl mb-4 border-b-2 pb-2")}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {data.hardSkills.map(skill => (
+                      <span key={skill} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-lg text-sm font-medium">{skill}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {data.softSkills && data.softSkills.length > 0 && (
+                <div>
+                  <h3 className={getHeadingClass("font-bold text-xl mb-4 border-b-2 pb-2")}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {data.softSkills.map(skill => (
+                      <span key={skill} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-lg text-sm font-medium">{skill}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {data.languages.length > 0 && (
+                <div>
+                  <h3 className={getHeadingClass("font-bold text-xl mb-4 border-b-2 pb-2")}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}</h3>
+                  <div className="space-y-2 text-gray-700">
+                    {data.languages.map(l => (
+                      <div key={l.id} className="flex justify-between">
+                        <span className="font-bold">{l.language}</span>
+                        <span className="text-gray-500 text-sm">{l.level}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </aside>
 
             <main className="space-y-8">
@@ -615,6 +969,22 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                   ))}
                 </div>
               </div>
+
+              {data.certifications.length > 0 && (
+                <div>
+                  <h3 className={getHeadingClass("font-bold text-2xl mb-6 flex items-center gap-3")}>
+                    <span className="w-3 h-8 rounded-full" style={{ backgroundColor: primary }}></span> {t('section.certifications', data.resumeLanguage as 'en' | 'th')}
+                  </h3>
+                  <div className="space-y-4">
+                    {data.certifications.map(c => (
+                      <div key={c.id}>
+                        <div className="text-lg font-bold text-gray-800">{c.name}</div>
+                        <div className="text-sm font-semibold text-gray-500">{c.year}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </main>
           </div>
         </div>
@@ -648,20 +1018,69 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 {data.email && <div>{data.email}</div>}
                 {data.phone && <div>{data.phone}</div>}
                 {data.address && <div>{data.address}</div>}
+                {data.socialLinks?.filter(l => l.url.trim()).map(link => (
+                  <div key={link.id} className="break-all">
+                    <a href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-600">
+                      {link.platform === 'Other' ? '' : `${link.platform}: `}{link.url.replace(/^https?:\/\//, '')}
+                    </a>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm h-full">
-              <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-              <ul className="space-y-2">
-                {data.skills.map(skill => (
-                  <li key={skill} className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primary }}></span>
-                    <span>{skill}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {data.skills && data.skills.length > 0 && (
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
+                <ul className="space-y-2">
+                  {data.skills.map(skill => (
+                    <li key={skill} className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primary }}></span>
+                      <span>{skill}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {data.hardSkills && data.hardSkills.length > 0 && (
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
+                <ul className="space-y-2">
+                  {data.hardSkills.map(skill => (
+                    <li key={skill} className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primary }}></span>
+                      <span>{skill}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {data.softSkills && data.softSkills.length > 0 && (
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
+                <ul className="space-y-2">
+                  {data.softSkills.map(skill => (
+                    <li key={skill} className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primary }}></span>
+                      <span>{skill}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {data.languages.length > 0 && (
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}</h3>
+                <div className="space-y-3">
+                  {data.languages.map(l => (
+                    <div key={l.id}>
+                      <div className="font-bold text-gray-800">{l.language}</div>
+                      <div className="text-sm text-gray-500">{l.level}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -693,6 +1112,20 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 ))}
               </div>
             </div>
+
+            {data.certifications.length > 0 && (
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <h3 className={getHeadingClass("font-bold text-xl text-gray-900 mb-6 border-b pb-2")}>{t('section.certifications', data.resumeLanguage as 'en' | 'th')}</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {data.certifications.map(c => (
+                    <div key={c.id} className="bg-gray-50 p-4 rounded-lg">
+                      <div className="font-bold text-gray-800">{c.name}</div>
+                      <div className="text-sm text-gray-500 mt-1">{c.year}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -719,6 +1152,13 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
           <div>{data.address}</div>
           <div>{data.email}</div>
           <div>{data.phone}</div>
+          {data.socialLinks?.filter(l => l.url.trim()).map(link => (
+            <div key={link.id}>
+              <a href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
+                {link.platform === 'Other' ? '' : `${link.platform}: `}{link.url.replace(/^https?:\/\//, '')}
+              </a>
+            </div>
+          ))}
         </div>
       </header>
 
@@ -749,6 +1189,22 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               ))}
             </div>
           </section>
+
+          {data.certifications.length > 0 && (
+            <section>
+              <h3 className="font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span className="w-8 h-1" style={{ backgroundColor: primaryColor }}></span> {t('section.certifications', data.resumeLanguage as 'en' | 'th')}
+              </h3>
+              <div className="space-y-4">
+                {data.certifications.map(c => (
+                  <div key={c.id}>
+                    <div className="font-bold text-gray-800 text-lg">{c.name}</div>
+                    <div className="text-sm font-semibold text-gray-500">{c.year}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Sidebar Right */}
@@ -766,14 +1222,38 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             </div>
           </section>
 
-          <section>
-            <h3 className="font-bold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-            <div className="flex flex-wrap gap-2">
-              {data.skills.map(skill => (
-                <span key={skill} className="px-3 py-1.5 border border-gray-200 text-gray-600 text-sm rounded hover:border-gray-400 transition-colors">{skill}</span>
-              ))}
-            </div>
-          </section>
+          {data.skills && data.skills.length > 0 && (
+            <section>
+              <h3 className="font-bold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.skills.map(skill => (
+                  <span key={skill} className="px-3 py-1.5 border border-gray-200 text-gray-600 text-sm rounded hover:border-gray-400 transition-colors">{skill}</span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {data.hardSkills && data.hardSkills.length > 0 && (
+            <section>
+              <h3 className="font-bold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.hardSkills.map(skill => (
+                  <span key={skill} className="px-3 py-1.5 border border-gray-200 text-gray-600 text-sm rounded hover:border-gray-400 transition-colors">{skill}</span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {data.softSkills && data.softSkills.length > 0 && (
+            <section>
+              <h3 className="font-bold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.softSkills.map(skill => (
+                  <span key={skill} className="px-3 py-1.5 border border-gray-200 text-gray-600 text-sm rounded hover:border-gray-400 transition-colors">{skill}</span>
+                ))}
+              </div>
+            </section>
+          )}
 
           {(data.languages.length > 0) && (
             <section>
