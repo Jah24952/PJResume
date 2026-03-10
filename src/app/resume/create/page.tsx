@@ -145,14 +145,22 @@ function ResumeCreateContent() {
                 company: e.company,
                 startDate: e.start_date,
                 endDate: e.end_date,
-                description: e.responsibility
+                description: e.responsibility,
+                type: e.type || 'work',
+                skillsUsed: e.skills_used || '',
+                projectUrl: e.project_url || '',
+                department: e.department || ''
               })) || [],
               education: r.education?.map((e: any) => ({
                 id: e.edu_id || crypto.randomUUID(),
                 degree: e.degree,
                 school: e.institute,
                 startDate: e.start_year,
-                endDate: e.end_year
+                endDate: e.end_year,
+                faculty: e.faculty || '',
+                major: e.major || '',
+                gpa: e.gpa || '',
+                status: e.status || 'Graduated'
               })) || [],
               skills: r.skills?.map((s: any) => s.skill_name) || [],
               hardSkills: safeParseArray(r.hard_skills),
@@ -256,14 +264,21 @@ function ResumeCreateContent() {
           position: exp.position,
           responsibility: exp.description, // Map description -> responsibility
           start_date: exp.startDate,      // Map startDate -> start_date
-          end_date: exp.endDate           // Map endDate -> end_date
+          end_date: exp.endDate,          // Map endDate -> end_date
+          type: exp.type || 'work',
+          skills_used: exp.skillsUsed || null,
+          project_url: exp.projectUrl || null,
+          department: exp.department || null
         })),
 
         // Map Education
         education: data.education.map(edu => ({
           institute: edu.school,          // Map school -> institute
           degree: edu.degree,
-          major: edu.fieldOfStudy || '',  // Map fieldOfStudy -> major
+          faculty: edu.faculty || '',     // New mapping
+          major: edu.major || '',         // New mapping
+          gpa: edu.gpa || null,           // New mapping
+          status: edu.status || 'Graduated', // New mapping
           start_year: edu.startDate,      // Map startDate -> start_year
           end_year: edu.endDate           // Map endDate -> end_year
         })),
@@ -800,12 +815,29 @@ function ResumeCreateContent() {
                           )}
                         </select>
                       </div>
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'คณะ / สาขาวิชา' : 'Field of Study'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.fieldOfStudy || ''} onChange={e => updateItem('education', edu.id, { ...edu, fieldOfStudy: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'คณะ' : 'Faculty'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.faculty || ''} onChange={e => updateItem('education', edu.id, { ...edu, faculty: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สาขาวิชา' : 'Major'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.major || ''} onChange={e => updateItem('education', edu.id, { ...edu, major: e.target.value })} /></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
                       <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สถานศึกษา' : 'School/University'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.school} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เกรดเฉลี่ย' : 'GPA'}</label><input type="text" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.gpa || ''} onChange={e => updateItem('education', edu.id, { ...edu, gpa: e.target.value })} /></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สถานะ' : 'Status'}</label>
+                        <select
+                          className="w-full p-2 border rounded bg-gray-50 text-black h-[42px]"
+                          value={edu.status || 'Graduated'}
+                          onChange={e => updateItem('education', edu.id, { ...edu, status: e.target.value as 'Studying' | 'Graduated' })}
+                        >
+                          <option value="Studying">{data.resumeLanguage === 'th' ? 'กำลังศึกษา' : 'Studying'}</option>
+                          <option value="Graduated">{data.resumeLanguage === 'th' ? 'จบการศึกษาแล้ว' : 'Graduated'}</option>
+                        </select>
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{edu.status === 'Studying' ? (data.resumeLanguage === 'th' ? 'คาดว่าจะจบ' : 'Expected End') : (data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End')}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
                     </div>
                   </div>
                 ))}

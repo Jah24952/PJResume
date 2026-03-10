@@ -15,6 +15,107 @@ const STEPS = [
     { id: 5, key: 'summary', title: 'บทสรุป', icon: FileText, description: 'แนะนำตัวสั้นๆ และน่าสนใจ' },
 ]
 
+// --- Education Autocomplete Data ---
+const UNIVERSITIES = [
+    "จุฬาลงกรณ์มหาวิทยาลัย", "มหาวิทยาลัยธรรมศาสตร์", "มหาวิทยาลัยเกษตรศาสตร์", "มหาวิทยาลัยมหิดล",
+    "มหาวิทยาลัยเชียงใหม่", "มหาวิทยาลัยพะเยา", "มหาวิทยาลัยพายัพ", "มหาวิทยาลัยขอนแก่น",
+    "มหาวิทยาลัยสงขลานครินทร์", "มหาวิทยาลัยศิลปากร", "มหาวิทยาลัยศรีนครินทรวิโรฒ",
+    "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี", "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+    "สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง", "มหาวิทยาลัยบูรพา", "มหาวิทยาลัยนเรศวร",
+    "มหาวิทยาลัยรังสิต", "มหาวิทยาลัยกรุงเทพ", "มหาวิทยาลัยศรีปทุม", "มหาวิทยาลัยหอการค้าไทย",
+    "มหาวิทยาลัยอัสสัมชัญ (ABAC)",
+    "Harvard University", "Massachusetts Institute of Technology (MIT)", "Stanford University",
+    "Harrisburg University", "University of California, Berkeley", "University of Oxford",
+    "University of Cambridge", "Imperial College London", "National University of Singapore (NUS)",
+    "Tokyo Institute of Technology", "Chiang Mai University", "Chiang Rai Rajabhat University"
+]
+
+const FACULTY_MAJOR_MAP: Record<string, string[]> = {
+    "วิศวกรรมศาสตร์ (Engineering)": [
+        "วิศวกรรมคอมพิวเตอร์ (Computer Engineering)", "วิศวกรรมไฟฟ้า (Electrical)",
+        "วิศวกรรมเครื่องกล (Mechanical)", "วิศวกรรมโยธา (Civil)",
+        "วิศวกรรมอุตสาหการ (Industrial)", "วิศวกรรมเคมี (Chemical)",
+        "วิศวกรรมชีวการแพทย์ (Biomedical)", "วิศวกรรมซอฟต์แวร์ (Software)", "อื่นๆ (Other)"
+    ],
+    "วิทยาศาสตร์ (Science)": [
+        "วิทยาการคอมพิวเตอร์ (Computer Science)", "วิทยาศาสตร์ข้อมูล (Data Science)",
+        "คณิตศาสตร์ (Mathematics)", "สถิติ (Statistics)", "เคมี (Chemistry)",
+        "ชีววิทยา (Biology)", "ฟิสิกส์ (Physics)", "วิทยาศาสตร์สิ่งแวดล้อม (Environmental)", "อื่นๆ (Other)"
+    ],
+    "เทคโนโลยีสารสนเทศ (Information Technology)": [
+        "เทคโนโลยีสารสนเทศ (IT)", "วิทยาการข้อมูลและการวิเคราะห์ (Data Analytics)",
+        "เทคโนโลยีมัลติมีเดีย (Multimedia Tech)", "ความมั่นคงปลอดภัยทางไซเบอร์ (Cybersecurity)", "อื่นๆ (Other)"
+    ],
+    "บริหารธุรกิจ (Business/Commerce)": [
+        "การตลาด (Marketing)", "การเงิน (Finance)", "บัญชี (Accounting)",
+        "การจัดการ (Management)", "ธุรกิจระหว่างประเทศ (International Business)",
+        "ระบบสารสนเทศเพื่อการจัดการ (MIS)", "การจัดการทรัพยากรมนุษย์ (HRM)", "อื่นๆ (Other)"
+    ],
+    "เศรษฐศาสตร์ (Economics)": [
+        "เศรษฐศาสตร์ (Economics)", "เศรษฐศาสตร์ระหว่างประเทศ (International Economics)",
+        "เศรษฐศาสตร์การเงิน (Financial Economics)", "อื่นๆ (Other)"
+    ],
+    "มนุษยศาสตร์ (Humanities)": [
+        "ภาษาอังกฤษ (English)", "ภาษาไทย (Thai)", "ภาษาญี่ปุ่น (Japanese)",
+        "ภาษาจีน (Chinese)", "ปรัชญา (Philosophy)", "อื่นๆ (Other)"
+    ],
+    "ศิลปศาสตร์ (Liberal Arts)": [
+        "ภาษาศาสตร์ (Linguistics)", "วรรณคดี (Literature)", "จิตวิทยา (Psychology)", "อื่นๆ (Other)"
+    ],
+    "สังคมศาสตร์ (Social Sciences)": [
+        "สังคมวิทยาและมานุษยวิทยา (Sociology and Anthropology)", "การพัฒนาสังคม (Social Development)", "อื่นๆ (Other)"
+    ],
+    "รัฐศาสตร์ (Political Science)": [
+        "การเมืองการปกครอง (Government)", "ความสัมพันธ์ระหว่างประเทศ (International Relations)",
+        "รัฐประศาสนศาสตร์ (Public Administration)", "อื่นๆ (Other)"
+    ],
+    "นิติศาสตร์ (Law)": [
+        "กฎหมายธุรกิจ (Business Law)", "กฎหมายมหาชน (Public Law)",
+        "กฎหมายระหว่างประเทศ (International Law)", "กฎหมายอาญา (Criminal Law)", "อื่นๆ (Other)"
+    ],
+    "นิเทศศาสตร์ (Communication Arts)": [
+        "สื่อสารมวลชน (Mass Communication)", "วารสารศาสตร์ (Journalism)",
+        "โฆษณา (Advertising)", "ประชาสัมพันธ์ (Public Relations)",
+        "วิทยุและโทรทัศน์ (Radio & Television)", "ภาพยนตร์ (Film)", "อื่นๆ (Other)"
+    ],
+    "สถาปัตยกรรมศาสตร์ (Architecture)": [
+        "สถาปัตยกรรม (Architecture)", "สถาปัตยกรรมภายใน (Interior Architecture)",
+        "ภูมิสถาปัตยกรรม (Landscape Architecture)", "ออกแบบอุตสาหกรรม (Industrial Design)", "อื่นๆ (Other)"
+    ],
+    "แพทยศาสตร์ (Medicine)": [
+        "แพทยศาสตร์ (Medicine)", "เวชศาสตร์ชุมชน (Community Medicine)", "อื่นๆ (Other)"
+    ],
+    "พยาบาลศาสตร์ (Nursing)": [
+        "พยาบาลศาสตร์ (Nursing)", "การพยาบาลผู้ใหญ่และผู้สูงอายุ (Adult and Gerontological Nursing)", "อื่นๆ (Other)"
+    ],
+    "เภสัชศาสตร์ (Pharmacy)": [
+        "เภสัชกรรมอุตสาหการ (Industrial Pharmacy)", "บริบาลเภสัชกรรม (Pharmaceutical Care)", "อื่นๆ (Other)"
+    ],
+    "สาธารณสุขศาสตร์ (Public Health)": [
+        "อนามัยสิ่งแวดล้อม (Environmental Health)", "อาชีวอนามัยและความปลอดภัย (Occupational Health)",
+        "สุขศึกษาและพฤติกรรมศาสตร์ (Health Education)", "อื่นๆ (Other)"
+    ],
+    "เกษตรศาสตร์ (Agriculture)": [
+        "พืชไร่ (Agronomy)", "สัตวบาล (Animal Husbandry)",
+        "เศรษฐศาสตร์การเกษตร (Agricultural Economics)", "กีฏวิทยา (Entomology)", "อื่นๆ (Other)"
+    ],
+    "ศึกษาศาสตร์ (Education)": [
+        "การศึกษาปฐมวัย (Early Childhood Education)", "ประถมศึกษา (Elementary Education)",
+        "การสอน (Teaching)", "บริหารการศึกษา (Educational Administration)", "อื่นๆ (Other)"
+    ],
+    "ครุศาสตร์ (Education/Teaching)": [
+        "ภาษาอังกฤษ (Teaching English)", "ภาษาไทย (Teaching Thai)",
+        "คณิตศาสตร์ (Teaching Math)", "วิทยาศาสตร์ (Teaching Science)", "อื่นๆ (Other)"
+    ],
+    "ศิลปกรรมศาสตร์ (Fine and Applied Arts)": [
+        "ทัศนศิลป์ (Visual Arts)", "ดุริยางคศิลป์ (Music)",
+        "นาฏศิลป์ (Performing Arts)", "การออกแบบนิทรรศการ (Exhibition Design)", "อื่นๆ (Other)"
+    ],
+    "อื่นๆ (Other)": ["อื่นๆ (Other)"]
+}
+const FACULTIES = Object.keys(FACULTY_MAJOR_MAP)
+
+
 export default function ResumeWizardPage() {
     return (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-500">กำลังโหลด...</div>}>
@@ -27,12 +128,13 @@ function ResumeWizardContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
 
-    const { data, update, addItem, removeItem, updateItem, addSkill, removeSkill } = useResumeStore()
+    const { data, update, addItem, removeItem, updateItem, addHardSkill, removeHardSkill, addSoftSkill, removeSoftSkill } = useResumeStore()
     const queryTemplateId = searchParams.get('template')
     const templateId = (queryTemplateId && queryTemplateId !== 'undefined') ? queryTemplateId : data.selectedTemplate || 'modern'
 
     const [currentStep, setCurrentStep] = useState(1)
-    const [newSkill, setNewSkill] = useState('')
+    const [newHardSkill, setNewHardSkill] = useState('')
+    const [newSoftSkill, setNewSoftSkill] = useState('')
     const [errors, setErrors] = useState<Record<string, string>>({})
 
     const validateContact = () => {
@@ -208,31 +310,100 @@ function ResumeWizardContent() {
                         {data.experience.length === 0 && (
                             <div className="text-center py-12 bg-slate-50 rounded-xl border-dashed border-2 border-slate-200">
                                 <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                                <p className="text-slate-500 font-medium">ยังไม่มีข้อมูลประสบการณ์ทำงาน</p>
+                                <p className="text-slate-500 font-medium">ยังไม่มีข้อมูลประสบการณ์ทำงาน โปรเจค หรือกิจกรรม</p>
                                 <p className="text-slate-400 text-sm mb-4">กดปุ่มด้านล่างเพื่อเพิ่มประวัติ</p>
                             </div>
                         )}
 
-                        {data.experience.map(exp => (
-                            <div key={exp.id} className="bg-white border p-6 rounded-xl shadow-sm relative group hover:border-[#437393] transition-colors">
-                                <button onClick={() => removeItem('experience', exp.id)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={20} /></button>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">ตำแหน่ง</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.position || ''} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">บริษัท</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.company || ''} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
+                        {data.experience.map(exp => {
+                            // Determine labels and fields based on type
+                            const type = exp.type || 'work';
+                            let posLabel = 'ตำแหน่ง';
+                            let compLabel = 'บริษัท / องค์กร';
+                            let descLabel = 'รายละเอียดความรับผิดชอบ';
+                            let skillsLabel = 'ทักษะที่ใช้';
+                            let showProjectUrl = false;
+                            let showDepartment = false;
+
+                            if (type === 'work') {
+                                posLabel = 'ชื่อตำแหน่งงาน';
+                                compLabel = 'ชื่อบริษัท / องค์กร';
+                                descLabel = 'รายละเอียดงาน';
+                            } else if (type === 'project') {
+                                posLabel = 'ชื่อโปรเจค';
+                                compLabel = 'วิชา / องค์กร / แหล่งที่มา';
+                                descLabel = 'คำอธิบายโปรเจค และผลลัพธ์';
+                                skillsLabel = 'เทคโนโลยี / เครื่องมือที่ใช้';
+                                showProjectUrl = true;
+                            } else if (type === 'internship') {
+                                posLabel = 'ตำแหน่งฝึกงาน';
+                                compLabel = 'บริษัท / องค์กร';
+                                descLabel = 'สิ่งที่ได้รับจากการฝึกงาน';
+                                skillsLabel = 'ทักษะที่ได้';
+                                showDepartment = true;
+                            } else if (type === 'activity') {
+                                posLabel = 'บทบาท / ตำแหน่ง';
+                                compLabel = 'ชื่อกิจกรรม / ชมรม';
+                                descLabel = 'รายละเอียด หน้าที่ และสิ่งที่ได้รับ';
+                            }
+
+                            return (
+                                <div key={exp.id} className="bg-white border p-6 rounded-xl shadow-sm relative group hover:border-[#437393] transition-colors">
+                                    <div className="absolute top-4 right-12 bg-blue-50 text-[#437393] text-xs px-2 py-1 rounded border border-blue-100 font-semibold">
+                                        {type === 'work' ? '💼 ประสบการณ์ทำงาน' : type === 'project' ? '🧑‍💻 โปรเจค' : type === 'internship' ? '🎓 ฝึกงาน' : '🤝 กิจกรรม / อาสา'}
+                                    </div>
+                                    <button onClick={() => removeItem('experience', exp.id)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={20} /></button>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 mt-4">
+                                        <div><label className="text-xs font-bold text-slate-500 mb-1 block">{posLabel}</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.position || ''} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
+                                        <div><label className="text-xs font-bold text-slate-500 mb-1 block">{compLabel}</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.company || ''} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
+                                    </div>
+
+                                    {showDepartment && (
+                                        <div className="mb-4">
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">แผนก</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.department || ''} onChange={e => updateItem('experience', exp.id, { ...exp, department: e.target.value })} />
+                                        </div>
+                                    )}
+
+                                    <div className="mb-4">
+                                        <label className="text-xs font-bold text-slate-500 mb-1 block">{descLabel}</label>
+                                        <textarea className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none h-24" value={exp.description || ''} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} placeholder={`อธิบาย${descLabel}`} />
+                                    </div>
+
+                                    {type !== 'activity' && (
+                                        <div className="mb-4">
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">{skillsLabel}</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.skillsUsed || ''} onChange={e => updateItem('experience', exp.id, { ...exp, skillsUsed: e.target.value })} placeholder="เช่น React, Python, Microsoft Excel" />
+                                        </div>
+                                    )}
+
+                                    {showProjectUrl && (
+                                        <div className="mb-4">
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">ลิงก์ผลงาน (ถ้ามี)</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.projectUrl || ''} onChange={e => updateItem('experience', exp.id, { ...exp, projectUrl: e.target.value })} placeholder="https://github.com/..." />
+                                        </div>
+                                    )}
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div><label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.startDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
+                                        <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
+                                    </div>
                                 </div>
-                                <div className="mb-4">
-                                    <label className="text-xs font-bold text-slate-500 mb-1 block">รายละเอียดความรับผิดชอบ</label>
-                                    <textarea className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none h-24" value={exp.description || ''} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} placeholder="อธิบายหน้าที่ความรับผิดชอบและผลงานของคุณ" />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.startDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
-                                </div>
-                            </div>
-                        ))}
-                        <button onClick={() => addItem('experience', { id: crypto.randomUUID(), position: '', company: '', startDate: '', endDate: '', description: '' })} className="w-full py-4 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex justify-center items-center gap-2 hover:bg-[#437393]/5 transition-colors">
-                            <Plus size={20} /> เพิ่มประสบการณ์ทำงาน
-                        </button>
+                            );
+                        })}
+
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+                            <button onClick={() => addItem('experience', { id: crypto.randomUUID(), type: 'work', position: '', company: '', startDate: '', endDate: '', description: '', skillsUsed: '' })} className="py-3 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex flex-col justify-center items-center gap-1 hover:bg-[#437393]/5 transition-colors text-sm">
+                                <span className="text-lg">💼</span> ประสบการณ์ทำงาน
+                            </button>
+                            <button onClick={() => addItem('experience', { id: crypto.randomUUID(), type: 'project', position: '', company: '', startDate: '', endDate: '', description: '', skillsUsed: '', projectUrl: '' })} className="py-3 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex flex-col justify-center items-center gap-1 hover:bg-[#437393]/5 transition-colors text-sm">
+                                <span className="text-lg">🧑‍💻</span> โปรเจค / โครงงาน
+                            </button>
+                            <button onClick={() => addItem('experience', { id: crypto.randomUUID(), type: 'internship', position: '', company: '', startDate: '', endDate: '', description: '', skillsUsed: '', department: '' })} className="py-3 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex flex-col justify-center items-center gap-1 hover:bg-[#437393]/5 transition-colors text-sm">
+                                <span className="text-lg">🎓</span> ฝึกงาน (Intern)
+                            </button>
+                            <button onClick={() => addItem('experience', { id: crypto.randomUUID(), type: 'activity', position: '', company: '', startDate: '', endDate: '', description: '' })} className="py-3 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex flex-col justify-center items-center gap-1 hover:bg-[#437393]/5 transition-colors text-sm">
+                                <span className="text-lg">🤝</span> กิจกรรม / อาสา
+                            </button>
+                        </div>
                     </div>
                 )
             case 3: // Education
@@ -245,38 +416,135 @@ function ResumeWizardContent() {
                                 <p className="text-slate-400 text-sm mb-4">เพิ่มประวัติการศึกษาของคุณ</p>
                             </div>
                         )}
-                        {data.education.map(edu => (
-                            <div key={edu.id} className="bg-white border p-6 rounded-xl shadow-sm relative group hover:border-[#437393] transition-colors">
-                                <button onClick={() => removeItem('education', edu.id)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={20} /></button>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label className="text-xs font-bold text-slate-500 mb-1 block">วุฒิการศึกษา</label>
-                                        <select
-                                            className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none"
-                                            value={edu.degree || ''}
-                                            onChange={e => updateItem('education', edu.id, { ...edu, degree: e.target.value })}
-                                        >
-                                            <option value="">-- เลือกวุฒิการศึกษา --</option>
-                                            <option value="ไม่มีวุฒิการศึกษา">ไม่มีวุฒิการศึกษา</option>
-                                            <option value="ประถมศึกษา">ประถมศึกษา</option>
-                                            <option value="มัธยมศึกษาตอนต้น (ม.3)">มัธยมศึกษาตอนต้น (ม.3)</option>
-                                            <option value="มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)">มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)</option>
-                                            <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
-                                            <option value="ปริญญาตรี">ปริญญาตรี</option>
-                                            <option value="ปริญญาโท">ปริญญาโท</option>
-                                            <option value="ปริญญาเอก">ปริญญาเอก</option>
-                                        </select>
+                        {data.education.map(edu => {
+                            // Helper to filter options
+                            const matchUniversities = (search: string) => search ? UNIVERSITIES.filter(u => u.toLowerCase().includes(search.toLowerCase())) : UNIVERSITIES.slice(0, 10);
+                            const currentFaculty = edu.faculty || '';
+                            const availableMajors = FACULTY_MAJOR_MAP[currentFaculty] || [];
+
+                            return (
+                                <div key={edu.id} className="bg-white border p-6 rounded-xl shadow-sm relative group hover:border-[#437393] transition-colors overflow-visible">
+                                    <button onClick={() => removeItem('education', edu.id)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors z-10"><Trash2 size={20} /></button>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">วุฒิการศึกษา</label>
+                                            <select
+                                                className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none"
+                                                value={edu.degree || ''}
+                                                onChange={e => updateItem('education', edu.id, { ...edu, degree: e.target.value })}
+                                            >
+                                                <option value="">-- เลือกวุฒิการศึกษา --</option>
+                                                <option value="ไม่มีวุฒิการศึกษา">ไม่มีวุฒิการศึกษา</option>
+                                                <option value="ประถมศึกษา">ประถมศึกษา</option>
+                                                <option value="มัธยมศึกษาตอนต้น (ม.3)">มัธยมศึกษาตอนต้น (ม.3)</option>
+                                                <option value="มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)">มัธยมศึกษาตอนปลาย (ม.6 / ปวช.)</option>
+                                                <option value="ปวส. / อนุปริญญา">ปวส. / อนุปริญญา</option>
+                                                <option value="ปริญญาตรี">ปริญญาตรี</option>
+                                                <option value="ปริญญาโท">ปริญญาโท</option>
+                                                <option value="ปริญญาเอก">ปริญญาเอก</option>
+                                            </select>
+                                        </div>
+
+                                        {/* University Input with Datalist alternative for combobox experience */}
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">สถาบันการศึกษา</label>
+                                            <input
+                                                className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none"
+                                                value={edu.school || ''}
+                                                onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })}
+                                                placeholder="พิมพ์เพื่อค้นหา หรือพิมพ์สถาบันใหม่..."
+                                                list={`uni-list-${edu.id}`}
+                                            />
+                                            <datalist id={`uni-list-${edu.id}`}>
+                                                {UNIVERSITIES.map(u => <option key={u} value={u} />)}
+                                            </datalist>
+                                        </div>
                                     </div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">คณะ / สาขาวิชา</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.fieldOfStudy || ''} onChange={e => updateItem('education', edu.id, { ...edu, fieldOfStudy: e.target.value })} placeholder="เช่น วิศวกรรมศาสตร์" /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สถาบันการศึกษา</label><input className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.school || ''} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">คณะ (Faculty)</label>
+                                            <input
+                                                className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none"
+                                                value={edu.faculty || ''}
+                                                onChange={e => updateItem('education', edu.id, { ...edu, faculty: e.target.value })}
+                                                placeholder="เลือกคณะ หรือพิมพ์ใหม่..."
+                                                list={`faculty-list-${edu.id}`}
+                                            />
+                                            <datalist id={`faculty-list-${edu.id}`}>
+                                                {FACULTIES.map(f => <option key={f} value={f} />)}
+                                            </datalist>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">สาขาวิชา (Major)</label>
+                                            <input
+                                                className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none"
+                                                value={edu.major || ''}
+                                                onChange={e => updateItem('education', edu.id, { ...edu, major: e.target.value })}
+                                                placeholder={currentFaculty ? "เลือกสาขาวิชา หรือพิมพ์ใหม่..." : "กรุณาเลือกคณะก่อน หรือพิมพ์สาขาได้เลย"}
+                                                list={`major-list-${edu.id}`}
+                                            />
+                                            <datalist id={`major-list-${edu.id}`}>
+                                                {availableMajors.map(m => <option key={m} value={m} />)}
+                                            </datalist>
+                                        </div>
+                                    </div>
+
+                                    {/* GPA & Status Row */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">เกรดเฉลี่ย (GPA)</label>
+                                            <input
+                                                type="text"
+                                                className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none"
+                                                value={edu.gpa || ''}
+                                                onChange={e => {
+                                                    const val = e.target.value;
+                                                    // Allow numeric and dot only, max 4.00 logic can be soft
+                                                    if (/^[\d.]*$/.test(val) && val.length <= 4) {
+                                                        updateItem('education', edu.id, { ...edu, gpa: val });
+                                                    }
+                                                }}
+                                                placeholder="เช่น 3.45"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">สถานะการศึกษา</label>
+                                            <div className="flex gap-2 bg-slate-50 p-1 rounded border">
+                                                <button
+                                                    className={`flex-1 text-sm py-1 rounded transition-colors ${edu.status === 'Studying' ? 'bg-[#437393] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200'}`}
+                                                    onClick={() => updateItem('education', edu.id, { ...edu, status: 'Studying' })}
+                                                >
+                                                    กำลังศึกษา
+                                                </button>
+                                                <button
+                                                    className={`flex-1 text-sm py-1 rounded transition-colors ${(!edu.status || edu.status === 'Graduated') ? 'bg-green-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200'}`}
+                                                    onClick={() => updateItem('education', edu.id, { ...edu, status: 'Graduated' })}
+                                                >
+                                                    สำเร็จการศึกษา
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-2 border-slate-100">
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label>
+                                            <input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none text-sm" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 mb-1 block flex justify-between">
+                                                <span>{edu.status === 'Studying' ? 'คาดว่าจะจบ (Expected)' : 'สิ้นสุด'}</span>
+                                            </label>
+                                            <input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none text-sm" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
-                                    <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
-                                </div>
-                            </div>
-                        ))}
-                        <button onClick={() => addItem('education', { id: crypto.randomUUID(), degree: '', fieldOfStudy: '', school: '', startDate: '', endDate: '' })} className="w-full py-4 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex justify-center items-center gap-2 hover:bg-[#437393]/5 transition-colors">
+                            );
+                        })}
+                        <button onClick={() => addItem('education', { id: crypto.randomUUID(), degree: '', school: '', faculty: '', major: '', gpa: '', status: 'Graduated', startDate: '', endDate: '' })} className="w-full py-4 border-2 border-dashed border-[#437393]/30 text-[#437393] font-bold rounded-xl flex justify-center items-center gap-2 hover:bg-[#437393]/5 transition-colors">
                             <Plus size={20} /> เพิ่มประวัติการศึกษา
                         </button>
                     </div>
@@ -284,39 +552,78 @@ function ResumeWizardContent() {
             case 4: // Skills
                 return (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+
+                        {/* ภาคส่วน Hard Skills */}
                         <div className="bg-white border rounded-xl p-6 shadow-sm">
-                            <h3 className="font-bold text-slate-700 mb-4">รายการทักษะของคุณ</h3>
+                            <h3 className="font-bold text-[#437393] mb-4">Hard Skills (ทักษะเชิงเทคนิค / ความรู้เฉพาะทาง)</h3>
                             <div className="flex gap-2 flex-wrap mb-6 min-h-[40px]">
-                                {data.skills.map(skill => (
+                                {data.hardSkills.map(skill => (
                                     <span key={skill} className="bg-blue-50 text-[#437393] px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 border border-blue-100 animate-in zoom-in duration-200">
-                                        {skill} <button onClick={() => removeSkill(skill)} className="hover:text-red-500 bg-white rounded-full w-4 h-4 flex items-center justify-center text-xs">×</button>
+                                        {skill} <button onClick={() => removeHardSkill(skill)} className="hover:text-red-500 bg-white rounded-full w-4 h-4 flex items-center justify-center text-xs">×</button>
                                     </span>
                                 ))}
-                                {data.skills.length === 0 && <span className="text-slate-400 text-sm italic">ยังไม่มีทักษะ (พิมพ์ด้านล่างเพื่อเพิ่ม)</span>}
+                                {data.hardSkills.length === 0 && <span className="text-slate-400 text-sm italic">ยังไม่มี Hard Skills (พิมพ์ด้านล่างเพื่อเพิ่ม)</span>}
                             </div>
 
                             <div className="flex gap-3">
                                 <input
-                                    className="flex-1 p-3 border rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all"
+                                    className="flex-1 p-3 border rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#437393] outline-none transition-all text-sm"
                                     placeholder="พิมพ์ทักษะแล้วกด Enter หรือปุ่มเพิ่ม..."
-                                    value={newSkill}
-                                    onChange={e => setNewSkill(e.target.value)}
-                                    onKeyDown={e => e.key === 'Enter' && (addSkill(newSkill), setNewSkill(''))}
+                                    value={newHardSkill}
+                                    onChange={e => setNewHardSkill(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && (addHardSkill(newHardSkill), setNewHardSkill(''))}
                                 />
-                                <button onClick={() => { if (newSkill) { addSkill(newSkill); setNewSkill('') } }} className="bg-[#437393] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#365d75] transition-colors shadow-md">
+                                <button onClick={() => { if (newHardSkill) { addHardSkill(newHardSkill); setNewHardSkill('') } }} className="bg-[#437393] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#365d75] transition-colors shadow-md">
                                     เพิ่ม
                                 </button>
                             </div>
+
+                            <div className="mt-4">
+                                <h4 className="text-xs font-bold text-slate-500 mb-2">Hard Skills ที่แนะนำ:</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {['Python', 'SQL', 'Microsoft Excel', 'Data Analysis', 'Adobe Photoshop', 'Project Management'].map(s => (
+                                        <button key={s} onClick={() => addHardSkill(s)} className="text-xs border border-slate-200 px-3 py-1.5 rounded-full hover:border-[#437393] hover:text-[#437393] transition-colors bg-white text-slate-600">
+                                            + {s}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="mt-8">
-                            <h4 className="text-sm font-bold text-slate-500 mb-3">ทักษะที่แนะนำ</h4>
-                            <div className="flex flex-wrap gap-2">
-                                {['Microsoft Excel', 'Communication', 'Teamwork', 'English', 'Problem Solving', 'Leadership', 'Project Management'].map(s => (
-                                    <button key={s} onClick={() => addSkill(s)} className="text-xs border border-slate-200 px-3 py-1.5 rounded-full hover:border-[#437393] hover:text-[#437393] transition-colors bg-white text-slate-600">
-                                        + {s}
-                                    </button>
+                        {/* ภาคส่วน Soft Skills */}
+                        <div className="bg-white border rounded-xl p-6 shadow-sm">
+                            <h3 className="font-bold text-[#437393] mb-4">Soft Skills (ทักษะด้านพฤติกรรม / การทำงานร่วมกับผู้อื่น)</h3>
+                            <div className="flex gap-2 flex-wrap mb-6 min-h-[40px]">
+                                {data.softSkills.map(skill => (
+                                    <span key={skill} className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 border border-emerald-100 animate-in zoom-in duration-200">
+                                        {skill} <button onClick={() => removeSoftSkill(skill)} className="hover:text-red-500 bg-white rounded-full w-4 h-4 flex items-center justify-center text-xs">×</button>
+                                    </span>
                                 ))}
+                                {data.softSkills.length === 0 && <span className="text-slate-400 text-sm italic">ยังไม่มี Soft Skills (พิมพ์ด้านล่างเพื่อเพิ่ม)</span>}
+                            </div>
+
+                            <div className="flex gap-3">
+                                <input
+                                    className="flex-1 p-3 border rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 outline-none transition-all text-sm"
+                                    placeholder="พิมพ์ทักษะแล้วกด Enter หรือปุ่มเพิ่ม..."
+                                    value={newSoftSkill}
+                                    onChange={e => setNewSoftSkill(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && (addSoftSkill(newSoftSkill), setNewSoftSkill(''))}
+                                />
+                                <button onClick={() => { if (newSoftSkill) { addSoftSkill(newSoftSkill); setNewSoftSkill('') } }} className="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-700 transition-colors shadow-md">
+                                    เพิ่ม
+                                </button>
+                            </div>
+
+                            <div className="mt-4">
+                                <h4 className="text-xs font-bold text-slate-500 mb-2">Soft Skills ที่แนะนำ:</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {['Communication', 'Teamwork', 'Problem Solving', 'Leadership', 'Time Management', 'Adaptability'].map(s => (
+                                        <button key={s} onClick={() => addSoftSkill(s)} className="text-xs border border-slate-200 px-3 py-1.5 rounded-full hover:border-emerald-600 hover:text-emerald-700 transition-colors bg-white text-slate-600">
+                                            + {s}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

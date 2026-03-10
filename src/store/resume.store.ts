@@ -1,14 +1,20 @@
 import { create } from 'zustand'
 
 /* ===== 1. โครงสร้างข้อมูล (อิงจากงานวิจัย) ===== */
+export type ExperienceType = 'work' | 'project' | 'internship' | 'activity'
+
 export type Experience = {
   id: string
+  type?: ExperienceType
   position: string
   company: string
   location: string
   startDate: string
   endDate: string
   description: string
+  skillsUsed?: string
+  projectUrl?: string
+  department?: string
 }
 
 export type Education = {
@@ -17,7 +23,10 @@ export type Education = {
   school: string
   startDate: string
   endDate: string
-  fieldOfStudy?: string
+  faculty?: string
+  major?: string
+  gpa?: string
+  status?: string
 }
 
 export type Language = {
@@ -117,7 +126,7 @@ export const useResumeStore = create<ResumeState>((set) => ({
     socialLinks: [],
     profileImage: '',
     experience: [],
-    education: [],
+    education: [{ id: '1', degree: '', school: '', startDate: '', endDate: '', faculty: '', major: '', gpa: '', status: 'Graduated' }],
     skills: [],
     hardSkills: [],
     softSkills: [],

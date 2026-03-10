@@ -21,7 +21,156 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     return `${baseClasses.replace(/\buppercase\b/g, '')} ${headingStyle}`.trim().replace(/\s+/g, ' ')
   }
 
-  // Remove merged displaySkills var to render skills separately based on type
+  // --- Dynamic Experience Item Renderer ---
+  // Reusable component block that handles all types of experiences (work, project, internship, etc.)
+  const renderExperienceItem = (exp: any, themeColor: string = '#437393', layout: 'classic' | 'modern' | 'timeline' | 'clean' | 'compact' = 'clean') => {
+    const isProject = exp.type === 'project';
+    const isInternship = exp.type === 'internship';
+    const isActivity = exp.type === 'activity';
+    const isWork = !isProject && !isInternship && !isActivity;
+
+    // Some themes map `themeColor` differently.
+    const primary = themeColor;
+
+    // Mapping Labels based on the document language.
+    const isEn = data.resumeLanguage === 'en';
+    const deptLabel = isEn ? 'Dept: ' : 'แผนก: ';
+    const techLabel = isEn ? 'Tools: ' : 'เทคโนโลยี: ';
+    const skillsLabel = isEn ? 'Skills: ' : 'ทักษะ: ';
+
+    // Formatter for Date
+    const dateStr = `${formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - ${formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}`;
+
+    switch (layout) {
+      case 'timeline':
+        return (
+          <div key={exp.id} className="relative group">
+            <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: primary }}></div>
+            <div className="font-bold text-lg text-gray-800 flex flex-wrap gap-2 items-center">
+              {exp.position}
+              {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-xs font-normal text-blue-500 hover:underline inline-flex items-center"><Globe size={12} className="mr-1" /> Link</a>}
+            </div>
+            <div className="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-500 font-medium mb-1">
+              <span style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-500">| {deptLabel}{exp.department}</span>}</span>
+              <span>{dateStr}</span>
+            </div>
+            <p className="text-sm text-gray-600 whitespace-pre-wrap mt-1">{exp.description}</p>
+            {exp.skillsUsed && (
+              <div className="mt-2 flex flex-wrap gap-1 text-xs">
+                <span className="font-semibold text-gray-500 mr-1">{isProject ? techLabel : skillsLabel}</span>
+                <span className="text-gray-600">{exp.skillsUsed}</span>
+              </div>
+            )}
+          </div>
+        );
+      case 'compact':
+        return (
+          <div key={exp.id} className="mb-4">
+            <div className="flex justify-between items-baseline mb-0.5">
+              <h4 className="font-bold text-md text-gray-900">{exp.position} {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-[10px] font-normal text-blue-500 hover:underline">🔗 Link</a>}</h4>
+              <span className="text-xs font-semibold text-gray-500">{dateStr}</span>
+            </div>
+            <div className="text-sm font-medium mb-1" style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-500">| {deptLabel}{exp.department}</span>}</div>
+            <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{exp.description}</p>
+            {exp.skillsUsed && <div className="text-[10px] text-gray-500 mt-1"><span className="font-semibold">{isProject ? techLabel : skillsLabel}</span> {exp.skillsUsed}</div>}
+          </div>
+        );
+      case 'classic':
+        return (
+          <div key={exp.id} className="mb-5 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+            <div className="flex justify-between items-end mb-1">
+              <div className="font-bold text-lg text-gray-900">{exp.company} {exp.department && <span className="font-normal text-sm text-gray-500 block">{deptLabel}{exp.department}</span>}</div>
+              <div className="italic text-gray-600 text-sm">{dateStr}</div>
+            </div>
+            <div className="italic font-medium text-gray-800 mb-1 flex items-center gap-2">
+              {exp.position}
+              {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-xs font-normal text-blue-600 not-italic hover:underline">[Link]</a>}
+            </div>
+            <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">{exp.description}</p>
+            {exp.skillsUsed && <div className="text-xs text-gray-500 mt-1 italic"><span className="font-semibold">{isProject ? techLabel : skillsLabel}</span> {exp.skillsUsed}</div>}
+          </div>
+        );
+      case 'modern':
+      default:
+        return (
+          <div key={exp.id} className="mb-6">
+            <div className="flex justify-between items-baseline mb-1">
+              <h4 className="font-bold text-lg text-black">{exp.position} {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-xs font-normal text-blue-500 hover:underline inline-flex items-center align-middle"><Globe size={12} className="mr-1" /> Link</a>}</h4>
+              <span className="text-sm font-semibold text-gray-500 whitespace-nowrap ml-4">{dateStr}</span>
+            </div>
+            <div className="text-sm font-semibold mb-2" style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-500 font-medium">| {deptLabel}{exp.department}</span>}</div>
+            <p className="text-sm text-gray-600 whitespace-pre-wrap">{exp.description}</p>
+            {exp.skillsUsed && (
+              <div className="mt-2 flex flex-wrap gap-1 text-xs">
+                <span className="font-semibold px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{isProject ? techLabel : skillsLabel}</span>
+                <span className="px-2 py-0.5 text-gray-600">{exp.skillsUsed}</span>
+              </div>
+            )}
+          </div>
+        );
+    }
+  }
+
+  // --- Dynamic Education Item Renderer ---
+  const renderEducationItem = (edu: any, themeColor: string = '#437393', layout: 'classic' | 'modern' | 'timeline' | 'clean' | 'compact' = 'clean') => {
+    const isEn = data.resumeLanguage === 'en';
+    const primary = themeColor;
+    const gpaLabel = isEn ? 'GPA' : 'เกรดเฉลี่ย';
+    const statusLabel = isEn ? 'Expected' : 'คาดว่าจะจบ';
+
+    const isStudying = edu.status === 'Studying';
+    const dateStr = `${formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - ${formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')} ${isStudying ? `(${statusLabel})` : ''}`;
+
+    // Combine Faculty + Major or FieldOfStudy
+    let fieldText = edu.fieldOfStudy || '';
+    if (edu.faculty || edu.major) {
+      fieldText = [edu.faculty, edu.major].filter(Boolean).join(' - ');
+    }
+
+    switch (layout) {
+      case 'timeline':
+        return (
+          <div key={edu.id} className="relative group mb-6 last:mb-0">
+            <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: primary }}></div>
+            <div className="font-bold text-lg text-gray-800">{edu.degree}</div>
+            <div className="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-500 font-medium mb-1">
+              <span style={{ color: primary }}>{edu.school}</span>
+              <span>{dateStr}</span>
+            </div>
+            {fieldText && <p className="text-sm text-gray-600">{fieldText}</p>}
+            {edu.gpa && <p className="text-sm font-semibold text-gray-500 mt-1">{gpaLabel}: {edu.gpa}</p>}
+          </div>
+        );
+
+      case 'modern':
+      case 'compact':
+        return (
+          <div key={edu.id} className="mb-4 last:mb-0">
+            <div className="font-bold">{edu.degree}</div>
+            <div className="opacity-80">{edu.school}</div>
+            {fieldText && <div className="text-xs opacity-70 mt-1">{fieldText}</div>}
+            <div className="text-xs opacity-60 mt-1 flex justify-between">
+              <span>{dateStr}</span>
+              {edu.gpa && <span className="font-semibold">{gpaLabel}: {edu.gpa}</span>}
+            </div>
+          </div>
+        );
+
+      case 'classic':
+      case 'clean':
+      default:
+        return (
+          <div key={edu.id} className="mb-6 last:mb-0">
+            <div className="flex justify-between items-baseline mb-1">
+              <h4 className="text-lg font-bold text-gray-800">{edu.degree} {edu.gpa && <span className="text-sm font-normal text-gray-500">({gpaLabel}: {edu.gpa})</span>}</h4>
+              <span className="text-sm font-bold text-gray-500">{dateStr}</span>
+            </div>
+            <div className="text-md font-medium mb-2" style={{ color: primary }}>{edu.school}</div>
+            {fieldText && <p className="text-sm text-gray-600">{fieldText}</p>}
+          </div>
+        );
+    }
+  }
 
   // --- AI Custom Template Logic ---
   if (selectedTemplate === 'ai-custom') {
@@ -71,13 +220,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
           {/* Education */}
           <div className="space-y-4 text-sm">
             <h3 className={getHeadingClass("uppercase font-bold tracking-widest border-b border-white/30 pb-2 mb-3")}>{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
-            {data.education.map(edu => (
-              <div key={edu.id}>
-                <div className="font-bold">{edu.degree}</div>
-                <div className="opacity-80">{edu.school}</div>
-                <div className="text-xs opacity-60">{formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-              </div>
-            ))}
+            {data.education.map(edu => renderEducationItem(edu, themeColor, 'modern'))}
           </div>
 
           {/* Legacy Skills */}
@@ -132,16 +275,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
           <div>
             <h3 className={getHeadingClass("uppercase font-bold tracking-widest border-b-2 pb-2 mb-4 text-black")} style={{ borderColor: themeColor }}>{t('section.experience', data.resumeLanguage as 'en' | 'th')}</h3>
             <div className="space-y-6">
-              {data.experience.map(exp => (
-                <div key={exp.id}>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h4 className="font-bold text-lg text-black">{exp.position}</h4>
-                    <span className="text-sm font-semibold text-gray-500">{formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}</span>
-                  </div>
-                  <div className="text-sm font-semibold mb-2" style={{ color: themeColor }}>{exp.company}</div>
-                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{exp.description}</p>
-                </div>
-              ))}
+              {data.experience.map(exp => renderExperienceItem(exp, themeColor, 'modern'))}
             </div>
           </div>
 
@@ -215,29 +349,14 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
           <section>
             <h3 className={getHeadingClass("text-center font-bold uppercase tracking-widest text-lg mb-6 border-b border-gray-200 pb-2")}>{t('section.experience', data.resumeLanguage as 'en' | 'th')}</h3>
             <div className="space-y-6">
-              {data.experience.map(exp => (
-                <div key={exp.id}>
-                  <div className="flex justify-between items-end mb-1">
-                    <div className="font-bold text-lg">{exp.company}</div>
-                    <div className="italic text-gray-600">{formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} – {formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                  </div>
-                  <div className="italic font-medium mb-1">{exp.position}</div>
-                  <p className="text-sm leading-relaxed text-gray-800">{exp.description}</p>
-                </div>
-              ))}
+              {data.experience.map(exp => renderExperienceItem(exp, themeColor, 'classic'))}
             </div>
           </section>
 
           <div className="grid grid-cols-2 gap-12">
             <section>
               <h3 className={getHeadingClass("text-center font-bold uppercase tracking-widest text-lg mb-6 border-b border-gray-200 pb-2")}>{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
-              {data.education.map(edu => (
-                <div key={edu.id} className="mb-4 text-center">
-                  <div className="font-bold">{edu.school}</div>
-                  <div className="italic">{edu.degree}</div>
-                  <div className="text-sm text-gray-600">{formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                </div>
-              ))}
+              {data.education.map(edu => renderEducationItem(edu, themeColor, 'compact'))}
             </section>
             <section className="space-y-6">
               {data.skills && data.skills.length > 0 && (
@@ -371,13 +490,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             <div>
               <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
               <div className="space-y-4">
-                {data.education.map(edu => (
-                  <div key={edu.id}>
-                    <div className="font-bold text-gray-800">{edu.degree}</div>
-                    <div className="text-sm text-gray-600">{edu.school}</div>
-                    <div className="text-xs text-gray-400">{formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                  </div>
-                ))}
+                {data.education.map(edu => renderEducationItem(edu, themeColor, 'modern'))}
               </div>
             </div>
 
@@ -406,17 +519,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             <div>
               <h3 className={getHeadingClass("font-bold text-lg mb-6 uppercase border-b-2 inline-block pb-1")} style={{ borderColor: themeColor, color: themeColor }}>{t('section.experience', data.resumeLanguage as 'en' | 'th')}</h3>
               <div className="space-y-8 border-l-2 border-gray-100 pl-6 ml-2">
-                {data.experience.map(exp => (
-                  <div key={exp.id} className="relative">
-                    <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: themeColor }}></div>
-                    <div className="font-bold text-xl text-gray-800">{exp.position}</div>
-                    <div className="flex justify-between text-sm text-gray-500 mb-2 font-medium">
-                      <span>{exp.company}</span>
-                      <span>{formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}</span>
-                    </div>
-                    <p className="text-sm text-gray-600">{exp.description}</p>
-                  </div>
-                ))}
+                {data.experience.map(exp => renderExperienceItem(exp, themeColor, 'timeline'))}
               </div>
             </div>
 
@@ -531,27 +634,14 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
           <div>
             <div className={getHeadingClass("inline-block text-white px-4 py-1 rounded-r-full font-bold mb-4 text-lg uppercase")} style={{ backgroundColor: primary }}>{t('section.experience', data.resumeLanguage as 'en' | 'th')}</div>
             <div className="space-y-6 border-l-2 border-gray-100 ml-4 pl-6 relative">
-              {data.experience.map(exp => (
-                <div key={exp.id} className="relative">
-                  <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: primary }}></div>
-                  <h4 className="font-bold text-lg text-gray-800">{exp.position}</h4>
-                  <div className="text-sm font-semibold mb-2" style={{ color: primary }}>{exp.company} | {formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                  <p className="text-gray-600">{exp.description}</p>
-                </div>
-              ))}
+              {data.experience.map(exp => renderExperienceItem(exp, primary, 'timeline'))}
             </div>
           </div>
 
           <div>
             <div className={getHeadingClass("inline-block text-white px-4 py-1 rounded-r-full font-bold mb-4 text-lg uppercase")} style={{ backgroundColor: primary }}>{t('section.education', data.resumeLanguage as 'en' | 'th')}</div>
             <div className="space-y-4 ml-4">
-              {data.education.map(edu => (
-                <div key={edu.id} className="bg-gray-50 p-4 rounded-lg border-l-4" style={{ borderColor: primary }}>
-                  <div className="font-bold text-gray-800">{edu.school}</div>
-                  <div className="text-gray-600">{edu.degree}</div>
-                  <div className="text-sm text-gray-400">{formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                </div>
-              ))}
+              {data.education.map(edu => renderEducationItem(edu, primary, 'timeline'))}
             </div>
           </div>
 
@@ -661,16 +751,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <span>{t('section.experience', data.resumeLanguage as 'en' | 'th')}</span>
               </h3>
               <div className="space-y-6">
-                {data.experience.map(exp => (
-                  <div key={exp.id}>
-                    <div className="flex justify-between font-bold text-gray-800 text-lg">
-                      <span>{exp.position}</span>
-                      <span className="text-sm font-normal text-gray-500">{formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}</span>
-                    </div>
-                    <div className="text-gray-500 mb-2">{exp.company}</div>
-                    <p className="text-gray-600 text-sm">{exp.description}</p>
-                  </div>
-                ))}
+                {data.experience.map(exp => renderExperienceItem(exp, primary, 'compact'))}
               </div>
             </div>
 
@@ -679,13 +760,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <span>{t('section.education', data.resumeLanguage as 'en' | 'th')}</span>
               </h3>
               <div className="space-y-4">
-                {data.education.map(edu => (
-                  <div key={edu.id}>
-                    <div className="font-bold text-gray-800">{edu.school}</div>
-                    <div className="text-gray-600">{edu.degree}</div>
-                    <div className="text-sm text-gray-400">{formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                  </div>
-                ))}
+                {data.education.map(edu => renderEducationItem(edu, primary, 'compact'))}
               </div>
             </div>
 
@@ -802,29 +877,14 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             <section>
               <h3 className={getHeadingClass("font-bold text-2xl text-black border-l-4 border-black pl-4 mb-4")}>SYSTEM_LOG // {t('section.experience', data.resumeLanguage as 'en' | 'th')}</h3>
               <div className="space-y-6">
-                {data.experience.map(exp => (
-                  <div key={exp.id} className="group">
-                    <div className="flex justify-between items-baseline mb-1">
-                      <h4 className="font-bold text-lg">{exp.position}</h4>
-                      <span className="font-bold font-sans text-xs bg-black text-white px-2 py-0.5 rounded">{formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}</span>
-                    </div>
-                    <div className="text-green-600 font-bold mb-2">@ {exp.company}</div>
-                    <p className="text-gray-600">{exp.description}</p>
-                  </div>
-                ))}
+                {data.experience.map(exp => renderExperienceItem(exp, primary, 'compact'))}
               </div>
             </section>
 
             <section>
               <h3 className={getHeadingClass("font-bold text-2xl text-black border-l-4 border-black pl-4 mb-4")}>BUILD // {t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
               <div className="space-y-4">
-                {data.education.map(edu => (
-                  <div key={edu.id}>
-                    <div className="font-bold">{edu.school}</div>
-                    <div className="text-gray-600 italic">{edu.degree}</div>
-                    <div className="text-xs text-gray-400">{formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                  </div>
-                ))}
+                {data.education.map(edu => renderEducationItem(edu, primary, 'compact'))}
               </div>
             </section>
 
@@ -961,12 +1021,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                   <span className="w-3 h-8 rounded-full" style={{ backgroundColor: primary }}></span> {t('section.education', data.resumeLanguage as 'en' | 'th')}
                 </h3>
                 <div className="space-y-4">
-                  {data.education.map(edu => (
-                    <div key={edu.id}>
-                      <div className="text-lg font-bold text-gray-800">{edu.school}</div>
-                      <div className="text-gray-600">{edu.degree}</div>
-                    </div>
-                  ))}
+                  {data.education.map(edu => renderEducationItem(edu, primary, 'modern'))}
                 </div>
               </div>
 
@@ -1087,29 +1142,14 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <h3 className={getHeadingClass("font-bold text-xl text-gray-900 mb-6 border-b pb-2")}>{t('section.experience', data.resumeLanguage as 'en' | 'th')}</h3>
               <div className="space-y-8">
-                {data.experience.map(exp => (
-                  <div key={exp.id}>
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-bold text-lg text-gray-800">{exp.position}</h4>
-                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">{formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}</span>
-                    </div>
-                    <div className="text-md font-medium mb-3" style={{ color: primary }}>{exp.company}</div>
-                    <p className="text-gray-600 leading-relaxed">{exp.description}</p>
-                  </div>
-                ))}
+                {data.experience.map(exp => renderExperienceItem(exp, themeColor, 'modern'))}
               </div>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <h3 className={getHeadingClass("font-bold text-xl text-gray-900 mb-6 border-b pb-2")}>{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
               <div className="grid grid-cols-2 gap-4">
-                {data.education.map(edu => (
-                  <div key={edu.id} className="bg-gray-50 p-4 rounded-lg">
-                    <div className="font-bold text-gray-800">{edu.school}</div>
-                    <div className="text-sm text-gray-600">{edu.degree}</div>
-                    <div className="text-xs text-gray-400 mt-1">{formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                  </div>
-                ))}
+                {data.education.map(edu => renderEducationItem(edu, primary, 'modern'))}
               </div>
             </div>
 
@@ -1177,16 +1217,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               <span className="w-8 h-1" style={{ backgroundColor: primaryColor }}></span> {t('section.experience', data.resumeLanguage as 'en' | 'th')}
             </h3>
             <div className="space-y-6">
-              {data.experience.map(exp => (
-                <div key={exp.id}>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <div className="font-bold text-gray-800 text-lg">{exp.position}</div>
-                    <div className="text-sm font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                  </div>
-                  <div className="text-md font-medium mb-2" style={{ color: primaryColor }}>{exp.company}</div>
-                  <p className="text-gray-600">{exp.description}</p>
-                </div>
-              ))}
+              {data.experience.map(exp => renderExperienceItem(exp, primaryColor, 'modern'))}
             </div>
           </section>
 
@@ -1212,13 +1243,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
           <section className="bg-gray-50 p-6 rounded-lg">
             <h3 className="font-bold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
             <div className="space-y-4">
-              {data.education.map(edu => (
-                <div key={edu.id}>
-                  <div className="font-bold text-gray-800">{edu.school}</div>
-                  <div className="text-gray-600 text-sm">{edu.degree}</div>
-                  <div className="text-xs text-gray-400 mt-1">{formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - {formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')}</div>
-                </div>
-              ))}
+              {data.education.map(edu => renderEducationItem(edu, primaryColor, 'modern'))}
             </div>
           </section>
 
