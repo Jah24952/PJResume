@@ -3,8 +3,9 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useResumeStore } from '@/store/resume.store'
-import { ArrowLeft, ArrowRight, User, Briefcase, GraduationCap, CheckSquare, FileText, Plus, Trash2, Globe, Award, Upload, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, User, Briefcase, GraduationCap, CheckSquare, FileText, Plus, Trash2, Globe, Award, Upload, X, Zap, Sparkles, AlertCircle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { generateSummary, rewriteText } from '@/lib/ai'
 
 // Wizard Steps Configuration
 const STEPS = [
@@ -136,6 +137,12 @@ function ResumeWizardContent() {
     const [newHardSkill, setNewHardSkill] = useState('')
     const [newSoftSkill, setNewSoftSkill] = useState('')
     const [errors, setErrors] = useState<Record<string, string>>({})
+    
+    // AI Summary States
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
+    const [isRewritingSummary, setIsRewritingSummary] = useState(false)
+    const [summaryLanguage, setSummaryLanguage] = useState<'th' | 'en'>('th')
+    const [summaryTone, setSummaryTone] = useState<'professional' | 'creative' | 'neutral'>('professional')
 
     const validateContact = () => {
         const newErrors: Record<string, string> = {}
@@ -630,24 +637,185 @@ function ResumeWizardContent() {
                 )
 
             case 5: // Summary
+                const maxSummaryLength = 800;
+                const currentLength = (data.summary || '').length;
+                const isOverLimit = currentLength > maxSummaryLength;
+
+                const handleGenerateSummary = async () => {
+                    setIsGeneratingSummary(true);
+                    try {
+                        // Prepare data for AI
+                        const expText = data.experience.map(e => `${e.position} at ${e.company} (${e.startDate} - ${e.endDate}): ${e.description}`).join(' | ');
+                        const eduText = data.education.map(e => `${e.degree} in ${e.major} from ${e.school}`).join(' | ');
+                        const skillsText = [...data.hardSkills, ...data.softSkills].join(', ');
+                        
+                        const response = await generateSummary({
+                            name: `${data.name} ${data.surname}`,
+                            experience: expText || 'No experience provided',
+                            education: eduText || 'No education provided',
+                            skills: skillsText || 'No skills provided',
+                            language: summaryLanguage,
+                            tone: summaryTone
+                        });
+                        
+                        if (response.summary) {
+                            update('summary', response.summary);
+                        }
+                    } catch (error) {
+                        console.error('Failed to generate summary:', error);
+                        alert('เกิดข้อผิดพลาดในการสร้างบทสรุป กรุณาลองใหม่อีกครั้ง');
+                    } finally {
+                        setIsGeneratingSummary(false);
+                    }
+                };
+
+                const handleRewriteSummary = async (tone: 'professional' | 'creative' | 'neutral') => {
+                    if (!data.summary) return;
+                    setIsRewritingSummary(true);
+                    try {
+                        const response = await rewriteText({
+                            text: data.summary,
+                            language: summaryLanguage,
+                            jobStyle: tone
+                        });
+                        
+                        if (response.rewritten) {
+                            update('summary', response.rewritten);
+                        }
+                    } catch (error) {
+                        console.error('Failed to rewrite summary:', error);
+                        alert('เกิดข้อผิดพลาดในการปรับปรุงบทสรุป กรุณาลองใหม่อีกครั้ง');
+                    } finally {
+                        setIsRewritingSummary(false);
+                    }
+                };
+                
+                const SUMMARY_TEMPLATES = [
+                    { label: 'เด็กจบใหม่', text: 'นักศึกษาจบใหม่ที่มีความกระตือรือร้นและพร้อมเรียนรู้สิ่งใหม่ๆ มีพื้นฐานทางวิชาการที่แข็งแกร่งและประสบการณ์จากการทำโปรเจค/ฝึกงาน มุ่งมั่นที่จะนำความรู้มาประยุกต์ใช้เพื่อสร้างคุณค่าให้กับองค์กร' },
+                    { label: 'มีประสบการณ์', text: 'ผู้เชี่ยวชาญที่มีประสบการณ์การทำงานมากกว่า [X] ปีในสายงาน [ระบุสายงาน] มีประวัติความสำเร็จในการผลักดันให้เกิดผลลัพธ์เชิงบวกและพัฒนาประสิทธิภาพการทำงานอย่างต่อเนื่อง' },
+                    { label: 'สายเทคนิค', text: 'นักพัฒนา/วิศวกรที่มีความเชี่ยวชาญในเทคโนโลยี [ระบุเครื่องมือ/ภาษา] มีประสบการณ์ในการออกแบบและพัฒนาระบบที่ซับซ้อนให้ใช้งานได้จริง พร้อมทักษะการแก้ปัญหาที่รวดเร็วและแม่นยำ' },
+                    { label: 'สายธุรกิจ', text: 'นักบริหารวิสัยทัศน์ไกลที่มีความสามารถในการวิเคราะห์ข้อมูล วางแผนกลยุทธ์ และบริหารทีมงานเพื่อบรรลุเป้าหมายทางธุรกิจขององค์กร' },
+                ];
+
                 return (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                        <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-                            <div className="flex items-start gap-4">
-                                <div className="bg-white p-2 rounded-full shadow-sm text-blue-500"><FileText size={24} /></div>
-                                <div>
+                        {/* Header Box */}
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100 flex flex-col md:flex-row gap-6 items-start">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500"><FileText size={24} /></div>
                                     <h3 className="font-bold text-[#437393] text-lg">บทสรุปเกี่ยวกับตัวคุณ</h3>
-                                    <p className="text-slate-600 text-sm mt-1">เขียนสรุปสั้นๆ ที่น่าสนใจเกี่ยวกับประสบการณ์และเป้าหมายของคุณ เพื่อดึงดูดความสนใจ HR (คุณสามารถใช้ AI ในหน้าถัดไปเพื่อช่วยเขียนได้)</p>
                                 </div>
+                                <p className="text-slate-600 text-sm leading-relaxed">เขียนสรุปสั้นๆ 3-4 บรรทัด เพื่อดึงดูดความสนใจ HR เน้นประสบการณ์ ทักษะที่โดดเด่น และเป้าหมายอาชีพของคุณ</p>
+                            </div>
+                            
+                            {/* Tips Box */}
+                            <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm w-full md:w-64 text-sm shrink-0">
+                                <h4 className="font-bold text-[#437393] flex items-center gap-2 mb-2"><Sparkles size={16}/> Tips การเขียน</h4>
+                                <ul className="text-slate-600 space-y-1.5 list-disc list-inside">
+                                    <li>เขียนสั้นๆ กระชับ (3-4 บรรทัด)</li>
+                                    <li>เน้นทักษะหรือผลงานเด่น</li>
+                                    <li>ระบุเป้าหมายการทำงาน</li>
+                                </ul>
                             </div>
                         </div>
+                        
+                        {/* AI Tools Section */}
+                        <div className="bg-white border rounded-xl p-6 shadow-sm">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-4">
+                                <div className="flex gap-4">
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500 mb-1 block">ภาษา (Language)</label>
+                                        <div className="flex gap-2 bg-slate-50 p-1 rounded-lg border inline-flex">
+                                            <button onClick={() => setSummaryLanguage('th')} className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${summaryLanguage === 'th' ? 'bg-white text-[#437393] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>ไทย</button>
+                                            <button onClick={() => setSummaryLanguage('en')} className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${summaryLanguage === 'en' ? 'bg-white text-[#437393] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>English</button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500 mb-1 block">สไตล์ (Tone)</label>
+                                        <select 
+                                            value={summaryTone} 
+                                            onChange={(e) => setSummaryTone(e.target.value as any)}
+                                            className="p-1.5 text-sm border rounded-lg bg-slate-50 outline-none focus:ring-2 focus:ring-[#437393] text-slate-700"
+                                        >
+                                            <option value="professional">ทางการ / น่าเชื่อถือ</option>
+                                            <option value="creative">สร้างสรรค์ / ทันสมัย</option>
+                                            <option value="neutral">เรียบง่าย / กระชับ</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleGenerateSummary}
+                                    disabled={isGeneratingSummary}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto justify-center"
+                                >
+                                    {isGeneratingSummary ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
+                                    {isGeneratingSummary ? 'กำลังสร้างข้อความ...' : 'ให้ AI ช่วยเขียนจากประวัติ'}
+                                </button>
+                            </div>
 
-                        <textarea
-                            className="w-full h-48 p-4 border rounded-xl bg-white focus:ring-2 focus:ring-[#437393] outline-none text-slate-700 leading-relaxed shadow-sm"
-                            placeholder="ตัวอย่าง: นักการตลาดดิจิทัลที่มีประสบการณ์ 3 ปี เชี่ยวชาญด้าน SEO และ Content Marketing..."
-                            value={data.summary || ''}
-                            onChange={e => update('summary', e.target.value)}
-                        />
+                            {/* Templates Quick Insert */}
+                            <div className="mb-4">
+                                <label className="text-xs font-bold text-slate-500 mb-2 block">รูปแบบข้อความสำเร็จรูป (Templates):</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {SUMMARY_TEMPLATES.map((t, idx) => (
+                                        <button 
+                                            key={idx}
+                                            onClick={() => update('summary', t.text)}
+                                            className="text-xs border border-slate-200 bg-slate-50 text-slate-600 px-3 py-1.5 rounded-full hover:border-[#437393] hover:text-[#437393] hover:bg-blue-50 transition-colors"
+                                        >
+                                            + {t.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            {/* Input Textarea */}
+                            <div className="relative">
+                                <textarea
+                                    className={`w-full h-48 p-4 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 outline-none text-slate-700 leading-relaxed transition-all ${isOverLimit ? 'border-red-400 focus:ring-red-400' : 'focus:ring-[#437393]'}`}
+                                    placeholder="พิมพ์บทสรุปของคุณที่นี่... หรือเลือกรูปแบบจากด้านบน หรือกดปุ่ม AI เพื่อสร้าง"
+                                    value={data.summary || ''}
+                                    onChange={e => update('summary', e.target.value)}
+                                />
+                                <div className={`absolute bottom-3 right-4 text-xs font-bold ${isOverLimit ? 'text-red-500' : 'text-slate-400'}`}>
+                                    {currentLength} / {maxSummaryLength} {isOverLimit && <AlertCircle size={12} className="inline ml-1" />}
+                                </div>
+                            </div>
+
+                            {/* AI Rewrite Actions */}
+                            {data.summary && data.summary.trim() !== '' && (
+                                <div className="mt-4 pt-4 border-t border-slate-100 animate-in fade-in duration-300">
+                                    <label className="text-xs font-bold text-slate-500 mb-2 block flex items-center gap-1"><Sparkles size={14} className="text-indigo-500"/> ให้ AI ปรับปรุงข้อความให้ดีขึ้น:</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        <button 
+                                            onClick={() => handleRewriteSummary('professional')}
+                                            disabled={isRewritingSummary}
+                                            className="text-xs font-medium bg-white border border-indigo-200 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isRewritingSummary ? <Loader2 size={12} className="animate-spin" /> : null}
+                                            ปรับให้เป็นทางการ
+                                        </button>
+                                        <button 
+                                            onClick={() => handleRewriteSummary('neutral')}
+                                            disabled={isRewritingSummary}
+                                            className="text-xs font-medium bg-white border border-indigo-200 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isRewritingSummary ? <Loader2 size={12} className="animate-spin" /> : null}
+                                            ย่อให้กระชับ
+                                        </button>
+                                        <button 
+                                            onClick={() => handleRewriteSummary('creative')}
+                                            disabled={isRewritingSummary}
+                                            className="text-xs font-medium bg-white border border-indigo-200 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isRewritingSummary ? <Loader2 size={12} className="animate-spin" /> : null}
+                                            เพิ่มความน่าสนใจ
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )
 

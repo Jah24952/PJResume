@@ -627,7 +627,7 @@ function ResumeCreateContent() {
                   <input className={`w-full p-3 border rounded-lg bg-gray-50 text-black ${errors.jobTitle ? 'border-red-500' : ''}`} value={data.jobTitle} onChange={e => { update('jobTitle', e.target.value); if (errors.jobTitle) setErrors(prev => ({ ...prev, jobTitle: '' })) }} />
                   {errors.jobTitle && <p className="text-red-500 text-xs mt-1">{errors.jobTitle}</p>}
                 </div>
-                <div><label className="text-sm text-gray-500">{t('field.address', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.address} onChange={e => update('address', e.target.value)} /></div>
+                <div><label className="text-sm text-gray-500">{t('field.address', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.address || ''} onChange={e => update('address', e.target.value)} /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm text-gray-500">{t('field.phone', data.resumeLanguage as 'en' | 'th')} <span className="text-red-500">*</span></label>
@@ -705,7 +705,7 @@ function ResumeCreateContent() {
                     <input
                       type="date"
                       className="w-full p-3 border rounded-lg bg-gray-50 text-black"
-                      value={data.birthDate}
+                      value={data.birthDate || ''}
                       onChange={e => update('birthDate', e.target.value)}
                     />
                   </div>
@@ -751,8 +751,8 @@ function ResumeCreateContent() {
                   <div key={exp.id} className="bg-white border rounded-lg p-6 relative shadow-sm group">
                     <button onClick={() => removeItem('experience', exp.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Position' : 'ตำแหน่ง'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.position} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Company' : 'บริษัท'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.company} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Position' : 'ตำแหน่ง'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.position || ''} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Company' : 'บริษัท'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.company || ''} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
                     </div>
                     <div className="mb-4">
                       <label className="text-sm text-gray-500 flex justify-between items-center mb-1">
@@ -762,11 +762,11 @@ function ResumeCreateContent() {
                           <button onClick={() => handleTranslate(exp.description, (val) => updateItem('experience', exp.id, { ...exp, description: val }))} className="text-xs text-gray-500 hover:text-black flex items-center gap-1"><Globe size={12} /> {t('action.translate', data.resumeLanguage as 'en' | 'th')}</button>
                         </div>
                       </label>
-                      <textarea className="w-full p-2 border rounded bg-gray-50 h-24 text-black" value={exp.description} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} />
+                      <textarea className="w-full p-2 border rounded bg-gray-50 h-24 text-black" value={exp.description || ''} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'Start Date' : 'เริ่ม'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.startDate} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
-                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
+                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'Start Date' : 'เริ่ม'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.startDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
+                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
                     </div>
                   </div>
                 ))}
@@ -819,7 +819,7 @@ function ResumeCreateContent() {
                       <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สาขาวิชา' : 'Major'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.major || ''} onChange={e => updateItem('education', edu.id, { ...edu, major: e.target.value })} /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สถานศึกษา' : 'School/University'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.school} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สถานศึกษา' : 'School/University'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.school || ''} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
                       <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เกรดเฉลี่ย' : 'GPA'}</label><input type="text" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.gpa || ''} onChange={e => updateItem('education', edu.id, { ...edu, gpa: e.target.value })} /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 mb-4">
@@ -836,8 +836,8 @@ function ResumeCreateContent() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
-                      <div><label className="text-sm text-gray-500">{edu.status === 'Studying' ? (data.resumeLanguage === 'th' ? 'คาดว่าจะจบ' : 'Expected End') : (data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End')}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{edu.status === 'Studying' ? (data.resumeLanguage === 'th' ? 'คาดว่าจะจบ' : 'Expected End') : (data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End')}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
                     </div>
                   </div>
                 ))}
@@ -927,7 +927,7 @@ function ResumeCreateContent() {
                   <div>
                     <input
                       className="w-full p-3 border rounded-lg bg-gray-50 text-black"
-                      value={data.portfolioUrl}
+                      value={data.portfolioUrl || ''}
                       onChange={e => update('portfolioUrl', e.target.value)}
                       placeholder="https://yourawesomeportfolio.com"
                     />
@@ -944,7 +944,7 @@ function ResumeCreateContent() {
                     <button onClick={() => removeItem('languages', lang.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="flex-1">
                       <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Language' : 'ภาษา'}</label>
-                      <input className="w-full p-2 border rounded bg-gray-50 text-black" value={lang.language} onChange={e => updateItem('languages', lang.id, { ...lang, language: e.target.value })} placeholder="English" />
+                      <input className="w-full p-2 border rounded bg-gray-50 text-black" value={lang.language || ''} onChange={e => updateItem('languages', lang.id, { ...lang, language: e.target.value })} placeholder="English" />
                     </div>
                     <div className="w-1/3">
                       <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Level' : 'ระดับ'}</label>
@@ -993,7 +993,7 @@ function ResumeCreateContent() {
                   </div>
                 </div>
 
-                <textarea className="w-full h-64 p-4 border rounded-lg bg-gray-50 text-black" placeholder={t('placeholder.summary', data.resumeLanguage as 'en' | 'th')} value={data.summary} onChange={e => update('summary', e.target.value)} />
+                <textarea className="w-full h-64 p-4 border rounded-lg bg-gray-50 text-black" placeholder={t('placeholder.summary', data.resumeLanguage as 'en' | 'th')} value={data.summary || ''} onChange={e => update('summary', e.target.value)} />
                 <div className="flex gap-2">
                   <button onClick={generateAISummary} className="flex-1 text-[#437393] border border-[#437393] px-4 py-2 rounded hover:bg-blue-50 flex justify-center gap-2 items-center font-medium">
                     ✨ Generate Summary
@@ -1013,11 +1013,11 @@ function ResumeCreateContent() {
                     <button onClick={() => removeItem('certifications', cert.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="flex-1">
                       <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Certification Name' : 'ชื่อใบรับรอง / หลักสูตร'}</label>
-                      <input className="w-full p-2 border rounded bg-gray-50 text-black" value={cert.name} onChange={e => updateItem('certifications', cert.id, { ...cert, name: e.target.value })} />
+                      <input className="w-full p-2 border rounded bg-gray-50 text-black" value={cert.name || ''} onChange={e => updateItem('certifications', cert.id, { ...cert, name: e.target.value })} />
                     </div>
                     <div className="w-1/3">
                       <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Year' : 'ปีที่ได้รับ'}</label>
-                      <input className="w-full p-2 border rounded bg-gray-50 text-black" value={cert.year} onChange={e => updateItem('certifications', cert.id, { ...cert, year: e.target.value })} placeholder="YYYY" />
+                      <input className="w-full p-2 border rounded bg-gray-50 text-black" value={cert.year || ''} onChange={e => updateItem('certifications', cert.id, { ...cert, year: e.target.value })} placeholder="YYYY" />
                     </div>
                   </div>
                 ))}
