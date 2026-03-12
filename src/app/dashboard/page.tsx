@@ -2,9 +2,16 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/auth.store'
 import { useRouter } from 'next/navigation'
-import { fetchResumes, changePassword, deleteResume } from '@/lib/api'
-import { FileText, Plus, Edit, Trash2, Download, LogOut, ArrowLeft, Settings, User, Search } from 'lucide-react'
+import { fetchResumes, deleteResume } from '@/lib/api'
+import { FileText, Plus, Edit, Trash2, Download, LogOut, ArrowLeft, Settings, User, Search, Shield, Bell, Palette, UserRoundCog } from 'lucide-react'
 import Link from 'next/link'
+
+import ProfileSettings from '@/components/settings/ProfileSettings'
+import SecuritySettings from '@/components/settings/SecuritySettings'
+import ResumePreferences from '@/components/settings/ResumePreferences'
+import NotificationSettings from '@/components/settings/NotificationSettings'
+import AppearanceSettings from '@/components/settings/AppearanceSettings'
+import AccountSettings from '@/components/settings/AccountSettings'
 
 export default function DashboardPage() {
     const { user, logout } = useAuthStore()
@@ -12,15 +19,14 @@ export default function DashboardPage() {
     const [resumes, setResumes] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState<'resumes' | 'settings'>('resumes')
+    
+    // Settings Sidebar State
+    type SettingsTab = 'profile' | 'security' | 'preferences' | 'notifications' | 'appearance' | 'account'
+    const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTab>('profile')
 
     // Search and Pagination State
     const [searchQuery, setSearchQuery] = useState('')
     const [visibleCount, setVisibleCount] = useState(3)
-
-    // Password Change State
-    const [passForm, setPassForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' })
-    const [passLoading, setPassLoading] = useState(false)
-    const [passMessage, setPassMessage] = useState({ type: '', text: '' })
 
     useEffect(() => {
         // Auth Guard
@@ -64,36 +70,6 @@ export default function DashboardPage() {
         if (stats.skills >= 3) score += 30
 
         return Math.min(100, score)
-    }
-
-    const handleChangePassword = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (passForm.newPassword !== passForm.confirmPassword) {
-            setPassMessage({ type: 'error', text: 'New passwords do not match' })
-            return
-        }
-        if (!user) return
-
-        try {
-            setPassLoading(true)
-            setPassMessage({ type: '', text: '' })
-            const res = await changePassword({
-                userId: user.id,
-                oldPassword: passForm.oldPassword,
-                newPassword: passForm.newPassword
-            })
-
-            if (res.success) {
-                setPassMessage({ type: 'success', text: 'Password changed successfully' })
-                setPassForm({ oldPassword: '', newPassword: '', confirmPassword: '' })
-            } else {
-                setPassMessage({ type: 'error', text: res.error || 'Failed to change password' })
-            }
-        } catch (error: any) {
-            setPassMessage({ type: 'error', text: error.message || 'Something went wrong' })
-        } finally {
-            setPassLoading(false)
-        }
     }
 
     const handleDelete = async (resumeId: number) => {
@@ -303,83 +279,58 @@ export default function DashboardPage() {
 
                 {/* Tab Content: Settings */}
                 {activeTab === 'settings' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 max-w-2xl">
-                        <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-                            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <User size={20} className="text-[#437393]" /> Profile Information
-                            </h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                                    <input
-                                        type="text"
-                                        value={user?.name || ''}
-                                        disabled
-                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-500 cursor-not-allowed"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                    <input
-                                        type="email"
-                                        value={user?.email || ''}
-                                        disabled
-                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-500 cursor-not-allowed"
-                                    />
-                                </div>
+                    <div className="flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        {/* Settings Sidebar */}
+                        <div className="w-full md:w-64 flex-shrink-0">
+                            <div className="bg-white rounded-xl shadow-sm border p-4 space-y-1 sticky top-[84px]">
+                                <button 
+                                    onClick={() => setActiveSettingsTab('profile')} 
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeSettingsTab === 'profile' ? 'bg-[#437393]/10 text-[#437393]' : 'text-gray-600 hover:bg-gray-50'}`}
+                                >
+                                    <User size={18} /> ข้อมูลผู้ใช้
+                                </button>
+                                <button 
+                                    onClick={() => setActiveSettingsTab('security')} 
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeSettingsTab === 'security' ? 'bg-[#437393]/10 text-[#437393]' : 'text-gray-600 hover:bg-gray-50'}`}
+                                >
+                                    <Shield size={18} /> ความปลอดภัย
+                                </button>
+                                <button 
+                                    onClick={() => setActiveSettingsTab('preferences')} 
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeSettingsTab === 'preferences' ? 'bg-[#437393]/10 text-[#437393]' : 'text-gray-600 hover:bg-gray-50'}`}
+                                >
+                                    <FileText size={18} /> การตั้งค่าเรซูเม่
+                                </button>
+                                <button 
+                                    onClick={() => setActiveSettingsTab('notifications')} 
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeSettingsTab === 'notifications' ? 'bg-[#437393]/10 text-[#437393]' : 'text-gray-600 hover:bg-gray-50'}`}
+                                >
+                                    <Bell size={18} /> การแจ้งเตือน
+                                </button>
+                                <button 
+                                    onClick={() => setActiveSettingsTab('appearance')} 
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeSettingsTab === 'appearance' ? 'bg-[#437393]/10 text-[#437393]' : 'text-gray-600 hover:bg-gray-50'}`}
+                                >
+                                    <Palette size={18} /> รูปแบบการแสดงผล
+                                </button>
+                                <div className="my-2 border-t border-gray-100"></div>
+                                <button 
+                                    onClick={() => setActiveSettingsTab('account')} 
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeSettingsTab === 'account' ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-red-50 hover:text-red-600'}`}
+                                >
+                                    <UserRoundCog size={18} /> จัดการบัญชี
+                                </button>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-xl shadow-sm border p-6">
-                            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <Settings size={20} className="text-[#437393]" /> Security
-                            </h3>
-                            <form onSubmit={handleChangePassword} className="space-y-4">
-                                {passMessage.text && (
-                                    <div className={`p-3 rounded-lg text-sm ${passMessage.type === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
-                                        {passMessage.text}
-                                    </div>
-                                )}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-                                    <input
-                                        type="password"
-                                        required
-                                        value={passForm.oldPassword}
-                                        onChange={(e) => setPassForm({ ...passForm, oldPassword: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                                    <input
-                                        type="password"
-                                        required
-                                        value={passForm.newPassword}
-                                        onChange={(e) => setPassForm({ ...passForm, newPassword: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-                                    <input
-                                        type="password"
-                                        required
-                                        value={passForm.confirmPassword}
-                                        onChange={(e) => setPassForm({ ...passForm, confirmPassword: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-                                <div className="pt-2">
-                                    <button
-                                        type="submit"
-                                        disabled={passLoading}
-                                        className="px-6 py-2 bg-[#437393] text-white rounded-lg hover:bg-[#355b74] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                                    >
-                                        {passLoading ? 'Updating...' : 'Change Password'}
-                                    </button>
-                                </div>
-                            </form>
+                        {/* Settings Content Area */}
+                        <div className="flex-1 min-w-0">
+                            {activeSettingsTab === 'profile' && <ProfileSettings user={user} />}
+                            {activeSettingsTab === 'security' && <SecuritySettings user={user} />}
+                            {activeSettingsTab === 'preferences' && <ResumePreferences />}
+                            {activeSettingsTab === 'notifications' && <NotificationSettings />}
+                            {activeSettingsTab === 'appearance' && <AppearanceSettings />}
+                            {activeSettingsTab === 'account' && <AccountSettings />}
                         </div>
                     </div>
                 )}
