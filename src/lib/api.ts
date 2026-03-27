@@ -87,3 +87,29 @@ export async function changePassword(payload: any) {
   }
   return res.json()
 }
+
+export async function updateUserProfile(userId: number, payload: any) {
+  const res = await fetch(`https://project-rs-ats.project-rs-ats.workers.dev/auth/user/${userId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error || 'Failed to update user profile')
+  }
+  return res.json()
+}
+
+export async function updateUserSettings(userId: number, settings: any) {
+  const res = await fetch(`https://project-rs-ats.project-rs-ats.workers.dev/auth/user/${userId}/settings`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ settings })
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error || 'Failed to update user settings')
+  }
+  return res.json()
+}

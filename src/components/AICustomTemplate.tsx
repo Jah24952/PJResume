@@ -38,7 +38,7 @@ export default React.forwardRef<HTMLDivElement, Props>(function AICustomTemplate
             return data.education.map(edu => {
                 let itemHtml = blueprint;
                 itemHtml = itemHtml.replace(/\{\{EDU_DEGREE\}\}/g, edu.degree || '');
-                itemHtml = itemHtml.replace(/\{\{EDU_FIELD\}\}/g, edu.fieldOfStudy || '');
+                itemHtml = itemHtml.replace(/\{\{EDU_FIELD\}\}/g, edu.faculty || '');
                 itemHtml = itemHtml.replace(/\{\{EDU_SCHOOL\}\}/g, edu.school || '');
                 itemHtml = itemHtml.replace(/\{\{EDU_START_DATE\}\}/g, fd(edu.startDate));
                 itemHtml = itemHtml.replace(/\{\{EDU_END_DATE\}\}/g, fd(edu.endDate));
@@ -131,7 +131,7 @@ export default React.forwardRef<HTMLDivElement, Props>(function AICustomTemplate
             </div>
         `;
         const profileImageHtml = data.profileImage
-            ? `<img src="${data.profileImage}" class="w-full h-full object-cover" alt="Profile" />`
+            ? `<img src="${data.profileImage}" style="width: 100%; height: 100%; max-width: 180px; max-height: 180px; aspect-ratio: 1/1; object-fit: cover; border-radius: 50%;" class="mx-auto" alt="Profile" />`
             : profileImageFallback;
         html = html.replace(/\{\{PROFILE_IMAGE\}\}/g, profileImageHtml);
 

@@ -39,7 +39,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     const skillsLabel = isEn ? 'Skills: ' : 'ทักษะ: ';
 
     // Formatter for Date
-    const dateStr = `${formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th')} - ${formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th')}`;
+    const startStr = formatMonthYear(exp.startDate, data.resumeLanguage as 'en' | 'th');
+    const endStr = formatMonthYear(exp.endDate, data.resumeLanguage as 'en' | 'th');
+    const dateStr = startStr && endStr ? `${startStr} - ${endStr}` : startStr || endStr;
 
     switch (layout) {
       case 'timeline':
@@ -50,15 +52,15 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               {exp.position}
               {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-xs font-normal text-blue-500 hover:underline inline-flex items-center"><Globe size={12} className="mr-1" /> Link</a>}
             </div>
-            <div className="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-500 font-medium mb-1">
-              <span style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-500">| {deptLabel}{exp.department}</span>}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-700 font-medium mb-1">
+              <span style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-600">| {deptLabel}{exp.department}</span>}</span>
               <span>{dateStr}</span>
             </div>
-            <p className="text-sm text-gray-600 whitespace-pre-wrap mt-1">{exp.description}</p>
+            <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap mt-1">{exp.description}</p>
             {exp.skillsUsed && (
               <div className="mt-2 flex flex-wrap gap-1 text-xs">
-                <span className="font-semibold text-gray-500 mr-1">{isProject ? techLabel : skillsLabel}</span>
-                <span className="text-gray-600">{exp.skillsUsed}</span>
+                <span className="font-semibold text-gray-600 mr-1">{isProject ? techLabel : skillsLabel}</span>
+                <span className="text-gray-700">{exp.skillsUsed}</span>
               </div>
             )}
           </div>
@@ -70,9 +72,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               <h4 className="font-bold text-md text-gray-900">{exp.position} {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-[10px] font-normal text-blue-500 hover:underline">🔗 Link</a>}</h4>
               <span className="text-xs font-semibold text-gray-500">{dateStr}</span>
             </div>
-            <div className="text-sm font-medium mb-1" style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-500">| {deptLabel}{exp.department}</span>}</div>
-            <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{exp.description}</p>
-            {exp.skillsUsed && <div className="text-[10px] text-gray-500 mt-1"><span className="font-semibold">{isProject ? techLabel : skillsLabel}</span> {exp.skillsUsed}</div>}
+            <div className="text-sm font-medium mb-1" style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-600">| {deptLabel}{exp.department}</span>}</div>
+            <p className="text-xs text-gray-800 leading-relaxed whitespace-pre-wrap">{exp.description}</p>
+            {exp.skillsUsed && <div className="text-[10px] text-gray-600 mt-1"><span className="font-semibold">{isProject ? techLabel : skillsLabel}</span> {exp.skillsUsed}</div>}
           </div>
         );
       case 'classic':
@@ -86,8 +88,8 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               {exp.position}
               {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-xs font-normal text-blue-600 not-italic hover:underline">[Link]</a>}
             </div>
-            <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">{exp.description}</p>
-            {exp.skillsUsed && <div className="text-xs text-gray-500 mt-1 italic"><span className="font-semibold">{isProject ? techLabel : skillsLabel}</span> {exp.skillsUsed}</div>}
+            <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-wrap">{exp.description}</p>
+            {exp.skillsUsed && <div className="text-xs text-gray-600 mt-1 italic"><span className="font-semibold">{isProject ? techLabel : skillsLabel}</span> {exp.skillsUsed}</div>}
           </div>
         );
       case 'modern':
@@ -98,12 +100,12 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               <h4 className="font-bold text-lg text-black">{exp.position} {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-xs font-normal text-blue-500 hover:underline inline-flex items-center align-middle"><Globe size={12} className="mr-1" /> Link</a>}</h4>
               <span className="text-sm font-semibold text-gray-500 whitespace-nowrap ml-4">{dateStr}</span>
             </div>
-            <div className="text-sm font-semibold mb-2" style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-500 font-medium">| {deptLabel}{exp.department}</span>}</div>
-            <p className="text-sm text-gray-600 whitespace-pre-wrap">{exp.description}</p>
+            <div className="text-sm font-semibold mb-2" style={{ color: primary }}>{exp.company} {exp.department && <span className="text-gray-600 font-medium">| {deptLabel}{exp.department}</span>}</div>
+            <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{exp.description}</p>
             {exp.skillsUsed && (
               <div className="mt-2 flex flex-wrap gap-1 text-xs">
-                <span className="font-semibold px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{isProject ? techLabel : skillsLabel}</span>
-                <span className="px-2 py-0.5 text-gray-600">{exp.skillsUsed}</span>
+                <span className="font-semibold px-2 py-0.5 bg-gray-100 text-gray-700 rounded">{isProject ? techLabel : skillsLabel}</span>
+                <span className="px-2 py-0.5 text-gray-700">{exp.skillsUsed}</span>
               </div>
             )}
           </div>
@@ -133,12 +135,12 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
           <div key={edu.id} className="relative group mb-6 last:mb-0">
             <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: primary }}></div>
             <div className="font-bold text-lg text-gray-800">{edu.degree}</div>
-            <div className="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-500 font-medium mb-1">
+            <div className="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-600 font-medium mb-1">
               <span style={{ color: primary }}>{edu.school}</span>
               <span>{dateStr}</span>
             </div>
-            {fieldText && <p className="text-sm text-gray-600">{fieldText}</p>}
-            {edu.gpa && <p className="text-sm font-semibold text-gray-500 mt-1">{gpaLabel}: {edu.gpa}</p>}
+            {fieldText && <p className="text-sm text-gray-800">{fieldText}</p>}
+            {edu.gpa && <p className="text-sm font-semibold text-gray-600 mt-1">{gpaLabel}: {edu.gpa}</p>}
           </div>
         );
 
@@ -429,7 +431,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             </div>
           </div>
           <div className="z-10">
-            <h1 className={getHeadingClass("text-5xl font-bold uppercase")}>{data.name} <span className="font-light">{data.surname}</span></h1>
+            <h1 className={getHeadingClass("text-5xl font-bold uppercase")}>{data.name}<span className="font-light ml-3">{data.surname}</span></h1>
             <p className={getHeadingClass("text-xl opacity-90 tracking-widest uppercase mt-2")}>{data.jobTitle}</p>
           </div>
         </div>
@@ -439,7 +441,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
           <div className="space-y-8">
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.contact', data.resumeLanguage as 'en' | 'th')}</h3>
-              <div className="space-y-3 text-sm text-gray-600">
+              <div className="space-y-3 text-sm text-gray-800 font-medium">
                 {data.email && <div className="flex items-center gap-2"><Mail size={16} /> {data.email}</div>}
                 {data.phone && <div className="flex items-center gap-2"><Phone size={16} /> {data.phone}</div>}
                 {data.address && <div className="flex items-center gap-2"><MapPin size={16} /> {data.address}</div>}
@@ -459,7 +461,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {data.skills.map(skill => (
-                    <span key={skill} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
+                    <span key={skill} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
                   ))}
                 </div>
               </div>
@@ -470,7 +472,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
                 <div className="flex flex-wrap gap-2">
                   {data.hardSkills.map(skill => (
-                    <span key={skill} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
+                    <span key={skill} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
                   ))}
                 </div>
               </div>
@@ -481,7 +483,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
                 <div className="flex flex-wrap gap-2">
                   {data.softSkills.map(skill => (
-                    <span key={skill} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
+                    <span key={skill} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
                   ))}
                 </div>
               </div>
@@ -499,9 +501,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}</h3>
                 <div className="space-y-2">
                   {data.languages.map(l => (
-                    <div key={l.id} className="flex justify-between text-sm text-gray-700">
+                    <div key={l.id} className="flex justify-between text-sm text-gray-800">
                       <span className="font-bold">{l.language}</span>
-                      <span className="text-gray-500">{l.level}</span>
+                      <span className="text-gray-600 font-medium">{l.level}</span>
                     </div>
                   ))}
                 </div>
@@ -511,7 +513,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
 
           {/* Right Column */}
           <div className="space-y-8">
-            <div className="prose prose-sm text-gray-600">
+            <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">
               <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase border-b-2 inline-block pb-1")} style={{ borderColor: themeColor, color: themeColor }}>{t('section.summary', data.resumeLanguage as 'en' | 'th')}</h3>
               <p>{data.summary}</p>
             </div>

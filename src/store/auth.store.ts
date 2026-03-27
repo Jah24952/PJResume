@@ -6,12 +6,18 @@ type User = {
     email: string
     name: string
     role?: string
+    phone?: string
+    location?: string
+    jobTitle?: string
+    portfolio?: string
+    avatarUrl?: string
 }
 
 type AuthState = {
     user: User | null
     login: (user: User) => void
     logout: () => void
+    updateUser: (data: Partial<User>) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -20,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             login: (user) => set({ user }),
             logout: () => set({ user: null }),
+            updateUser: (data) => set((state) => ({ user: state.user ? { ...state.user, ...data } : null })),
         }),
         {
             name: 'auth-storage', // name of the item in the storage (must be unique)

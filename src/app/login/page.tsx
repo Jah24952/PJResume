@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/auth.store'
+import { useSettingsStore } from '@/store/settings.store'
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
@@ -11,6 +12,7 @@ export default function LoginPage() {
     const [error, setError] = useState('')
     const router = useRouter()
     const login = useAuthStore((state) => state.login)
+    const setSettings = useSettingsStore((state) => state.setSettings)
 
     const handleLogin = async () => {
         try {
@@ -24,6 +26,10 @@ export default function LoginPage() {
 
             if (data.success) {
                 login(data.user)
+                // Sync settings from backend if available
+                if (data.user.settings && Object.keys(data.user.settings).length > 0) {
+                    setSettings(data.user.settings)
+                }
                 router.push('/dashboard') // Go to dashboard after login
             } else {
                 setError(data.error || 'Login failed')

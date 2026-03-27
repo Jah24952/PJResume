@@ -9,7 +9,7 @@ import { analyzeATS, saveResume, fetchResumeById } from '@/lib/api'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useState, useRef, useEffect, Suspense } from 'react'
-import html2canvas from 'html2canvas'
+import html2canvas from 'html2canvas-pro'
 import jsPDF from 'jspdf'
 import {
   User,
@@ -764,9 +764,8 @@ function ResumeCreateContent() {
                       </label>
                       <textarea className="w-full p-2 border rounded bg-gray-50 h-24 text-black" value={exp.description || ''} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'Start Date' : 'เริ่ม'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.startDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
-                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'}</label><input type="month" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
                     </div>
                   </div>
                 ))}
@@ -835,10 +834,12 @@ function ResumeCreateContent() {
                         </select>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
-                      <div><label className="text-sm text-gray-500">{edu.status === 'Studying' ? (data.resumeLanguage === 'th' ? 'คาดว่าจะจบ' : 'Expected End') : (data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End')}</label><input type="date" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
-                    </div>
+                    {edu.status !== 'Studying' && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'}</label><input type="month" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
+                        <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End'}</label><input type="month" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
+                      </div>
+                    )}
                   </div>
                 ))}
                 <button onClick={handleAddEducation} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">{t('action.add.education', data.resumeLanguage as 'en' | 'th')}</button>

@@ -1,13 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FileText, Type, LayoutTemplate, Maximize, Save } from 'lucide-react'
+import { useAuthStore } from '@/store/auth.store'
+import { useSettingsStore } from '@/store/settings.store'
+import { updateUserSettings } from '@/lib/api'
 
 export default function ResumePreferences() {
+    const { user } = useAuthStore()
+    const { settings, updateSettings } = useSettingsStore()
+
     const [preferences, setPreferences] = useState({
-        language: 'th',
-        template: 'modern',
-        font: 'inter',
-        paperSize: 'a4',
-        autoSave: true
+        language: settings.defaultLanguage || 'th',
+        template: settings.defaultTemplate || 'modern',
+        font: settings.defaultFont || 'inter',
+        paperSize: settings.defaultPaperSize || 'a4',
+        autoSave: settings.autoSave !== undefined ? settings.autoSave : true
     })
 
     const [loading, setLoading] = useState(false)
@@ -21,16 +27,33 @@ export default function ResumePreferences() {
         })
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setMessage({ type: '', text: '' })
 
-        // Mock API call
-        setTimeout(() => {
+        try {
+            // Update global store
+            updateSettings({
+                defaultLanguage: preferences.language,
+                defaultTemplate: preferences.template,
+                defaultFont: preferences.font,
+                defaultPaperSize: preferences.paperSize,
+                autoSave: preferences.autoSave
+            })
+
+            // Save to database
+            if (user?.id) {
+                const currentSettings = useSettingsStore.getState().settings
+                await updateUserSettings(user.id, currentSettings)
+            }
+
             setLoading(false)
             setMessage({ type: 'success', text: 'บันทึกการตั้งค่าเรซูเม่เริ่มต้นเรียบร้อยแล้ว' })
-        }, 800)
+        } catch (error) {
+            setLoading(false)
+            setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการบันทึก' })
+        }
     }
 
     return (
@@ -57,7 +80,7 @@ export default function ResumePreferences() {
                             name="language"
                             value={preferences.language}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all bg-white"
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all bg-white text-gray-800"
                         >
                             <option value="th">ภาษาไทย (Thai)</option>
                             <option value="en">English (อังกฤษ)</option>
@@ -75,7 +98,7 @@ export default function ResumePreferences() {
                                 name="template"
                                 value={preferences.template}
                                 onChange={handleChange}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all bg-white"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all bg-white text-gray-800"
                             >
                                 <option value="modern">Modern (ทันสมัย)</option>
                                 <option value="classic">Classic (มาตรฐาน)</option>
@@ -96,7 +119,7 @@ export default function ResumePreferences() {
                                 name="font"
                                 value={preferences.font}
                                 onChange={handleChange}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all bg-white"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all bg-white text-gray-800"
                             >
                                 <option value="inter">Inter (ดีที่สุดสำหรับการอ่าน)</option>
                                 <option value="sarabun">Sarabun (ทางการไทย)</option>
@@ -117,7 +140,7 @@ export default function ResumePreferences() {
                                 name="paperSize"
                                 value={preferences.paperSize}
                                 onChange={handleChange}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all bg-white"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#437393] focus:border-transparent outline-none transition-all bg-white text-gray-800"
                             >
                                 <option value="a4">A4 (มาตรฐานสากล/ไทย)</option>
                                 <option value="letter">US Letter (อเมริกา)</option>

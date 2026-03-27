@@ -389,9 +389,8 @@ function ResumeWizardContent() {
                                         </div>
                                     )}
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div><label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.startDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, startDate: e.target.value })} /></div>
-                                        <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="month" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
                                     </div>
                                 </div>
                             );
@@ -536,18 +535,20 @@ function ResumeWizardContent() {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-2 border-slate-100">
-                                        <div>
-                                            <label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label>
-                                            <input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none text-sm" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} />
+                                    {edu.status !== 'Studying' && (
+                                        <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-2 border-slate-100">
+                                            <div>
+                                                <label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label>
+                                                <input type="month" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none text-sm" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-slate-500 mb-1 block flex justify-between">
+                                                    <span>สิ้นสุด</span>
+                                                </label>
+                                                <input type="month" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none text-sm" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className="text-xs font-bold text-slate-500 mb-1 block flex justify-between">
-                                                <span>{edu.status === 'Studying' ? 'คาดว่าจะจบ (Expected)' : 'สิ้นสุด'}</span>
-                                            </label>
-                                            <input type="date" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none text-sm" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} />
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
                             );
                         })}
@@ -676,7 +677,8 @@ function ResumeWizardContent() {
                         const response = await rewriteText({
                             text: data.summary,
                             language: summaryLanguage,
-                            jobStyle: tone
+                            jobStyle: tone,
+                            section: 'summary'
                         });
                         
                         if (response.rewritten) {

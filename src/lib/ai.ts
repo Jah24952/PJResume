@@ -25,6 +25,7 @@ export async function rewriteText(payload: {
   jobStyle?: string
   language?: string
   experienceLevel?: string
+  section?: string
 }) {
   const res = await fetch(
     'https://project-rs-ats.project-rs-ats.workers.dev/ai/rewrite',

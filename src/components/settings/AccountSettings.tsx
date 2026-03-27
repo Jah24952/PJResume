@@ -94,7 +94,7 @@ export default function AccountSettings() {
 
                         <input 
                             type="text" 
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none mb-4 text-center font-bold tracking-widest"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none mb-4 text-center font-bold tracking-widest text-gray-800"
                             placeholder="พิมพ์ DELETE"
                             value={deleteConfirmText}
                             onChange={(e) => setDeleteConfirmText(e.target.value)}

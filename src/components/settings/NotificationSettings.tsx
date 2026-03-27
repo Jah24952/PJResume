@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import { Bell, Sparkles, ShieldAlert, Save } from 'lucide-react'
+import { useAuthStore } from '@/store/auth.store'
+import { useSettingsStore } from '@/store/settings.store'
+import { updateUserSettings } from '@/lib/api'
 
 export default function NotificationSettings() {
+    const { user } = useAuthStore()
+    const { settings, updateSettings } = useSettingsStore()
+
     const [notifications, setNotifications] = useState({
-        systemAlerts: true,
-        aiReady: true,
+        systemAlerts: settings.systemAlerts !== undefined ? settings.systemAlerts : true,
+        aiReady: settings.aiReady !== undefined ? settings.aiReady : true,
     })
 
     const [loading, setLoading] = useState(false)
@@ -14,16 +20,30 @@ export default function NotificationSettings() {
         setNotifications({ ...notifications, [key]: !notifications[key] })
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setMessage({ type: '', text: '' })
 
-        // Mock API
-        setTimeout(() => {
+        try {
+            // Update global store
+            updateSettings({
+                systemAlerts: notifications.systemAlerts,
+                aiReady: notifications.aiReady,
+            })
+
+            // Save to database
+            if (user?.id) {
+                const currentSettings = useSettingsStore.getState().settings
+                await updateUserSettings(user.id, currentSettings)
+            }
+
             setLoading(false)
             setMessage({ type: 'success', text: 'บันทึกการตั้งค่าการแจ้งเตือนเรียบร้อยแล้ว' })
-        }, 800)
+        } catch (error) {
+            setLoading(false)
+            setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการบันทึก' })
+        }
     }
 
     return (
