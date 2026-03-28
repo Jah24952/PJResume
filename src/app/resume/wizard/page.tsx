@@ -143,6 +143,7 @@ function ResumeWizardContent() {
     const [isRewritingSummary, setIsRewritingSummary] = useState(false)
     const [summaryLanguage, setSummaryLanguage] = useState<'th' | 'en'>('th')
     const [summaryTone, setSummaryTone] = useState<'professional' | 'creative' | 'neutral'>('professional')
+    const [summaryPrompt, setSummaryPrompt] = useState('')
 
     const validateContact = () => {
         const newErrors: Record<string, string> = {}
@@ -656,7 +657,8 @@ function ResumeWizardContent() {
                             education: eduText || 'No education provided',
                             skills: skillsText || 'No skills provided',
                             language: summaryLanguage,
-                            tone: summaryTone
+                            tone: summaryTone,
+                            prompt: summaryPrompt
                         });
                         
                         if (response.summary) {
@@ -724,7 +726,7 @@ function ResumeWizardContent() {
                         
                         {/* AI Tools Section */}
                         <div className="bg-white border rounded-xl p-6 shadow-sm">
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-4">
+                            <div className="mb-5 space-y-4">
                                 <div className="flex gap-4">
                                     <div>
                                         <label className="text-xs font-bold text-slate-500 mb-1 block">ภาษา (Language)</label>
@@ -746,14 +748,30 @@ function ResumeWizardContent() {
                                         </select>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={handleGenerateSummary}
-                                    disabled={isGeneratingSummary}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto justify-center"
-                                >
-                                    {isGeneratingSummary ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
-                                    {isGeneratingSummary ? 'กำลังสร้างข้อความ...' : 'ให้ AI ช่วยเขียนจากประวัติ'}
-                                </button>
+
+                                <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+                                    <div className="flex-1 w-full relative">
+                                        <label className="text-xs font-bold text-slate-500 mb-1 block flex items-center gap-1">
+                                            บอกความต้องการเพิ่มเติม <span className="text-indigo-400 font-normal">(Prompt)</span>
+                                        </label>
+                                        <input 
+                                            type="text"
+                                            className="w-full p-2.5 text-sm border rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-slate-700 transition-all placeholder:text-slate-300"
+                                            placeholder="เช่น อยากให้กระชับอ่านง่าย, เขียนในฉบับนักศึกษาจบใหม่..."
+                                            value={summaryPrompt}
+                                            onChange={(e) => setSummaryPrompt(e.target.value)}
+                                            onKeyDown={(e) => { if (e.key === 'Enter') handleGenerateSummary() }}
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={handleGenerateSummary}
+                                        disabled={isGeneratingSummary}
+                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto justify-center shrink-0"
+                                    >
+                                        {isGeneratingSummary ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
+                                        {isGeneratingSummary ? 'กำลังสร้างข้อความ...' : 'ให้ AI ช่วยเขียนจากประวัติ'}
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Templates Quick Insert */}

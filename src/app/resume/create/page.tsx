@@ -387,7 +387,7 @@ function ResumeCreateContent() {
   const handleAddExperience = () => {
     addItem('experience', {
       id: crypto.randomUUID(),
-      position: '', company: '', location: '', startDate: '', endDate: '', description: ''
+      position: '', company: '', location: '', startDate: '', endDate: '', description: '', type: 'work'
     })
   }
 
@@ -434,7 +434,7 @@ function ResumeCreateContent() {
       return [
         baseContact,
         baseEducation,
-        { id: 'experience' as SectionType, label: isThai ? 'โปรเจคที่ทำ / กิจกรรม' : 'Projects & Activities', icon: Briefcase },
+        { id: 'experience' as SectionType, label: isThai ? 'ประสบการณ์ / โปรเจค' : 'Experience / Projects', icon: Briefcase },
         baseSkills,
         basePortfolio,
         baseLanguages
@@ -443,7 +443,7 @@ function ResumeCreateContent() {
       return [
         baseContact,
         baseEducation,
-        { id: 'experience' as SectionType, label: isThai ? 'ประสบการณ์ฝึกงาน / โปรเจค' : 'Internships & Projects', icon: Briefcase },
+        { id: 'experience' as SectionType, label: isThai ? 'ประสบการณ์ / โปรเจค' : 'Experience / Projects', icon: Briefcase },
         baseSkills,
         basePortfolio,
         baseCertifications,
@@ -454,7 +454,7 @@ function ResumeCreateContent() {
       return [
         baseContact,
         baseSummary,
-        { id: 'experience' as SectionType, label: isThai ? 'ประสบการณ์ทำงาน / ผลงาน' : 'Work Experience', icon: Briefcase },
+        { id: 'experience' as SectionType, label: isThai ? 'ประสบการณ์ / โปรเจค' : 'Experience / Projects', icon: Briefcase },
         baseSkills,
         baseCertifications,
         baseLanguages,
@@ -747,12 +747,42 @@ function ResumeCreateContent() {
             {/* 2. Experience */}
             {activeSection === 'experience' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {data.experience.map(exp => (
+                {data.experience.map(exp => {
+                  const isThai = data.resumeLanguage === 'th';
+                  let posLabel = isThai ? 'ตำแหน่ง' : 'Position';
+                  let compLabel = isThai ? 'บริษัท/องค์กร' : 'Company/Organization';
+                  if (exp.type === 'project') {
+                    posLabel = isThai ? 'ชื่อโปรเจค' : 'Project Name';
+                    compLabel = isThai ? 'วิชา/แพลตฟอร์ม' : 'Course/Platform';
+                  } else if (exp.type === 'internship') {
+                    posLabel = isThai ? 'ตำแหน่ง (นักศึกษาฝึกงาน)' : 'Intern Role';
+                    compLabel = isThai ? 'สถานที่ฝึกงาน' : 'Organization';
+                  } else if (exp.type === 'activity') {
+                    posLabel = isThai ? 'บทบาท/หน้าที่' : 'Role';
+                    compLabel = isThai ? 'ชื่อกิจกรรม/ชมรม' : 'Activity/Club';
+                  }
+
+                  return (
                   <div key={exp.id} className="bg-white border rounded-lg p-6 relative shadow-sm group">
                     <button onClick={() => removeItem('experience', exp.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
+                    
+                    <div className="mb-4">
+                      <label className="text-sm text-gray-500">{isThai ? 'ประเภท' : 'Experience Type'}</label>
+                      <select 
+                        className="w-full p-3 border rounded-lg bg-gray-50 text-black outline-none transition-all text-sm"
+                        value={exp.type || 'work'}
+                        onChange={e => updateItem('experience', exp.id, { ...exp, type: e.target.value as any })}
+                      >
+                        <option value="work">{isThai ? 'ประสบการณ์ทำงาน (Work Experience)' : 'Work Experience'}</option>
+                        <option value="project">{isThai ? 'โปรเจค (Project)' : 'Project'}</option>
+                        <option value="internship">{isThai ? 'ฝึกงาน (Internship)' : 'Internship'}</option>
+                        <option value="activity">{isThai ? 'กิจกรรม (Activity)' : 'Extracurricular Activity'}</option>
+                      </select>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Position' : 'ตำแหน่ง'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.position || ''} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Company' : 'บริษัท'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.company || ''} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{posLabel}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.position || ''} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
+                      <div><label className="text-sm text-gray-500">{compLabel}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.company || ''} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
                     </div>
                     <div className="mb-4">
                       <label className="text-sm text-gray-500 flex justify-between items-center mb-1">
@@ -768,7 +798,7 @@ function ResumeCreateContent() {
                       <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'}</label><input type="month" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
                     </div>
                   </div>
-                ))}
+                )})}
                 <button onClick={handleAddExperience} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">{t('action.add.experience', data.resumeLanguage as 'en' | 'th')}</button>
               </div>
             )}

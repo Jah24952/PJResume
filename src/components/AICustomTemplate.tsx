@@ -16,6 +16,19 @@ export default React.forwardRef<HTMLDivElement, Props>(function AICustomTemplate
         // Helper to safely format dates
         const fd = (d: string) => d ? formatMonthYear(d, data.resumeLanguage as 'en' | 'th') : ''
 
+        const displaySkills = [
+            ...(data.skills || []),
+            ...(data.hardSkills || []),
+            ...(data.softSkills || [])
+        ].filter(Boolean);
+
+        // 0. Remove Empty Sections Entirely
+        if (!data.experience || data.experience.length === 0) html = html.replace(/<!-- SECTION_EXPERIENCE_START -->([\s\S]*?)<!-- SECTION_EXPERIENCE_END -->/g, '');
+        if (!data.education || data.education.length === 0) html = html.replace(/<!-- SECTION_EDUCATION_START -->([\s\S]*?)<!-- SECTION_EDUCATION_END -->/g, '');
+        if (displaySkills.length === 0) html = html.replace(/<!-- SECTION_SKILLS_START -->([\s\S]*?)<!-- SECTION_SKILLS_END -->/g, '');
+        if (!data.languages || data.languages.length === 0) html = html.replace(/<!-- SECTION_LANGUAGES_START -->([\s\S]*?)<!-- SECTION_LANGUAGES_END -->/g, '');
+        if (!data.certifications || data.certifications.length === 0) html = html.replace(/<!-- SECTION_CERTS_START -->([\s\S]*?)<!-- SECTION_CERTS_END -->/g, '');
+
         // 1. Process Experience List
         const expRegex = /<!-- EXPERIENCE_START -->([\s\S]*?)<!-- EXPERIENCE_END -->/g;
         html = html.replace(expRegex, (match, blueprint) => {
@@ -47,11 +60,6 @@ export default React.forwardRef<HTMLDivElement, Props>(function AICustomTemplate
         });
 
         // 3. Process Skills List
-        const displaySkills = [
-            ...(data.skills || []),
-            ...(data.hardSkills || []),
-            ...(data.softSkills || [])
-        ].filter(Boolean);
 
         const skillsRegex = /<!-- SKILLS_START -->([\s\S]*?)<!-- SKILLS_END -->/g;
         html = html.replace(skillsRegex, (match, blueprint) => {
@@ -125,6 +133,9 @@ export default React.forwardRef<HTMLDivElement, Props>(function AICustomTemplate
         html = html.replace(/\{\{SUMMARY\}\}/g, data.summary || '');
 
         // 8. Process Profile Image
+        // Handle cases where the AI already wrapped it in an <img src="{{PROFILE_IMAGE}}" />
+        html = html.replace(/src=["']\{\{PROFILE_IMAGE\}\}["']/g, `src="${data.profileImage || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}"`);
+        
         const profileImageFallback = `
             <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
                 <span style="font-size: clamp(1rem, 50%, 4rem); font-weight: bold; opacity: 0.5;">${(data.name?.charAt(0) || '').toUpperCase()}</span>

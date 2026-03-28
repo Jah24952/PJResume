@@ -7,6 +7,7 @@ export async function generateSummary(payload: {
   tone?: string
   language?: string
   experienceLevel?: string
+  prompt?: string
 }) {
   const res = await fetch(
     'https://project-rs-ats.project-rs-ats.workers.dev/ai/summary',
