@@ -46,7 +46,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     switch (layout) {
       case 'timeline':
         return (
-          <div key={exp.id} className="relative group">
+          <div key={exp.id} className="relative group break-inside-avoid print:break-inside-avoid">
             <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: primary }}></div>
             <div className="font-bold text-lg text-gray-800 flex flex-wrap gap-2 items-center">
               {exp.position}
@@ -67,7 +67,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
         );
       case 'compact':
         return (
-          <div key={exp.id} className="mb-4">
+          <div key={exp.id} className="mb-4 break-inside-avoid print:break-inside-avoid">
             <div className="flex justify-between items-baseline mb-0.5">
               <h4 className="font-bold text-md text-gray-900">{exp.position} {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-[10px] font-normal text-blue-500 hover:underline">🔗 Link</a>}</h4>
               <span className="text-xs font-semibold text-gray-500">{dateStr}</span>
@@ -79,7 +79,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
         );
       case 'classic':
         return (
-          <div key={exp.id} className="mb-5 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+          <div key={exp.id} className="mb-5 border-b border-gray-100 pb-4 last:border-0 last:pb-0 break-inside-avoid print:break-inside-avoid">
             <div className="flex justify-between items-end mb-1">
               <div className="font-bold text-lg text-gray-900">{exp.company} {exp.department && <span className="font-normal text-sm text-gray-500 block">{deptLabel}{exp.department}</span>}</div>
               <div className="italic text-gray-600 text-sm">{dateStr}</div>
@@ -95,7 +95,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
       case 'modern':
       default:
         return (
-          <div key={exp.id} className="mb-6">
+          <div key={exp.id} className="mb-6 break-inside-avoid print:break-inside-avoid">
             <div className="flex justify-between items-baseline mb-1">
               <h4 className="font-bold text-lg text-black">{exp.position} {isProject && exp.projectUrl && <a href={exp.projectUrl.startsWith('http') ? exp.projectUrl : `https://${exp.projectUrl}`} target="_blank" rel="noreferrer" className="text-xs font-normal text-blue-500 hover:underline inline-flex items-center align-middle"><Globe size={12} className="mr-1" /> Link</a>}</h4>
               <span className="text-sm font-semibold text-gray-500 whitespace-nowrap ml-4">{dateStr}</span>
@@ -132,7 +132,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     switch (layout) {
       case 'timeline':
         return (
-          <div key={edu.id} className="relative group mb-6 last:mb-0">
+          <div key={edu.id} className="relative group mb-6 last:mb-0 break-inside-avoid print:break-inside-avoid">
             <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: primary }}></div>
             <div className="font-bold text-lg text-gray-800">{edu.degree}</div>
             <div className="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-600 font-medium mb-1">
@@ -147,7 +147,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
       case 'modern':
       case 'compact':
         return (
-          <div key={edu.id} className="mb-4 last:mb-0">
+          <div key={edu.id} className="mb-4 last:mb-0 break-inside-avoid print:break-inside-avoid">
             <div className="font-bold">{edu.degree}</div>
             <div className="opacity-80">{edu.school}</div>
             {fieldText && <div className="text-xs opacity-70 mt-1">{fieldText}</div>}
@@ -162,7 +162,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
       case 'clean':
       default:
         return (
-          <div key={edu.id} className="mb-6 last:mb-0">
+          <div key={edu.id} className="mb-6 last:mb-0 break-inside-avoid print:break-inside-avoid">
             <div className="flex justify-between items-baseline mb-1">
               <h4 className="text-lg font-bold text-gray-800">{edu.degree} {edu.gpa && <span className="text-sm font-normal text-gray-500">({gpaLabel}: {edu.gpa})</span>}</h4>
               <span className="text-sm font-bold text-gray-500">{dateStr}</span>
@@ -177,7 +177,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
   // --- AI Custom Template Logic ---
   if (selectedTemplate === 'ai-custom') {
     return (
-      <div ref={ref} className="w-full h-full bg-white">
+      <div ref={ref} className="w-full min-h-[1123px] h-auto bg-white print:overflow-visible">
         <AICustomTemplate data={data} />
       </div>
     )
@@ -192,11 +192,11 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     return (
       <div
         ref={ref}
-        className={`bg-white w-full h-full flex flex-row overflow-hidden ${fontSize} ${lineHeight}`}
+        className={`bg-white w-full min-h-[1123px] h-auto flex flex-row ${fontSize} ${lineHeight} print:overflow-visible`}
         style={{ fontFamily: fontFamily || "'Prompt', sans-serif" }}
       >
         {/* Sidebar */}
-        <div className="w-[35%] py-8 px-6 text-white h-full space-y-8" style={{ backgroundColor: themeColor }}>
+        <div className="w-[35%] py-8 px-6 text-white min-h-full space-y-8" style={{ backgroundColor: themeColor }}>
           <div className="text-center mb-6">
             <div className="w-32 h-32 rounded-full bg-white/20 mx-auto mb-4 overflow-hidden border-4 border-white/30 flex items-center justify-center">
               {data.profileImage ? <img src={data.profileImage} className="w-full h-full object-cover" /> : <span className="text-4xl font-bold opacity-50">{data.name.charAt(0)}</span>}
@@ -317,7 +317,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     return (
       <div
         ref={ref}
-        className={`bg-white w-full h-full p-12 text-black ${fontSize} ${lineHeight}`}
+        className={`bg-white w-full min-h-[1123px] h-auto p-12 text-black ${fontSize} ${lineHeight} print:overflow-visible`}
         style={{ fontFamily: fontFamily || "'Times New Roman', serif" }}
       >
         <div className="text-center border-b-2 border-black pb-6 mb-8">
@@ -419,7 +419,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     return (
       <div
         ref={ref}
-        className={`bg-white w-full h-full flex flex-col ${fontSize} ${lineHeight}`}
+        className={`bg-white w-full min-h-[1123px] h-auto flex flex-col ${fontSize} ${lineHeight} print:overflow-visible`}
         style={{ fontFamily: fontFamily || "'Poppins', sans-serif" }}
       >
         {/* Header */}
@@ -554,9 +554,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     const primary = themeColor || '#fb923c'
     const secondary = '#fff7ed' // Very light orange/peach
     return (
-      <div ref={ref} className={`w-full h-full bg-white flex flex-row overflow-hidden ${fontSize} ${lineHeight}`} style={{ fontFamily: fontFamily || "'Inter', sans-serif" }}>
+      <div ref={ref} className={`w-full min-h-[1123px] h-auto bg-white flex flex-row ${fontSize} ${lineHeight} print:overflow-visible`} style={{ fontFamily: fontFamily || "'Inter', sans-serif" }}>
         {/* Sidebar */}
-        <div className="w-[35%] py-8 px-6 flex flex-col gap-6" style={{ backgroundColor: secondary }}>
+        <div className="w-[35%] py-8 px-6 flex flex-col gap-6 min-h-full" style={{ backgroundColor: secondary }}>
           <div className="text-center">
             <div className="w-40 h-40 rounded-full bg-white mx-auto mb-4 border-4 p-1" style={{ borderColor: primary }}>
               {data.profileImage ? <img src={data.profileImage} className="w-full h-full rounded-full object-cover" /> : <div className="w-full h-full rounded-full bg-gray-200"></div>}
@@ -672,9 +672,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
   if (selectedTemplate === 'creative-curve') {
     const primary = themeColor || '#a855f7'
     return (
-      <div ref={ref} className={`w-full h-full bg-white flex flex-row overflow-hidden ${fontSize} ${lineHeight}`} style={{ fontFamily: fontFamily || "'Poppins', sans-serif" }}>
+      <div ref={ref} className={`w-full min-h-[1123px] h-auto bg-white flex flex-row ${fontSize} ${lineHeight} print:overflow-visible`} style={{ fontFamily: fontFamily || "'Poppins', sans-serif" }}>
         {/* Sidebar */}
-        <div className="w-[35%] h-full text-white p-6 relative flex flex-col items-center pt-12" style={{ backgroundColor: primary, borderTopRightRadius: '60px' }}>
+        <div className="w-[35%] min-h-full text-white p-6 relative flex flex-col items-center pt-12" style={{ backgroundColor: primary, borderTopRightRadius: '60px' }}>
           <div className="w-48 h-48 rounded-full border-4 border-white/30 mb-6 overflow-hidden">
             {data.profileImage ? <img src={data.profileImage} className="w-full h-full object-cover" /> : <div className="bg-white/20 w-full h-full"></div>}
           </div>
@@ -795,7 +795,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     const primary = '#000000'
     const accent = themeColor === '#000000' ? '#ffffff' : themeColor
     return (
-      <div ref={ref} className={`w-full h-full bg-white flex flex-col relative overflow-hidden ${fontSize} ${lineHeight}`} style={{ fontFamily: fontFamily || "'Roboto Mono', monospace" }}>
+      <div ref={ref} className={`w-full min-h-[1123px] h-auto bg-white flex flex-col relative ${fontSize} ${lineHeight} print:overflow-visible`} style={{ fontFamily: fontFamily || "'Roboto Mono', monospace" }}>
         <header className="bg-black text-white p-12 flex items-center gap-8">
           <div className="w-32 h-32 bg-white rounded-full p-1 shrink-0">
             {data.profileImage ? <img src={data.profileImage} className="w-full h-full rounded-full object-cover" /> : <div className="bg-gray-200 w-full h-full rounded-full" />}
@@ -915,7 +915,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
   if (selectedTemplate === 'modern-curve') {
     const primary = themeColor || '#f97316'
     return (
-      <div ref={ref} className={`w-full h-full bg-white relative overflow-hidden ${fontSize} ${lineHeight}`} style={{ fontFamily: fontFamily || "'Inter', sans-serif" }}>
+      <div ref={ref} className={`w-full min-h-[1123px] h-auto bg-white relative ${fontSize} ${lineHeight} print:overflow-visible`} style={{ fontFamily: fontFamily || "'Inter', sans-serif" }}>
         <div className="absolute top-0 right-0 w-[700px] h-[500px] bg-opacity-20 rounded-bl-[200px] z-0" style={{ backgroundColor: primary }}></div>
 
         <div className="relative z-10 p-12 h-full flex flex-col">
@@ -1055,7 +1055,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
   if (selectedTemplate === 'professional-box') {
     const primary = themeColor || '#3b82f6'
     return (
-      <div ref={ref} className={`w-full h-full bg-gray-50 p-8 flex flex-col ${fontSize} ${lineHeight}`} style={{ fontFamily: fontFamily || "'Inter', sans-serif" }}>
+      <div ref={ref} className={`w-full min-h-[1123px] h-auto bg-gray-50 p-8 flex flex-col ${fontSize} ${lineHeight} print:overflow-visible`} style={{ fontFamily: fontFamily || "'Inter', sans-serif" }}>
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 flex items-center gap-8 border-t-8" style={{ borderColor: primary }}>
           <div className="w-40 h-40 rounded-xl bg-gray-200 overflow-hidden shrink-0">
             {data.profileImage ? <img src={data.profileImage} className="w-full h-full object-cover" /> : null}
@@ -1181,7 +1181,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
   return (
     <div
       ref={ref}
-      className="bg-white p-12 w-full h-full text-sm leading-relaxed flex flex-col"
+      className="bg-white p-12 w-full min-h-[1123px] h-auto text-sm leading-relaxed flex flex-col print:overflow-visible"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <header className="flex justify-between items-start border-b-4 pb-6 mb-8" style={{ borderColor: primaryColor }}>

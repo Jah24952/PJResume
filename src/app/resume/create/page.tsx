@@ -9,8 +9,6 @@ import { analyzeATS, saveResume, fetchResumeById } from '@/lib/api'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useState, useRef, useEffect, Suspense } from 'react'
-import html2canvas from 'html2canvas-pro'
-import jsPDF from 'jspdf'
 import {
   User,
   Briefcase,
@@ -311,14 +309,10 @@ function ResumeCreateContent() {
   }
 
   const exportPDF = async () => {
-    if (!previewRef.current) return
-    const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true })
-    const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const pageWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = (canvas.height * pageWidth) / canvas.width
-    pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight)
-    pdf.save('resume.pdf')
+    // Delay slightly to ensure any UI states update if necessary, then print
+    setTimeout(() => {
+      window.print();
+    }, 100);
   }
 
   const generateAISummary = async () => {
@@ -466,9 +460,9 @@ function ResumeCreateContent() {
   const menuItems = getMenuItems()
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col print:bg-white print:block">
       {/* Top Bar */}
-      <header className="h-[60px] bg-[#9CC5DF] px-6 flex items-center justify-between shadow-sm relative z-20">
+      <header className="h-[60px] bg-[#9CC5DF] px-6 flex items-center justify-between shadow-sm relative z-20 print:hidden">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="text-[#437393] hover:text-[#2c4f6d] transition-colors" title={t('nav.back.dashboard', data.resumeLanguage as 'en' | 'th')}>
             <ArrowLeft size={24} />
@@ -520,9 +514,9 @@ function ResumeCreateContent() {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden print:block print:overflow-visible">
         {/* Left Sidebar Navigation */}
-        <aside className="w-[280px] bg-[#EAF6FF] border-r border-blue-100 flex flex-col overflow-y-auto">
+        <aside className="w-[280px] bg-[#EAF6FF] border-r border-blue-100 flex flex-col overflow-y-auto print:hidden">
           <div className="p-4">
             <div className="text-[#437393] font-bold mb-4 flex items-center gap-2">
               <Layout size={20} /> ส่วนต่างๆ
@@ -553,7 +547,7 @@ function ResumeCreateContent() {
         </aside>
 
         {/* Main Form Area */}
-        <main className="flex-1 overflow-y-auto bg-white p-8">
+        <main className="flex-1 overflow-y-auto bg-white p-8 print:hidden">
           <div className="max-w-2xl mx-auto space-y-8 pb-20">
             <div className="flex justify-between items-center border-b pb-4">
               <h1 className="text-2xl font-bold text-[#437393]">
@@ -1060,13 +1054,28 @@ function ResumeCreateContent() {
         </main>
 
         {/* Right Preview Area */}
-        <div className="w-[800px] bg-gray-100 p-8 overflow-y-auto flex justify-center shadow-inner">
-          <div className="bg-white shadow-xl min-h-[1123px] w-[794px] origin-top scale-90">
+        <div className="w-[800px] bg-gray-100 p-8 overflow-y-auto flex justify-center shadow-inner relative z-0 print:w-full print:p-0 print:bg-white print:overflow-visible print:block print:shadow-none">
+          <div id="resume-preview-container" className="bg-white shadow-xl min-h-[1123px] w-[794px] origin-top scale-90 print:scale-100 print:w-full print:shadow-none print:transform-none print:m-0 print:h-auto print:min-h-full">
             <ResumePreview ref={previewRef} />
           </div>
         </div>
 
       </div>
+
+      <style>{`
+        @media print {
+          /* Force exact A4 size and allow backgrounds to print */
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          html, body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            background: white !important;
+          }
+        }
+      `}</style>
 
       {/* Save Modal */}
       {isSaveModalOpen && (
