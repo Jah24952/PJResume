@@ -27,6 +27,9 @@ export default function DashboardPage() {
     // Search and Pagination State
     const [searchQuery, setSearchQuery] = useState('')
     const [visibleCount, setVisibleCount] = useState(3)
+    
+    // Logout Modal State
+    const [showLogoutModal, setShowLogoutModal] = useState(false)
 
     useEffect(() => {
         // Auth Guard
@@ -56,6 +59,7 @@ export default function DashboardPage() {
     }
 
     const handleLogout = () => {
+        setShowLogoutModal(false)
         logout()
         router.push('/login')
     }
@@ -117,7 +121,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-4">
                     <span className="text-gray-600 text-sm hidden md:inline">Welcome, {user?.name}</span>
-                    <button onClick={handleLogout} className="text-red-500 hover:text-red-600 flex items-center gap-1 text-sm font-medium">
+                    <button onClick={() => setShowLogoutModal(true)} className="text-red-500 hover:text-red-600 flex items-center gap-1 text-sm font-medium">
                         <LogOut size={16} /> Logout
                     </button>
                 </div>
@@ -335,6 +339,37 @@ export default function DashboardPage() {
                     </div>
                 )}
             </main>
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-3 text-red-600 mb-4">
+                            <div className="p-2 bg-red-50 rounded-full">
+                                <LogOut size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800">ยืนยันการออกจากระบบ</h3>
+                        </div>
+                        <p className="text-gray-600 text-sm mb-6 pb-4 border-b border-gray-100">
+                            คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบบัญชีของคุณ?
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setShowLogoutModal(false)}
+                                className="px-5 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors font-medium text-sm border border-gray-200"
+                            >
+                                ยกเลิก
+                            </button>
+                            <button 
+                                onClick={handleLogout}
+                                className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm shadow-sm flex items-center gap-2"
+                            >
+                                <LogOut size={16} /> ยืนยัน
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

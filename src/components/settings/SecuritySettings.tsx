@@ -1,8 +1,13 @@
 import { useState } from 'react'
 import { Shield, Key, Smartphone, Monitor, Globe, LogOut, X, QrCode } from 'lucide-react'
 import { changePassword } from '@/lib/api'
+import { useAuthStore } from '@/store/auth.store'
+import { useRouter } from 'next/navigation'
 
 export default function SecuritySettings({ user }: { user: any }) {
+    const { logout } = useAuthStore()
+    const router = useRouter()
+
     const [passForm, setPassForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' })
     const [passLoading, setPassLoading] = useState(false)
     const [passMessage, setPassMessage] = useState({ type: '', text: '' })
@@ -14,8 +19,7 @@ export default function SecuritySettings({ user }: { user: any }) {
 
     // Sessions state
     const [sessions, setSessions] = useState([
-        { id: '1', name: 'Chrome / Windows (อุปกรณ์ปัจจุบัน)', location: 'Bangkok, Thailand', isCurrent: true, lastActive: 'ออนไลน์ในขณะนี้', icon: <Monitor size={20} /> },
-        { id: '2', name: 'Safari / iOS', location: 'Chiang Mai, Thailand', isCurrent: false, lastActive: 'ใช้งานล่าสุด: 5 ชั่วโมงที่แล้ว', icon: <Smartphone size={20} /> }
+        { id: '1', name: 'Chrome / Windows (อุปกรณ์ปัจจุบัน)', location: 'Bangkok, Thailand', isCurrent: true, lastActive: 'ออนไลน์ในขณะนี้', icon: <Monitor size={20} /> }
     ])
 
     // Custom Confirmation Modal State
@@ -32,22 +36,11 @@ export default function SecuritySettings({ user }: { user: any }) {
         setConfirmModal({
             isOpen: true,
             title: 'ยืนยันการออกจากระบบ',
-            message: 'คุณต้องการออกจากระบบอุปกรณ์นี้ใช่หรือไม่?',
+            message: 'คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบบัญชีของคุณบนอุปกรณ์นี้?',
             onConfirm: () => {
-                setSessions(prev => prev.filter(s => s.id !== id))
                 closeConfirmModal()
-            }
-        })
-    }
-
-    const handleLogoutAllOther = () => {
-        setConfirmModal({
-            isOpen: true,
-            title: 'ออกจากระบบอุปกรณ์อื่น',
-            message: 'คุณต้องการออกจากระบบอุปกรณ์อื่นทั้งหมดใช่หรือไม่?',
-            onConfirm: () => {
-                setSessions(prev => prev.filter(s => s.isCurrent))
-                closeConfirmModal()
+                logout()
+                router.push('/login')
             }
         })
     }
@@ -197,14 +190,8 @@ export default function SecuritySettings({ user }: { user: any }) {
                         <h3 className="text-xl font-bold text-gray-800 mb-1 flex items-center gap-2">
                             <Globe size={20} className="text-[#437393]" /> อุปกรณ์ที่เข้าสู่ระบบ (Active Sessions)
                         </h3>
-                        <p className="text-gray-500 text-sm">ตรวจสอบว่ามีอุปกรณ์ใดกำลังใช้งานบัญชีของคุณอยู่บ้าง</p>
+                        <p className="text-gray-500 text-sm">การเชื่อมต่ออุปกรณ์ปัจจุบันของคุณ</p>
                     </div>
-                    <button 
-                        onClick={handleLogoutAllOther}
-                        disabled={sessions.length <= 1}
-                        className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                        <LogOut size={16} /> ออกจากระบบอุปกรณ์อื่นทั้งหมด
-                    </button>
                 </div>
 
                 <div className="space-y-4">
@@ -222,11 +209,12 @@ export default function SecuritySettings({ user }: { user: any }) {
                                     </p>
                                 </div>
                             </div>
-                            {!session.isCurrent && (
+                            {session.isCurrent && (
                                 <button 
                                     onClick={() => handleLogoutSession(session.id)}
-                                    className="text-sm font-medium text-gray-500 hover:text-red-500 transition-colors"
+                                    className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors px-3 py-1.5 bg-red-50 rounded-lg hover:bg-red-100 flex gap-1.5 items-center border border-red-100"
                                 >
+                                    <LogOut size={16} />
                                     ออกจากระบบ
                                 </button>
                             )}
