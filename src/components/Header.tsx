@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuthStore } from '@/store/auth.store';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Header() {
@@ -32,6 +32,15 @@ export default function Header() {
               <User size={18} />
               <span className="hidden sm:inline">บัญชีของฉัน</span>
             </Link>
+            {user.role === 'admin' && (
+              <Link
+                href="/admin"
+                className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors flex items-center gap-2 bg-indigo-50 px-3 py-1.5 rounded-lg"
+              >
+                <Shield size={16} />
+                <span className="hidden sm:inline">ระบบแอดมิน</span>
+              </Link>
+            )}
             <button
               onClick={() => setShowLogoutModal(true)}
               className="text-red-500 hover:text-red-600 flex items-center gap-1 text-sm font-medium ml-2"

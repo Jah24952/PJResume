@@ -1,132 +1,124 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useAuthStore } from '@/store/auth.store'
-import { useRouter } from 'next/navigation'
-import { fetchAdminStats, fetchUsers } from '@/lib/api'
-import { Users, FileText, Shield, LogOut } from 'lucide-react'
+import { fetchAdminDashboardStats } from '@/lib/adminApi'
+import { Users, FileText, Bot, LayoutTemplate, Activity, ArrowUpRight, BarChart } from 'lucide-react'
 import Link from 'next/link'
 
-export default function AdminPage() {
-    const { user, logout } = useAuthStore()
-    const router = useRouter()
+export default function AdminDashboard() {
     const [stats, setStats] = useState<any>(null)
-    const [users, setUsers] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        // Auth Guard (Admin Only)
-        const init = async () => {
-            if (!user) {
-                router.push('/login')
-                return
-            }
-            // Force simple check. In real app, secure with backend cookie/token verification
-            if (user.role !== 'admin' && user.email !== 'admin@example.com') {
-                // Fallback for demo if role not yet set in DB for first user
-                // router.push('/dashboard')
-            }
-
+        const loadStats = async () => {
             try {
-                const [statsRes, usersRes] = await Promise.all([
-                    fetchAdminStats(),
-                    fetchUsers()
-                ])
-                if (statsRes.success) setStats(statsRes.stats)
-                if (usersRes.success) setUsers(usersRes.users)
+                const res = await fetchAdminDashboardStats()
+                if (res.success) setStats(res.stats)
             } catch (err) {
                 console.error(err)
             } finally {
                 setLoading(false)
             }
         }
-        init()
-    }, [user, router])
+        loadStats()
+    }, [])
 
-    const handleLogout = () => {
-        logout()
-        router.push('/login')
+    if (loading) {
+        return (
+            <div className="flex h-64 items-center justify-center">
+                <div className="w-8 h-8 font-medium animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
+            </div>
+        )
     }
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center text-[#437393]">Loading Admin Panel...</div>
+    const statCards = [
+        { label: 'Total Users', value: stats?.users || 0, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Resumes Created', value: stats?.resumes || 0, icon: FileText, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'AI Usages', value: stats?.aiUsages || 0, icon: Bot, color: 'text-amber-600', bg: 'bg-amber-50' },
+        { label: 'Active Templates', value: stats?.activeTemplates || 0, icon: LayoutTemplate, color: 'text-purple-600', bg: 'bg-purple-50' },
+    ]
 
     return (
-        <div className="min-h-screen bg-slate-50">
-            {/* Navbar */}
-            <nav className="h-[60px] bg-[#1e293b] border-b border-slate-700 px-6 flex items-center justify-between shadow-sm sticky top-0 z-50 text-white">
-                <div className="flex items-center gap-2 font-bold text-lg">
-                    <Shield className="text-emerald-400" /> SRG Admin
-                </div>
-                <div className="flex items-center gap-4">
-                    <span className="text-slate-400 text-sm hidden md:inline">Admin: {user?.name}</span>
-                    <button onClick={handleLogout} className="text-red-400 hover:text-red-300 flex items-center gap-1 text-sm font-medium">
-                        <LogOut size={16} /> Logout
-                    </button>
-                </div>
-            </nav>
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard Overview</h1>
+                <p className="text-sm text-slate-500 mt-1">Key metrics and recent activity for your SaaS platform.</p>
+            </div>
 
-            <main className="max-w-6xl mx-auto p-8">
-                <h1 className="text-3xl font-bold text-slate-800 mb-8">Dashboard Overview</h1>
+            {/* Stat Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {statCards.map((card, i) => {
+                    const Icon = card.icon
+                    return (
+                        <div key={i} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hover:shadow-md transition-shadow">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-sm font-medium text-slate-500">{card.label}</span>
+                                <div className={`p-2 rounded-lg ${card.bg}`}>
+                                    <Icon size={18} className={card.color} />
+                                </div>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                                <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{card.value}</h3>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
-                        <div className="bg-blue-100 p-4 rounded-full text-blue-600">
-                            <Users size={32} />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 font-medium uppercase">Total Users</p>
-                            <p className="text-3xl font-bold text-slate-800">{stats?.users || 0}</p>
-                        </div>
+            {/* Main Content Area */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                {/* Chart Placeholder (Left 2 columns) */}
+                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-base font-semibold text-slate-900">Growth Overview</h3>
+                        <Link href="/admin/reports" className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+                            View Report <ArrowUpRight size={16} />
+                        </Link>
                     </div>
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
-                        <div className="bg-emerald-100 p-4 rounded-full text-emerald-600">
-                            <FileText size={32} />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 font-medium uppercase">Total Resumes</p>
-                            <p className="text-3xl font-bold text-slate-800">{stats?.resumes || 0}</p>
+                    <div className="h-64 flex items-center justify-center bg-slate-50 rounded-lg border border-slate-100 border-dashed">
+                        {/* Placeholder for Recharts / Chart.js */}
+                        <div className="flex flex-col items-center">
+                            <BarChart className="text-slate-300 w-12 h-12 mb-2" />
+                            <p className="text-sm text-slate-500 font-medium text-center max-w-xs">
+                                Chart module will be placed here representing Monthly Active Users and Resumes.
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Users Table */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                        <h3 className="font-bold text-slate-700">Recent Users</h3>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-slate-50 text-slate-500 text-sm">
-                                    <th className="px-6 py-3 font-medium">ID</th>
-                                    <th className="px-6 py-3 font-medium">Name</th>
-                                    <th className="px-6 py-3 font-medium">Email</th>
-                                    <th className="px-6 py-3 font-medium">Role</th>
-                                    <th className="px-6 py-3 font-medium">Joined</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-                                {users.map((u) => (
-                                    <tr key={u.user_id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4 font-mono text-slate-400">#{u.user_id}</td>
-                                        <td className="px-6 py-4 font-medium">{u.full_name_en || '-'}</td>
-                                        <td className="px-6 py-4">{u.email}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'
-                                                }`}>
-                                                {u.role || 'user'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-500">
-                                            {u.created_at ? new Date(u.created_at).toLocaleDateString() : '-'}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                {/* Quick Actions (Right 1 column) */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                    <h3 className="text-base font-semibold text-slate-900 mb-4">Quick Actions</h3>
+                    <div className="space-y-3 flex-1">
+                        <Link href="/admin/users" className="block w-full text-left p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors group">
+                            <div className="flex items-center gap-3">
+                                <Users size={18} className="text-slate-400 group-hover:text-indigo-600" />
+                                <div>
+                                    <p className="text-sm font-medium text-slate-700 group-hover:text-indigo-700">Manage Users</p>
+                                    <p className="text-xs text-slate-500">Edit roles, suspend accounts</p>
+                                </div>
+                            </div>
+                        </Link>
+                        <Link href="/admin/templates" className="block w-full text-left p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors group">
+                            <div className="flex items-center gap-3">
+                                <LayoutTemplate size={18} className="text-slate-400 group-hover:text-indigo-600" />
+                                <div>
+                                    <p className="text-sm font-medium text-slate-700 group-hover:text-indigo-700">Templates</p>
+                                    <p className="text-xs text-slate-500">Add or deactivate styles</p>
+                                </div>
+                            </div>
+                        </Link>
+                        <Link href="/admin/ai-generator" className="block w-full text-left p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors group">
+                            <div className="flex items-center gap-3">
+                                <Bot size={18} className="text-slate-400 group-hover:text-indigo-600" />
+                                <div>
+                                    <p className="text-sm font-medium text-slate-700 group-hover:text-indigo-700">AI Controls</p>
+                                    <p className="text-xs text-slate-500">View prompt outputs</p>
+                                </div>
+                            </div>
+                        </Link>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     )
 }
