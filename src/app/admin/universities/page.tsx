@@ -81,7 +81,7 @@ export default function AdminUniversitiesPage() {
                         placeholder="e.g. Chulalongkorn University"
                         value={newUni.name}
                         onChange={(e) => setNewUni({...newUni, name: e.target.value})}
-                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                 </div>
                 <div className="flex-1 w-full">
@@ -92,7 +92,7 @@ export default function AdminUniversitiesPage() {
                         placeholder="e.g. Thailand"
                         value={newUni.country}
                         onChange={(e) => setNewUni({...newUni, country: e.target.value})}
-                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                 </div>
                 <button onClick={handleAdd} className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2 rounded-lg transition-colors text-sm flex items-center justify-center gap-2 h-[38px]">

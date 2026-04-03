@@ -68,7 +68,7 @@ export default function AdminSettingsPage() {
                                     type="text" 
                                     value={settings.website_name}
                                     onChange={(e) => setSettings({...settings, website_name: e.target.value})}
-                                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 />
                             </div>
                         </div>
@@ -110,7 +110,7 @@ export default function AdminSettingsPage() {
                                     type="number" 
                                     value={settings.max_resume_per_user}
                                     onChange={(e) => setSettings({...settings, max_resume_per_user: e.target.value})}
-                                    className="w-full md:w-32 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full md:w-32 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 />
                             </div>
                         </div>

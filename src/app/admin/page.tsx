@@ -7,14 +7,21 @@ import Link from 'next/link'
 export default function AdminDashboard() {
     const [stats, setStats] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         const loadStats = async () => {
             try {
                 const res = await fetchAdminDashboardStats()
-                if (res.success) setStats(res.stats)
-            } catch (err) {
+                if (res.success) {
+                    setStats(res.stats)
+                    setError(null)
+                } else {
+                    setError(res.error || 'Failed to load stats')
+                }
+            } catch (err: any) {
                 console.error(err)
+                setError(err.message || 'An unexpected error occurred while fetching data from the backend.')
             } finally {
                 setLoading(false)
             }
@@ -43,6 +50,16 @@ export default function AdminDashboard() {
                 <h1 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard Overview</h1>
                 <p className="text-sm text-slate-500 mt-1">Key metrics and recent activity for your SaaS platform.</p>
             </div>
+
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3">
+                    <div className="h-5 w-5 shrink-0 mt-0.5 text-red-500 rounded-full border border-red-500 flex items-center justify-center text-xs font-bold">!</div>
+                    <div>
+                        <h3 className="text-sm font-semibold">Error Loading Dashboard Data</h3>
+                        <p className="text-sm mt-1">{error}</p>
+                    </div>
+                </div>
+            )}
 
             {/* Stat Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

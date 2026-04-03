@@ -1,5 +1,5 @@
+// const API_BASE = 'http://127.0.0.1:8787/api/admin'
 const API_BASE = 'https://project-rs-ats.project-rs-ats.workers.dev/api/admin'
-// NOTE: To test with local wrangler, you might want to switch to 'http://localhost:8787/api/admin'
 
 function getHeaders() {
   const headers: Record<string, string> = {
@@ -12,8 +12,12 @@ function getHeaders() {
       try {
         const parsed = JSON.parse(storage)
         const userId = parsed?.state?.user?.id
+        const userEmail = parsed?.state?.user?.email
         if (userId) {
           headers['x-user-id'] = String(userId)
+        }
+        if (userEmail) {
+          headers['x-user-email'] = String(userEmail)
         }
       } catch (e) {}
     }
@@ -84,6 +88,25 @@ export async function updateAdminTemplateStatus(id: number, status: string) {
     body: JSON.stringify({ status })
   })
   if (!res.ok) throw new Error('Failed to update status')
+  return res.json()
+}
+
+export async function addAdminTemplate(data: { name: string; category: string; style: string; preview_image_url?: string; status?: string }) {
+  const res = await fetch(`${API_BASE}/templates`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(data)
+  })
+  if (!res.ok) throw new Error('Failed to add template')
+  return res.json()
+}
+
+export async function deleteAdminTemplate(id: number) {
+  const res = await fetch(`${API_BASE}/templates/${id}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  })
+  if (!res.ok) throw new Error('Failed to delete template')
   return res.json()
 }
 

@@ -94,7 +94,7 @@ export default function AdminSkillsPage() {
                                 placeholder="e.g. React.js, Leadership"
                                 value={newSkill.name}
                                 onChange={(e) => setNewSkill({...newSkill, name: e.target.value})}
-                                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
                         <div>
@@ -102,7 +102,7 @@ export default function AdminSkillsPage() {
                             <select 
                                 value={newSkill.type}
                                 onChange={(e) => setNewSkill({...newSkill, type: e.target.value})}
-                                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             >
                                 <option value="hard">Hard Skill (Technical)</option>
                                 <option value="soft">Soft Skill (Interpersonal)</option>
@@ -125,7 +125,7 @@ export default function AdminSkillsPage() {
                                     placeholder="Search skills..." 
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm w-full text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 />
                             </div>
                         </div>
