@@ -15,7 +15,7 @@ export type UserSettings = {
 }
 
 const defaultSettings: UserSettings = {
-    theme: 'system',
+    theme: 'light',
     language: 'th',
     size: 'normal',
     defaultLanguage: 'th',
