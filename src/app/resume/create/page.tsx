@@ -315,6 +315,19 @@ function ResumeCreateContent() {
     }, 100);
   }
 
+  const exportJSON = () => {
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `resume_backup_${new Date().getTime()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   const generateAISummary = async () => {
     try {
       const payload = {
@@ -496,19 +509,27 @@ function ResumeCreateContent() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 lg:gap-3">
             <Link
               href="/resume/templates"
-              className="bg-[#437393] px-5 py-2 rounded-full flex items-center gap-2 text-white font-bold hover:bg-[#2c4f6d] transition-colors shadow-md"
+              className="bg-[#437393] px-3 md:px-5 py-2 rounded-full flex items-center gap-1.5 md:gap-2 text-white font-bold hover:bg-[#2c4f6d] transition-colors shadow-md text-sm md:text-base"
             >
-              <Layout size={18} /> เลือกเทมเพลต (Select Template)
+              <Layout size={18} /> <span className="hidden md:inline">เลือกเทมเพลต (Select Template)</span>
             </Link>
 
             <button
-              onClick={exportPDF}
-              className="bg-white px-4 py-2 rounded-full flex items-center gap-2 text-[#437393] font-medium hover:bg-slate-50 transition-colors shadow-sm"
+              onClick={exportJSON}
+              className="bg-indigo-50 border border-indigo-200 px-3 md:px-4 py-2 rounded-full flex items-center gap-1.5 md:gap-2 text-indigo-700 font-medium hover:bg-indigo-100 transition-colors shadow-sm text-sm"
+              title="บันทึกข้อมูลเป็นไฟล์ JSON ไว้สำหรับนำเข้าเพื่อแก้ไขภายหลัง"
             >
-              <FileDown size={18} className="text-red-500" /> {t('nav.download.pdf', data.resumeLanguage as 'en' | 'th')}
+              <Download size={18} /> <span className="hidden md:inline">สำรองข้อมูล (JSON)</span>
+            </button>
+
+            <button
+              onClick={exportPDF}
+              className="bg-white px-3 md:px-4 py-2 rounded-full flex items-center gap-1.5 md:gap-2 text-[#437393] font-medium hover:bg-slate-50 transition-colors shadow-sm text-sm"
+            >
+              <FileDown size={18} className="text-red-500" /> <span className="hidden md:inline">{t('nav.download.pdf', data.resumeLanguage as 'en' | 'th')}</span>
             </button>
           </div>
         </div>

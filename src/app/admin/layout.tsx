@@ -16,7 +16,8 @@ import {
   Activity,
   LogOut,
   Menu,
-  X
+  X,
+  ArrowLeft
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -75,6 +76,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-slate-400 hover:text-slate-600">
                         <X size={20} />
                     </button>
+                </div>
+
+                <div className="p-3 border-b border-slate-100">
+                    <Link 
+                        href="/"
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
+                    >
+                        <ArrowLeft size={18} />
+                        Back to Main Site
+                    </Link>
                 </div>
 
                 <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">

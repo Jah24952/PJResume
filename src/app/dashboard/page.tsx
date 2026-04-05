@@ -120,6 +120,11 @@ export default function DashboardPage() {
                     </Link>
                 </div>
                 <div className="flex items-center gap-4">
+                    {(user?.role === 'admin' || user?.email === 'admin@example.com') && (
+                        <Link href="/admin" className="text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors border border-indigo-100 hidden md:flex">
+                            <Shield size={16} /> ระบบแอดมิน
+                        </Link>
+                    )}
                     <span className="text-gray-600 text-sm hidden md:inline">Welcome, {user?.name}</span>
                     <button onClick={() => setShowLogoutModal(true)} className="text-red-500 hover:text-red-600 flex items-center gap-1 text-sm font-medium">
                         <LogOut size={16} /> Logout

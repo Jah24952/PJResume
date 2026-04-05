@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Upload, FileText, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
+import { useResumeStore } from '@/store/resume.store'
 
 export default function ResumeUploadPage() {
     const router = useRouter()
@@ -34,11 +35,21 @@ export default function ResumeUploadPage() {
     }
 
     const handleNext = () => {
-        // In a real app, we would upload the file here.
-        // For now, we simulate success and go to the editor.
         if (file) {
-            // Passing a query param to indicate import mode if needed
-            router.push('/resume/create?mode=import')
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const result = e.target?.result as string;
+                    const parsedData = JSON.parse(result);
+                    // Update resume data in Zustand store
+                    useResumeStore.getState().setResumeData(parsedData);
+                    router.push('/resume/create');
+                } catch (err) {
+                    alert('ไม่สามารถอ่านไฟล์ได้ โปรดตรวจสอบว่าไฟล์เป็นนามสกุล .json ที่อ้างอิงจากระบบนี้');
+                    console.error('JSON Parse Error:', err);
+                }
+            };
+            reader.readAsText(file);
         }
     }
 
@@ -57,7 +68,7 @@ export default function ResumeUploadPage() {
                         ดำเนินการนำเข้าต่อ
                     </h1>
                     <p className="text-slate-500 max-w-xl mx-auto">
-                        อัปโหลดประวัติย่อปัจจุบันของคุณในรูปแบบ Word หรือ PDF และเราจะดึงข้อมูล (เท่าที่เราทำได้) ลงในเทมเพลต
+                        อัปโหลดไฟล์ข้อมูลประวัติย่อของคุณ (นามสกุล <strong className="text-indigo-600">.json</strong>) ที่ได้มาจากการกดปุ่มสร้างสำรองในระบบ เพื่อนำกลับมาแก้ไขเนื้อหาต่อโดยที่ข้อมูลไม่สูญหาย
                     </p>
                 </div>
 
@@ -83,9 +94,9 @@ export default function ResumeUploadPage() {
                             <p className="text-[#437393] mb-8 font-medium">ลากและวางไฟล์ของคุณที่นี่เพื่ออัพโหลด</p>
                             <p className="text-slate-400 text-sm mb-6 font-bold">หรือ</p>
                             <label className="cursor-pointer">
-                                <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={handleFileSelect} />
+                                <input type="file" className="hidden" accept=".json" onChange={handleFileSelect} />
                                 <div className="bg-white border border-[#437393] text-[#437393] px-8 py-3 rounded-lg font-medium hover:bg-[#437393] hover:text-white transition-all shadow-sm">
-                                    เลือกไฟล์ประวัติย่อของคุณ
+                                    เลือกไฟล์ข้อมูล (.json)
                                 </div>
                             </label>
                         </>
