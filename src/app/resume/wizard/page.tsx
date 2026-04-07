@@ -648,7 +648,7 @@ function ResumeWizardContent() {
                     try {
                         // Prepare data for AI
                         const expText = data.experience.map(e => `${e.position} at ${e.company} (${e.startDate} - ${e.endDate}): ${e.description}`).join(' | ');
-                        const eduText = data.education.map(e => `${e.degree} in ${e.major} from ${e.school}`).join(' | ');
+                        const eduText = data.education.map(e => `${e.degree} in ${e.major} from ${e.school} (Current Status: ${e.status === 'Studying' ? 'Currently Studying / Not Graduated' : 'Graduated'})`).join(' | ');
                         const skillsText = [...data.hardSkills, ...data.softSkills].join(', ');
                         
                         const response = await generateSummary({

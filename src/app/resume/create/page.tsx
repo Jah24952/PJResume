@@ -27,7 +27,7 @@ import {
   Upload,
   X
 } from 'lucide-react'
-import { TEMPLATES } from '../../../lib/constants'
+import { TEMPLATES, COMMON_LANGUAGES } from '../../../lib/constants'
 
 // Define Section Types for Sidebar
 type SectionType = 'contact' | 'experience' | 'education' | 'skills' | 'languages' | 'summary' | 'certifications' | 'portfolio'
@@ -333,7 +333,7 @@ function ResumeCreateContent() {
       const payload = {
         name: `${data.name} ${data.surname}`,
         experience: data.experience.map(e => `${e.position} at ${e.company}`).join(', '),
-        education: data.education.map(e => `${e.degree} from ${e.school}`).join(', '),
+        education: data.education.map(e => `${e.degree} ${e.major ? `in ${e.major} ` : ''}from ${e.school} (Current Status: ${e.status === 'Studying' ? 'Currently Studying / Not Graduated' : 'Graduated'})`).join(', '),
         skills: data.skills.join(', '),
         jobStyle,
         tone,
@@ -990,7 +990,16 @@ function ResumeCreateContent() {
                     <button onClick={() => removeItem('languages', lang.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="flex-1">
                       <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Language' : 'ภาษา'}</label>
-                      <input className="w-full p-2 border rounded bg-gray-50 text-black" value={lang.language || ''} onChange={e => updateItem('languages', lang.id, { ...lang, language: e.target.value })} placeholder="English" />
+                      <input 
+                        list={`languages-list-${lang.id}`}
+                        className="w-full p-2 border rounded bg-gray-50 text-black outline-none focus:ring-1 focus:ring-[#437393] [&::-webkit-calendar-picker-indicator]:!opacity-100" 
+                        value={lang.language || ''} 
+                        onChange={e => updateItem('languages', lang.id, { ...lang, language: e.target.value })} 
+                        placeholder="English" 
+                      />
+                      <datalist id={`languages-list-${lang.id}`}>
+                        {COMMON_LANGUAGES.map(l => <option key={l} value={l} />)}
+                      </datalist>
                     </div>
                     <div className="w-1/3">
                       <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Level' : 'ระดับ'}</label>

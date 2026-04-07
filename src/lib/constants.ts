@@ -355,3 +355,11 @@ export const TEMPLATES = [
         }
     },
 ] as const
+
+export const COMMON_LANGUAGES = [
+    'English', 'Thai', 'Chinese (Mandarin)', 'Spanish', 'Hindi', 'Arabic', 'Bengali', 'Russian',
+    'Portuguese', 'Urdu', 'Indonesian', 'German', 'Japanese', 'Swahili', 'Marathi', 'Telugu',
+    'Turkish', 'Tamil', 'French', 'Vietnamese', 'Korean', 'Italian', 'Malay', 'Persian',
+    'Dutch', 'Khmer', 'Lao', 'Myanmar (Burmese)', 'Tagalog', 'Polish', 'Ukrainian', 'Romanian',
+    'Swedish', 'Danish', 'Finnish', 'Norwegian', 'Czech', 'Greek', 'Hebrew', 'Hungarian'
+] as const;

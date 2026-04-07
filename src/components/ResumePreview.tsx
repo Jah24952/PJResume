@@ -149,9 +149,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
         return (
           <div key={edu.id} className="mb-4 last:mb-0 break-inside-avoid print:break-inside-avoid">
             <div className="font-bold">{edu.degree}</div>
-            <div className="opacity-80">{edu.school}</div>
-            {fieldText && <div className="text-xs opacity-70 mt-1">{fieldText}</div>}
-            <div className="text-xs opacity-60 mt-1 flex justify-between">
+            <div className="opacity-90">{edu.school}</div>
+            {fieldText && <div className="text-xs opacity-80 mt-1">{fieldText}</div>}
+            <div className="text-xs opacity-75 mt-1 flex justify-between">
               <span>{dateStr}</span>
               {edu.gpa && <span className="font-semibold">{gpaLabel}: {edu.gpa}</span>}
             </div>
@@ -491,7 +491,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
 
             <div>
               <h3 className={getHeadingClass("font-bold text-lg mb-4 uppercase")} style={{ color: themeColor }}>{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
-              <div className="space-y-4">
+              <div className="space-y-4 text-gray-800 font-medium">
                 {data.education.map(edu => renderEducationItem(edu, themeColor, 'modern'))}
               </div>
             </div>
@@ -761,7 +761,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
               <h3 className={getHeadingClass("font-bold text-xl mb-4 flex items-center gap-2")} style={{ color: primary }}>
                 <span>{t('section.education', data.resumeLanguage as 'en' | 'th')}</span>
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-4 text-gray-800 font-medium">
                 {data.education.map(edu => renderEducationItem(edu, primary, 'compact'))}
               </div>
             </div>
@@ -885,7 +885,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
 
             <section>
               <h3 className={getHeadingClass("font-bold text-2xl text-black border-l-4 border-black pl-4 mb-4")}>BUILD // {t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
-              <div className="space-y-4">
+              <div className="space-y-4 text-gray-800 font-medium">
                 {data.education.map(edu => renderEducationItem(edu, primary, 'compact'))}
               </div>
             </section>
@@ -1022,7 +1022,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
                 <h3 className={getHeadingClass("font-bold text-2xl mb-6 flex items-center gap-3")}>
                   <span className="w-3 h-8 rounded-full" style={{ backgroundColor: primary }}></span> {t('section.education', data.resumeLanguage as 'en' | 'th')}
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-4 text-gray-800 font-medium">
                   {data.education.map(edu => renderEducationItem(edu, primary, 'modern'))}
                 </div>
               </div>
@@ -1088,7 +1088,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             {data.skills && data.skills.length > 0 && (
               <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{t('section.skills', data.resumeLanguage as 'en' | 'th')}</h3>
-                <ul className="space-y-2">
+                <ul className="space-y-2 text-gray-800 font-medium">
                   {data.skills.map(skill => (
                     <li key={skill} className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primary }}></span>
@@ -1101,7 +1101,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             {data.hardSkills && data.hardSkills.length > 0 && (
               <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{data.resumeLanguage === 'en' ? 'Hard Skills' : 'Hard Skills (ทักษะทางวิชาชีพ)'}</h3>
-                <ul className="space-y-2">
+                <ul className="space-y-2 text-gray-800 font-medium">
                   {data.hardSkills.map(skill => (
                     <li key={skill} className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primary }}></span>
@@ -1114,7 +1114,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             {data.softSkills && data.softSkills.length > 0 && (
               <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{data.resumeLanguage === 'en' ? 'Soft Skills' : 'Soft Skills (ทักษะทางสังคม)'}</h3>
-                <ul className="space-y-2">
+                <ul className="space-y-2 text-gray-800 font-medium">
                   {data.softSkills.map(skill => (
                     <li key={skill} className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primary }}></span>
@@ -1128,7 +1128,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
             {data.languages.length > 0 && (
               <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h3 className={getHeadingClass("font-bold text-gray-900 border-b pb-2 mb-4")}>{t('section.languages', data.resumeLanguage as 'en' | 'th')}</h3>
-                <div className="space-y-3">
+                <div className="space-y-3 text-gray-800 font-medium">
                   {data.languages.map(l => (
                     <div key={l.id}>
                       <div className="font-bold text-gray-800">{l.language}</div>
@@ -1150,7 +1150,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
 
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <h3 className={getHeadingClass("font-bold text-xl text-gray-900 mb-6 border-b pb-2")}>{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 text-gray-800 font-medium">
                 {data.education.map(edu => renderEducationItem(edu, primary, 'modern'))}
               </div>
             </div>
@@ -1244,7 +1244,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
         <div className="space-y-8">
           <section className="bg-gray-50 p-6 rounded-lg">
             <h3 className="font-bold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">{t('section.education', data.resumeLanguage as 'en' | 'th')}</h3>
-            <div className="space-y-4">
+            <div className="space-y-4 text-gray-800 font-medium">
               {data.education.map(edu => renderEducationItem(edu, primaryColor, 'modern'))}
             </div>
           </section>
