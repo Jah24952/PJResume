@@ -25,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const { user, logout } = useAuthStore()
     const router = useRouter()
     const pathname = usePathname()
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {

@@ -535,28 +535,28 @@ function ResumeCreateContent() {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden print:block print:overflow-visible">
-        {/* Left Sidebar Navigation */}
-        <aside className="w-[280px] bg-[#EAF6FF] border-r border-blue-100 flex flex-col overflow-y-auto print:hidden">
-          <div className="p-4">
-            <div className="text-[#437393] font-bold mb-4 flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden print:block print:overflow-visible">
+        {/* Left/Top Sidebar Navigation */}
+        <aside className="w-full lg:w-[280px] bg-[#EAF6FF] lg:border-r border-b border-blue-100 flex flex-row lg:flex-col overflow-x-auto lg:overflow-y-auto print:hidden shrink-0 z-10">
+          <div className="p-4 hidden lg:block pb-2 lg:pb-4">
+            <div className="text-[#437393] font-bold flex items-center gap-2">
               <Layout size={20} /> ส่วนต่างๆ
             </div>
-            <div className="space-y-1">
-              {menuItems.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveSection(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeSection === item.id
-                    ? 'bg-[#9CC5DF] text-white shadow-sm'
-                    : 'text-[#64748b] hover:bg-[#DCF1FF]/50'
-                    }`}
-                >
-                  <item.icon size={18} />
-                  {item.label}
-                </button>
-              ))}
-            </div>
+          </div>
+          <div className="flex flex-row lg:flex-col gap-2 lg:gap-0 space-y-0 lg:space-y-1 p-3 lg:px-4 lg:pb-4 overflow-x-auto">
+            {menuItems.map(item => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-xs lg:text-sm font-medium transition-colors whitespace-nowrap shrink-0 lg:w-full ${activeSection === item.id
+                  ? 'bg-[#9CC5DF] text-white shadow-sm'
+                  : 'text-[#64748b] hover:bg-[#DCF1FF]/50'
+                  }`}
+              >
+                <item.icon size={18} className="shrink-0" />
+                <span className="hidden sm:inline lg:inline">{item.label}</span>
+              </button>
+            ))}
           </div>
 
           {/* Color / Template Preview (Placeholder) */}
@@ -568,10 +568,10 @@ function ResumeCreateContent() {
         </aside>
 
         {/* Main Form Area */}
-        <main className="flex-1 overflow-y-auto bg-white p-8 print:hidden">
+        <main className="flex-1 overflow-y-auto bg-white p-4 md:p-8 print:hidden order-1 lg:order-none">
           <div className="max-w-2xl mx-auto space-y-8 pb-20">
-            <div className="flex justify-between items-center border-b pb-4">
-              <h1 className="text-2xl font-bold text-[#437393]">
+            <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 border-b pb-4">
+              <h1 className="text-xl md:text-2xl font-bold text-[#437393]">
                 {menuItems.find(m => m.id === activeSection)?.label}
               </h1>
               <div className="flex items-center gap-3">
@@ -586,7 +586,7 @@ function ResumeCreateContent() {
             {/* 1. Contact Info */}
             {activeSection === 'contact' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="grid grid-cols-[1fr_auto] gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-6">
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm text-gray-500">{t('field.firstName', data.resumeLanguage as 'en' | 'th')} <span className="text-red-500">*</span></label>
@@ -643,7 +643,7 @@ function ResumeCreateContent() {
                   {errors.jobTitle && <p className="text-red-500 text-xs mt-1">{errors.jobTitle}</p>}
                 </div>
                 <div><label className="text-sm text-gray-500">{t('field.address', data.resumeLanguage as 'en' | 'th')}</label><input className="w-full p-3 border rounded-lg bg-gray-50 text-black" value={data.address || ''} onChange={e => update('address', e.target.value)} /></div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm text-gray-500">{t('field.phone', data.resumeLanguage as 'en' | 'th')} <span className="text-red-500">*</span></label>
                     <input className={`w-full p-3 border rounded-lg bg-gray-50 text-black ${errors.phone ? 'border-red-500' : ''}`} value={data.phone} onChange={e => {
@@ -667,7 +667,7 @@ function ResumeCreateContent() {
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm text-gray-500">{t('field.nationality', data.resumeLanguage as 'en' | 'th')}</label>
                     <select
@@ -795,7 +795,7 @@ function ResumeCreateContent() {
                       </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                       <div><label className="text-sm text-gray-500">{posLabel}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.position || ''} onChange={e => updateItem('experience', exp.id, { ...exp, position: e.target.value })} /></div>
                       <div><label className="text-sm text-gray-500">{compLabel}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={exp.company || ''} onChange={e => updateItem('experience', exp.id, { ...exp, company: e.target.value })} /></div>
                     </div>
@@ -824,7 +824,7 @@ function ResumeCreateContent() {
                 {data.education.map(edu => (
                   <div key={edu.id} className="bg-white border rounded-lg p-6 relative shadow-sm group">
                     <button onClick={() => removeItem('education', edu.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'วุฒิการศึกษา' : 'Degree'}</label>
                         <select
@@ -1064,13 +1064,13 @@ function ResumeCreateContent() {
             {activeSection === 'certifications' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {data.certifications.map(cert => (
-                  <div key={cert.id} className="bg-white border rounded-lg p-4 flex gap-4 items-center relative group">
+                  <div key={cert.id} className="bg-white border rounded-lg p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center relative group">
                     <button onClick={() => removeItem('certifications', cert.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
-                    <div className="flex-1">
+                    <div className="flex-1 w-full">
                       <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Certification Name' : 'ชื่อใบรับรอง / หลักสูตร'}</label>
                       <input className="w-full p-2 border rounded bg-gray-50 text-black" value={cert.name || ''} onChange={e => updateItem('certifications', cert.id, { ...cert, name: e.target.value })} />
                     </div>
-                    <div className="w-1/3">
+                    <div className="w-full sm:w-1/3">
                       <label className="text-sm text-gray-500">{data.resumeLanguage === 'en' ? 'Year' : 'ปีที่ได้รับ'}</label>
                       <input className="w-full p-2 border rounded bg-gray-50 text-black" value={cert.year || ''} onChange={e => updateItem('certifications', cert.id, { ...cert, year: e.target.value })} placeholder="YYYY" />
                     </div>
@@ -1084,9 +1084,11 @@ function ResumeCreateContent() {
         </main>
 
         {/* Right Preview Area */}
-        <div className="w-[800px] bg-gray-100 p-8 overflow-y-auto flex justify-center shadow-inner relative z-0 print:w-full print:p-0 print:bg-white print:overflow-visible print:block print:shadow-none">
-          <div id="resume-preview-container" className="bg-white shadow-xl min-h-[1123px] w-[794px] origin-top scale-90 print:scale-100 print:w-full print:shadow-none print:transform-none print:m-0 print:h-auto print:min-h-full">
-            <ResumePreview ref={previewRef} />
+        <div className="w-full lg:w-[800px] h-1/2 lg:h-auto border-t lg:border-t-0 bg-gray-100 p-2 md:p-8 overflow-y-auto flex justify-center shadow-inner relative z-0 print:w-full print:p-0 print:bg-white print:overflow-visible print:block print:shadow-none order-2 lg:order-none">
+          <div className="w-full max-w-[794px] overflow-x-auto sm:overflow-visible flex justify-center lg:block">
+            <div id="resume-preview-container" className="bg-white shadow-xl min-h-[1123px] w-[794px] origin-top scale-[0.45] sm:scale-75 lg:scale-90 print:scale-100 print:w-full print:shadow-none print:transform-none print:m-0 print:h-auto print:min-h-full">
+              <ResumePreview ref={previewRef} />
+            </div>
           </div>
         </div>
 

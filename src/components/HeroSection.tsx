@@ -6,7 +6,7 @@ export default function HeroSection() {
     return (
         <section className="w-full max-w-7xl mx-auto px-4 py-16 flex flex-col md:flex-row items-center gap-12">
             <div className="flex-1 space-y-6 text-center md:text-left">
-                <h1 className="text-6xl font-bold text-slate-700">Resume</h1>
+                <h1 className="text-4xl md:text-6xl font-bold text-slate-700">Resume</h1>
                 <h2 className="text-3xl text-slate-500 font-normal">ทำเรซูเม่สอนไลน์ฟรี</h2>
 
                 <div className="pt-4">

@@ -102,7 +102,7 @@ export default function SetupPage() {
                     <div className="text-center mb-10">
                         <h2 className="text-2xl font-bold text-[#437393] mb-3">คุณต้องการสร้างเรซูเม่ภาษาอะไร?</h2>
                     </div>
-                    <div className="flex justify-center gap-8">
+                    <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8">
                         {[
                             { id: 'th', label: 'ภาษาไทย', sub: 'สร้างเรซูเม่ภาษาไทย' },
                             { id: 'en', label: 'English', sub: 'Create a resume in English' },
@@ -110,7 +110,7 @@ export default function SetupPage() {
                             <button
                                 key={item.id}
                                 onClick={() => handleSelect('resumeLanguage', item.id)}
-                                className={`w-56 p-10 rounded-2xl border-2 flex flex-col items-center text-center transition-all duration-300 group hover:-translate-y-1 ${selections.resumeLanguage === item.id
+                                className={`w-full sm:w-56 p-8 sm:p-10 rounded-2xl border-2 flex flex-col items-center text-center transition-all duration-300 group hover:-translate-y-1 ${selections.resumeLanguage === item.id
                                     ? 'border-[#437393] bg-blue-50/50 shadow-md ring-2 ring-[#437393] ring-offset-2'
                                     : 'border-slate-100 bg-white hover:border-blue-200 hover:shadow-lg'
                                     }`}
