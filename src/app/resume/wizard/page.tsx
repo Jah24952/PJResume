@@ -6,6 +6,7 @@ import { useResumeStore } from '@/store/resume.store'
 import { ArrowLeft, ArrowRight, User, Briefcase, GraduationCap, CheckSquare, FileText, Plus, Trash2, Globe, Award, Upload, X, Zap, Sparkles, AlertCircle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { generateSummary, rewriteText } from '@/lib/ai'
+import MonthYearPicker from '@/components/MonthYearPicker'
 
 // Wizard Steps Configuration
 const STEPS = [
@@ -391,7 +392,7 @@ function ResumeWizardContent() {
                                     )}
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div><label className="text-xs font-bold text-slate-500 mb-1 block">สิ้นสุด</label><input type="month" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
+                                        <MonthYearPicker label="สิ้นสุด" value={exp.endDate || ''} onChange={val => updateItem('experience', exp.id, { ...exp, endDate: val })} />
                                     </div>
                                 </div>
                             );
@@ -538,16 +539,8 @@ function ResumeWizardContent() {
 
                                     {edu.status !== 'Studying' && (
                                         <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-2 border-slate-100">
-                                            <div>
-                                                <label className="text-xs font-bold text-slate-500 mb-1 block">เริ่ม</label>
-                                                <input type="month" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none text-sm" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} />
-                                            </div>
-                                            <div>
-                                                <label className="text-xs font-bold text-slate-500 mb-1 block flex justify-between">
-                                                    <span>สิ้นสุด</span>
-                                                </label>
-                                                <input type="month" className="w-full p-2 border rounded bg-slate-50 focus:bg-white focus:ring-1 focus:ring-[#437393] outline-none text-sm" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} />
-                                            </div>
+                                            <MonthYearPicker label="เริ่ม" value={edu.startDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, startDate: val })} />
+                                            <MonthYearPicker label="สิ้นสุด" value={edu.endDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, endDate: val })} />
                                         </div>
                                     )}
                                 </div>

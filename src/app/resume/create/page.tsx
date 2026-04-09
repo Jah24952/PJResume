@@ -28,6 +28,7 @@ import {
   X
 } from 'lucide-react'
 import { TEMPLATES, COMMON_LANGUAGES } from '../../../lib/constants'
+import MonthYearPicker from '@/components/MonthYearPicker'
 
 // Define Section Types for Sidebar
 type SectionType = 'contact' | 'experience' | 'education' | 'skills' | 'languages' | 'summary' | 'certifications' | 'portfolio'
@@ -810,7 +811,7 @@ function ResumeCreateContent() {
                       <textarea className="w-full p-2 border rounded bg-gray-50 h-24 text-black" value={exp.description || ''} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div><label className="text-xs text-gray-500 block mb-1">{data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'}</label><input type="month" className="w-full p-2 border rounded bg-gray-50 text-black text-sm" value={exp.endDate || ''} onChange={e => updateItem('experience', exp.id, { ...exp, endDate: e.target.value })} /></div>
+                      <MonthYearPicker label={data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'} value={exp.endDate || ''} onChange={val => updateItem('experience', exp.id, { ...exp, endDate: val })} lang={data.resumeLanguage as 'th' | 'en'} />
                     </div>
                   </div>
                 )})}
@@ -881,8 +882,8 @@ function ResumeCreateContent() {
                     </div>
                     {edu.status !== 'Studying' && (
                       <div className="grid grid-cols-2 gap-4">
-                        <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'}</label><input type="month" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.startDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, startDate: e.target.value })} /></div>
-                        <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End'}</label><input type="month" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.endDate || ''} onChange={e => updateItem('education', edu.id, { ...edu, endDate: e.target.value })} /></div>
+                        <MonthYearPicker label={data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'} value={edu.startDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, startDate: val })} lang={data.resumeLanguage as 'th' | 'en'} />
+                        <MonthYearPicker label={data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End'} value={edu.endDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, endDate: val })} lang={data.resumeLanguage as 'th' | 'en'} />
                       </div>
                     )}
                   </div>

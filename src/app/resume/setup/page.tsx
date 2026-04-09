@@ -130,7 +130,7 @@ export default function SetupPage() {
                 {/* 3. Education Level */}
                 <section ref={educationRef} className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 scroll-mt-24">
                     <div className="text-center mb-10">
-                        <h2 className="text-2xl font-bold text-[#437393] mb-3">ระดับการศึกษาของคุณที่ดีที่สุด</h2>
+                        <h2 className="text-2xl font-bold text-[#437393] mb-3">ระดับการศึกษาสูงสุดของคุณ</h2>
                         <p className="text-slate-500">ประวัติการศึกษาของคุณสามารถช่วยให้เราแนะนำคุณผ่านส่วนต่างๆ ที่เกี่ยวข้องในประวัติย่อของคุณได้</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
