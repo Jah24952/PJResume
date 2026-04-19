@@ -9,67 +9,18 @@ import Header from '@/components/Header'
 import ResumePreview from '@/components/ResumePreview'
 import { useResumeStore } from '@/store/resume.store'
 
-const FILTERS = {
-    language: {
-        title: 'Language',
-        options: ['ภาษาอังกฤษ', 'ภาษาไทย']
-    },
-    type: {
-        title: 'Type',
-        options: ['จบใหม่ / นักศึกษา', 'คนมีประสบการณ์']
-    },
-    style: {
-        title: 'Style',
-        options: ['Modern', 'Professional', 'Creative', 'Simple']
-    },
-    color: {
-        title: 'Color',
-        options: ['Color', 'B&W']
-    },
-    level: {
-        title: 'Level',
-        options: ['Entry Level', 'Senior', 'Manager']
-    },
-    career: {
-        title: 'Career Field',
-        options: [
-            'เทคโนโลยี / IT / ดิจิทัล',
-            'ออกแบบ / สร้างสรรค์ / UX/UI / สื่อ',
-            'ธุรกิจ / การจัดการ / องค์กร',
-            'การตลาด / การขาย / สื่อสาร',
-            'การเงิน / บัญชี / วิเคราะห์',
-            'ทรัพยากรบุคคล / องค์กร',
-            'การศึกษา / วิชาการ',
-            'อุตสาหกรรม / วิศวกรรม',
-            'ราชการ / รัฐวิสาหกิจ'
-        ]
-    }
-}
+
 
 import { TEMPLATES } from '../../../lib/constants'
 
 export default function TemplateSelectionPage() {
-    const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({
-        language: [],
-        type: [],
-        style: [],
-        color: [],
-        level: [],
-        career: []
-    })
+
     const [customizingTemplate, setCustomizingTemplate] = useState<any>(null)
     const [showAIModal, setShowAIModal] = useState(false)
 
     const { setTemplate, updateCustomization, setAiSchema } = useResumeStore()
 
-    // Set default filters (example: Thai language and Entry Level)
-    useEffect(() => {
-        setSelectedFilters(prev => ({
-            ...prev,
-            language: ['ภาษาไทย'],
-            type: ['จบใหม่ / นักศึกษา']
-        }))
-    }, [])
+
 
     const { user } = useAuthStore()
     const router = useRouter()
@@ -84,25 +35,7 @@ export default function TemplateSelectionPage() {
         return () => clearTimeout(timer)
     }, [user, router])
 
-    const toggleFilter = (category: string, option: string) => {
-        setSelectedFilters(prev => {
-            const current = prev[category] || []
-            const updated = current.includes(option)
-                ? current.filter(item => item !== option)
-                : [...current, option]
-            return { ...prev, [category]: updated }
-        })
-    }
 
-    // Filter Logic
-    const filteredTemplates = TEMPLATES.filter(template => {
-        return Object.entries(selectedFilters).every(([category, selectedOptions]) => {
-            if (selectedOptions.length === 0) return true
-            // OR logic within category (e.g. Modern OR Creative)
-            const templateOptions = template.categories[category as keyof typeof template.categories]
-            return selectedOptions.some(option => (templateOptions as readonly string[]).includes(option))
-        })
-    })
 
     return (
         <div className="min-h-screen bg-white font-sans text-black">
@@ -124,49 +57,10 @@ export default function TemplateSelectionPage() {
                     </button>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Left Sidebar Filters */}
-                    <aside className="w-full lg:w-64 flex-shrink-0 space-y-8">
-                        {Object.entries(FILTERS).map(([key, section]) => (
-                            <div key={key}>
-                                <h3 className="font-bold text-[#2c5282] text-lg mb-3">{section.title}</h3>
-                                <div className="space-y-2">
-                                    {section.options.map(option => (
-                                        <label key={option} className="flex items-center gap-3 cursor-pointer group">
-                                            <div className={`w-5 h-5 border rounded flex items-center justify-center transition-all ${selectedFilters[key]?.includes(option)
-                                                ? 'bg-[#437393] border-[#437393]'
-                                                : 'border-slate-300 group-hover:border-[#437393]'
-                                                }`}>
-                                                {selectedFilters[key]?.includes(option) && (
-                                                    <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                )}
-                                            </div>
-                                            <input
-                                                type="checkbox"
-                                                className="hidden"
-                                                checked={selectedFilters[key]?.includes(option)}
-                                                onChange={() => toggleFilter(key, option)}
-                                            />
-                                            <span className={`text-base ${selectedFilters[key]?.includes(option)
-                                                ? 'text-[#437393] font-medium'
-                                                : 'text-slate-500 group-hover:text-slate-700'
-                                                }`}>
-                                                {option}
-                                            </span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </aside>
-
-                    {/* Right Template Grid */}
-                    <main className="flex-1">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                            {filteredTemplates.length > 0 ? (
-                                filteredTemplates.map((template) => (
+                <div>
+                    <main className="w-full">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {TEMPLATES.map((template) => (
                                     <div key={template.id} className="group relative cursor-pointer">
                                         {/* Card Container */}
                                         <div className="aspect-[210/297] bg-white rounded-lg shadow-md border hover:shadow-xl transition-all overflow-hidden relative">
@@ -193,17 +87,7 @@ export default function TemplateSelectionPage() {
                                         </div>
                                     </div>
                                 ))
-                            ) : (
-                                <div className="col-span-full py-12 text-center text-gray-400">
-                                    <p className="text-lg">ไม่พบเทมเพลตที่ตรงกับตัวเลือกของคุณ</p>
-                                    <button
-                                        onClick={() => setSelectedFilters({ language: [], type: [], style: [], color: [], level: [], career: [] })}
-                                        className="mt-4 text-[#437393] hover:underline"
-                                    >
-                                        ล้างตัวกรองทั้งหมด
-                                    </button>
-                                </div>
-                            )}
+                            }
                         </div>
                     </main>
                 </div>
