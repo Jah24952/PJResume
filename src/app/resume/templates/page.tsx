@@ -13,6 +13,48 @@ import { useResumeStore } from '@/store/resume.store'
 
 import { TEMPLATES } from '../../../lib/constants'
 
+type GenerateCustomTemplateResponse = {
+    success?: boolean
+    schema?: Record<string, unknown>
+    error?: string
+    isRateLimit?: boolean
+    isTemporary?: boolean
+    retryAfterSeconds?: number
+}
+
+function getAIGenerationErrorMessage(data: GenerateCustomTemplateResponse | null, status: number) {
+    if (data?.isRateLimit) {
+        return 'ขณะนี้การใช้งาน AI เต็มชั่วคราว กรุณารอประมาณ 1 นาทีแล้วลองอีกครั้ง'
+    }
+
+    if (data?.isTemporary) {
+        if (data.retryAfterSeconds && data.retryAfterSeconds > 0) {
+            return `ระบบ AI กำลังมีผู้ใช้งานหนาแน่นชั่วคราว กรุณาลองอีกครั้งในอีก ${data.retryAfterSeconds} วินาที`
+        }
+        return 'ระบบ AI กำลังมีผู้ใช้งานหนาแน่นชั่วคราว กรุณาลองใหม่อีกสักครู่'
+    }
+
+    const errorText = String(data?.error || '')
+
+    if (errorText.includes('Could not parse JSON')) {
+        return 'AI สร้างรูปแบบเทมเพลตไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง'
+    }
+
+    if (errorText.includes('Gemini returned empty text')) {
+        return 'AI ตอบกลับไม่ครบถ้วน กรุณาลองใหม่อีกครั้ง'
+    }
+
+    if (errorText) {
+        return `AI ยังสร้างเทมเพลตไม่สำเร็จ: ${errorText}`
+    }
+
+    if (status >= 500) {
+        return 'เซิร์ฟเวอร์ AI มีปัญหาชั่วคราว กรุณาลองอีกครั้ง'
+    }
+
+    return 'AI ไม่สามารถสร้างเทมเพลตได้ในขณะนี้ ลองเลือกสไตล์ใหม่แล้วลองอีกครั้ง'
+}
+
 export default function TemplateSelectionPage() {
 
     const [customizingTemplate, setCustomizingTemplate] = useState<any>(null)
@@ -367,8 +409,23 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
                     resumeData
                 })
             })
-            const data = await res.json()
-            if (data.success && data.schema && Object.keys(data.schema).length > 0) {
+            const rawText = await res.text()
+            let data: GenerateCustomTemplateResponse = {}
+
+            try {
+                data = rawText ? JSON.parse(rawText) : {}
+            } catch (parseError) {
+                console.error('AI generate parse error:', parseError, rawText)
+            }
+
+            const hasValidSchema = Boolean(data.success && data.schema && Object.keys(data.schema).length > 0)
+
+            if (!hasValidSchema) {
+                alert(getAIGenerationErrorMessage(data, res.status))
+                return
+            }
+
+            if (data?.success && data.schema && Object.keys(data.schema).length > 0) {
                 onSuccess(data.schema)
             } else if (data.isRateLimit) {
                 alert('ขณะนี้เกินขีดจำกัดการใช้งาน AI ชั่วคราว กรุณารอประมาณ 1 นาทีแล้วกดสร้างใหม่อีกครั้ง')
