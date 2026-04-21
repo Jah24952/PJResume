@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { TEMPLATES, COMMON_LANGUAGES } from '../../../lib/constants'
 import MonthYearPicker from '@/components/MonthYearPicker'
+import { UNIVERSITIES, FACULTIES, FACULTY_MAJOR_MAP } from '@/lib/education'
 
 // Define Section Types for Sidebar
 type SectionType = 'contact' | 'experience' | 'education' | 'skills' | 'languages' | 'summary' | 'certifications' | 'portfolio'
@@ -822,7 +823,10 @@ function ResumeCreateContent() {
             {/* 3. Education */}
             {activeSection === 'education' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {data.education.map(edu => (
+                {data.education.map(edu => {
+                  const currentFaculty = edu.faculty || '';
+                  const availableMajors = FACULTY_MAJOR_MAP[currentFaculty] || [];
+                  return (
                   <div key={edu.id} className="bg-white border rounded-lg p-6 relative shadow-sm group">
                     <button onClick={() => removeItem('education', edu.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -860,11 +864,50 @@ function ResumeCreateContent() {
                           )}
                         </select>
                       </div>
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'คณะ' : 'Faculty'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.faculty || ''} onChange={e => updateItem('education', edu.id, { ...edu, faculty: e.target.value })} /></div>
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สาขาวิชา' : 'Major'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.major || ''} onChange={e => updateItem('education', edu.id, { ...edu, major: e.target.value })} /></div>
+                      
+                      <div>
+                        <label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สถานศึกษา' : 'School/University'}</label>
+                        <input 
+                          className="w-full p-2 border rounded bg-gray-50 text-black" 
+                          value={edu.school || ''} 
+                          onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} 
+                          placeholder={data.resumeLanguage === 'th' ? "พิมพ์เพื่อค้นหา หรือพิมพ์สถาบันใหม่..." : "Search or enter institution..."}
+                          list={`uni-list-${edu.id}`}
+                        />
+                        <datalist id={`uni-list-${edu.id}`}>
+                            {UNIVERSITIES.map(u => <option key={u} value={u} />)}
+                        </datalist>
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สถานศึกษา' : 'School/University'}</label><input className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.school || ''} onChange={e => updateItem('education', edu.id, { ...edu, school: e.target.value })} /></div>
+                      <div>
+                        <label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'คณะ' : 'Faculty'}</label>
+                        <input 
+                          className="w-full p-2 border rounded bg-gray-50 text-black" 
+                          value={edu.faculty || ''} 
+                          onChange={e => updateItem('education', edu.id, { ...edu, faculty: e.target.value })} 
+                          placeholder={data.resumeLanguage === 'th' ? "เลือกคณะ หรือพิมพ์ใหม่..." : "Select or type faculty..."}
+                          list={`faculty-list-${edu.id}`}
+                        />
+                        <datalist id={`faculty-list-${edu.id}`}>
+                            {FACULTIES.map(f => <option key={f} value={f} />)}
+                        </datalist>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'สาขาวิชา' : 'Major'}</label>
+                        <input 
+                          className="w-full p-2 border rounded bg-gray-50 text-black" 
+                          value={edu.major || ''} 
+                          onChange={e => updateItem('education', edu.id, { ...edu, major: e.target.value })} 
+                          placeholder={currentFaculty ? (data.resumeLanguage === 'th' ? "เลือกสาขาวิชา หรือพิมพ์ใหม่..." : "Select or type major...") : (data.resumeLanguage === 'th' ? "กรุณาเลือกคณะก่อน หรือพิมพ์สาขาได้เลย" : "Select faculty first or type...")}
+                          list={`major-list-${edu.id}`}
+                        />
+                        <datalist id={`major-list-${edu.id}`}>
+                            {availableMajors.map(m => <option key={m} value={m} />)}
+                        </datalist>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div><label className="text-sm text-gray-500">{data.resumeLanguage === 'th' ? 'เกรดเฉลี่ย' : 'GPA'}</label><input type="text" className="w-full p-2 border rounded bg-gray-50 text-black" value={edu.gpa || ''} onChange={e => updateItem('education', edu.id, { ...edu, gpa: e.target.value })} /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 mb-4">
@@ -887,7 +930,7 @@ function ResumeCreateContent() {
                       </div>
                     )}
                   </div>
-                ))}
+                )})}
                 <button onClick={handleAddEducation} className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-400 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-50">{t('action.add.education', data.resumeLanguage as 'en' | 'th')}</button>
               </div>
             )}

@@ -18,13 +18,18 @@ type GenerateCustomTemplateResponse = {
     schema?: Record<string, unknown>
     error?: string
     isRateLimit?: boolean
+    isDailyQuotaExceeded?: boolean
     isTemporary?: boolean
     retryAfterSeconds?: number
 }
 
 function getAIGenerationErrorMessage(data: GenerateCustomTemplateResponse | null, status: number) {
+    if (data?.isDailyQuotaExceeded) {
+        return 'โควตาการใช้งาน AI ของระบบสำหรับวันนี้เต็มแล้ว กรุณาลองใหม่ในวันพรุ่งนี้ (หรือติดต่อผู้ดูแลระบบ)'
+    }
+
     if (data?.isRateLimit) {
-        return 'ขณะนี้การใช้งาน AI เต็มชั่วคราว กรุณารอประมาณ 1 นาทีแล้วลองอีกครั้ง'
+        return 'ขณะนี้มีผู้ใช้งาน AI จำนวนมาก กรุณารอประมาณ 1 นาทีแล้วลองอีกครั้ง'
     }
 
     if (data?.isTemporary) {
@@ -356,6 +361,17 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
     const [extraText, setExtraText] = useState('')
     const [includeProfileImage, setIncludeProfileImage] = useState(true)
     const [loading, setLoading] = useState(false)
+    const [errorMsg, setErrorMsg] = useState<string | null>(null)
+    const [cooldown, setCooldown] = useState(0)
+
+    const { user } = useAuthStore()
+
+    useEffect(() => {
+        if (cooldown > 0) {
+            const timer = setTimeout(() => setCooldown(cooldown - 1), 1000)
+            return () => clearTimeout(timer)
+        }
+    }, [cooldown])
 
     const QUICK_CHIPS = [
         { emoji: '🎨', label: 'สีสดใส โดดเด่น' },
@@ -373,6 +389,7 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
     ]
 
     const toggleChip = (label: string) => {
+        setErrorMsg(null)
         setSelectedChips(prev =>
             prev.includes(label) ? prev.filter(c => c !== label) : [...prev, label]
         )
@@ -381,12 +398,13 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
     // Count: each chip = 1 item, typed text = 1 item
     const itemCount = selectedChips.length + (extraText.trim() ? 1 : 0)
     const MIN_ITEMS = 2
-    const canGenerate = itemCount >= MIN_ITEMS && !loading
+    const canGenerate = itemCount >= MIN_ITEMS && !loading && cooldown === 0
 
     const { data: resumeData } = useResumeStore()
 
     const handleGenerate = async () => {
         if (itemCount < MIN_ITEMS) return
+        setErrorMsg(null)
 
         // Combine chips + extra text into one description for the AI
         const parts = [...selectedChips]
@@ -404,6 +422,7 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    userId: user?.id,
                     userDescription,
                     language: 'th',
                     resumeData
@@ -421,20 +440,24 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
             const hasValidSchema = Boolean(data.success && data.schema && Object.keys(data.schema).length > 0)
 
             if (!hasValidSchema) {
-                alert(getAIGenerationErrorMessage(data, res.status))
+                setErrorMsg(getAIGenerationErrorMessage(data, res.status))
+                if (data.isRateLimit) {
+                    setCooldown(60)
+                }
                 return
             }
 
             if (data?.success && data.schema && Object.keys(data.schema).length > 0) {
                 onSuccess(data.schema)
             } else if (data.isRateLimit) {
-                alert('ขณะนี้เกินขีดจำกัดการใช้งาน AI ชั่วคราว กรุณารอประมาณ 1 นาทีแล้วกดสร้างใหม่อีกครั้ง')
+                setErrorMsg('ขณะนี้เกินขีดจำกัดการใช้งาน AI ชั่วคราว กรุณารอประมาณ 1 นาทีแล้วกดสร้างใหม่อีกครั้ง')
+                setCooldown(60)
             } else {
-                alert('AI ไม่สามารถสร้างเทมเพลตได้ในขณะนี้ ลองเลือกสไตล์ใหม่แล้วลองอีกครั้ง')
+                setErrorMsg('AI ไม่สามารถสร้างเทมเพลตได้ในขณะนี้ ลองเลือกสไตล์ใหม่แล้วลองอีกครั้ง')
             }
         } catch (error) {
             console.error('AI generate error:', error)
-            alert('ไม่สามารถเชื่อมต่อ AI ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต')
+            setErrorMsg('ไม่สามารถเชื่อมต่อ AI ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต')
         } finally {
             setLoading(false)
         }
@@ -516,7 +539,7 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
                         </label>
                         <textarea
                             value={extraText}
-                            onChange={e => setExtraText(e.target.value)}
+                            onChange={e => { setExtraText(e.target.value); setErrorMsg(null); }}
                             placeholder="เช่น: สายงาน UX Designer, บริษัท Startup, ต้องการรูปภาพโปรไฟล์แบบวงกลม..."
                             rows={2}
                             className="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-purple-400 focus:ring-4 focus:ring-purple-100 outline-none transition-all resize-none text-gray-800 placeholder:text-gray-300 text-sm"
@@ -554,10 +577,18 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
                         </div>
                     )}
 
+                    {/* Error Message */}
+                    {errorMsg && (
+                        <div className="mb-3 flex items-start gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 animate-in fade-in slide-in-from-bottom-2">
+                            <span className="mt-0.5 shrink-0">❌</span>
+                            <span className="leading-relaxed">{errorMsg}</span>
+                        </div>
+                    )}
+
                     <button
                         onClick={handleGenerate}
                         disabled={!canGenerate}
-                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-4 px-6 rounded-2xl transition-all flex justify-center items-center gap-3 hover:shadow-xl hover:shadow-purple-500/30 disabled:cursor-not-allowed active:scale-[0.98]"
+                        className={`w-full font-bold py-4 px-6 rounded-2xl transition-all flex justify-center items-center gap-3 ${!canGenerate ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-purple-500/30 active:scale-[0.98]'}`}
                     >
                         {loading ? (
                             <>
@@ -567,6 +598,8 @@ function AITemplateModal({ onClose, onSuccess }: { onClose: () => void, onSucces
                                 </svg>
                                 <span>AI กำลังออกแบบให้คุณ...</span>
                             </>
+                        ) : cooldown > 0 ? (
+                            <>⏳ กรุณารอ {cooldown} วินาที</>
                         ) : (
                             <>✨ ให้ AI สร้างเรซูเม่ให้ฉัน</>
                         )}
