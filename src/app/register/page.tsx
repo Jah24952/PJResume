@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Check, X, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import toast from 'react-hot-toast'
 
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState('')
