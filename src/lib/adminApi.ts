@@ -31,6 +31,12 @@ export async function fetchAdminDashboardStats() {
   return res.json()
 }
 
+export async function fetchAdminDashboardChart() {
+  const res = await fetch(`${API_BASE}/dashboard/chart`, { headers: getHeaders() })
+  if (!res.ok) throw new Error('Failed to load chart data')
+  return res.json()
+}
+
 // Users
 export async function fetchAdminUsers() {
   const res = await fetch(`${API_BASE}/users`, { headers: getHeaders() })

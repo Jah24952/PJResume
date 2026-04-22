@@ -1,23 +1,28 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { fetchAdminDashboardStats } from '@/lib/adminApi'
-import { Users, FileText, Bot, LayoutTemplate, Activity, ArrowUpRight, BarChart } from 'lucide-react'
+import { fetchAdminDashboardStats, fetchAdminDashboardChart } from '@/lib/adminApi'
+import { Users, FileText, Bot, LayoutTemplate, Activity, ArrowUpRight, BarChart as BarChartIcon } from 'lucide-react'
 import Link from 'next/link'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState<any>(null)
+    const [chartData, setChartData] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         const loadStats = async () => {
             try {
-                const res = await fetchAdminDashboardStats()
-                if (res.success) {
-                    setStats(res.stats)
+                const resStats = await fetchAdminDashboardStats()
+                const resChart = await fetchAdminDashboardChart()
+
+                if (resStats.success && resChart.success) {
+                    setStats(resStats.stats)
+                    setChartData(resChart.chartData || [])
                     setError(null)
                 } else {
-                    setError(res.error || 'Failed to load stats')
+                    setError('Failed to load stats or chart data')
                 }
             } catch (err: any) {
                 console.error(err)
@@ -91,14 +96,33 @@ export default function AdminDashboard() {
                             View Report <ArrowUpRight size={16} />
                         </Link>
                     </div>
-                    <div className="h-64 flex items-center justify-center bg-slate-50 rounded-lg border border-slate-100 border-dashed">
-                        {/* Placeholder for Recharts / Chart.js */}
-                        <div className="flex flex-col items-center">
-                            <BarChart className="text-slate-300 w-12 h-12 mb-2" />
-                            <p className="text-sm text-slate-500 font-medium text-center max-w-xs">
-                                Chart module will be placed here representing Monthly Active Users and Resumes.
-                            </p>
-                        </div>
+                    <div className="h-72 w-full pt-4">
+                        {chartData && chartData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={chartData}
+                                    margin={{ top: 5, right: 30, left: -20, bottom: 5 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <Tooltip 
+                                        cursor={{ fill: '#f1f5f9' }}
+                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                                    />
+                                    <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                                    <Bar dataKey="users" name="New Users" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                    <Bar dataKey="resumes" name="Resumes Created" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex items-center justify-center bg-slate-50 rounded-lg border border-slate-100 border-dashed">
+                                <div className="flex flex-col items-center">
+                                    <BarChartIcon className="text-slate-300 w-12 h-12 mb-2" />
+                                    <p className="text-sm text-slate-500 font-medium">No data available</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
