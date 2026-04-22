@@ -10,7 +10,13 @@ import MonthYearPicker from '@/components/MonthYearPicker'
 import { UNIVERSITIES, FACULTY_MAJOR_MAP, FACULTIES } from '@/lib/education'
 
 // Wizard Steps Configuration
-
+const STEPS = [
+    { id: 1, title: 'ข้อมูลส่วนตัว', description: 'กรอกข้อมูลส่วนตัว ช่องทางการติดต่อ และตำแหน่งงานที่คุณต้องการสมัคร' },
+    { id: 2, title: 'ประสบการณ์', description: 'เพิ่มประวัติการทำงาน โปรเจค การฝึกงาน หรือกิจกรรมที่ผ่านมา' },
+    { id: 3, title: 'การศึกษา', description: 'ประวัติการศึกษาจากระดับล่าสุดหรือสูงสุด' },
+    { id: 4, title: 'ทักษะ & ความสามารถ', description: 'ระบุทักษะ (Hard/Soft Skills)' },
+    { id: 5, title: 'บทสรุป', description: 'สรุปข้อมูลสั้นๆ เพื่อนำเสนอตนเอง (มี AI ช่วยเขียน)' }
+]
 
 export default function ResumeWizardPage() {
     return (
