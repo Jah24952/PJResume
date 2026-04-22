@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { fetchResumes, deleteResume } from '@/lib/api'
 import { FileText, Plus, Edit, Trash2, Download, LogOut, ArrowLeft, Settings, User, Search, Shield, Bell, Palette, UserRoundCog } from 'lucide-react'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 
 import ProfileSettings from '@/components/settings/ProfileSettings'
 import SecuritySettings from '@/components/settings/SecuritySettings'
@@ -85,10 +86,10 @@ export default function DashboardPage() {
                 // Remove from state
                 setResumes(prev => prev.filter(r => r.resume_id !== resumeId))
             } else {
-                alert('Failed to delete resume: ' + res.error)
+                toast.error('Failed to delete resume: ' + res.error)
             }
         } catch (err) {
-            alert('Failed to delete resume')
+            toast.error('Failed to delete resume')
             console.error(err)
         }
     }

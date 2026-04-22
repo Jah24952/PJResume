@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Upload, FileText, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useResumeStore } from '@/store/resume.store'
+import toast from 'react-hot-toast'
 
 export default function ResumeUploadPage() {
     const router = useRouter()
@@ -45,7 +46,7 @@ export default function ResumeUploadPage() {
                     useResumeStore.getState().setResumeData(parsedData);
                     router.push('/resume/create');
                 } catch (err) {
-                    alert('ไม่สามารถอ่านไฟล์ได้ โปรดตรวจสอบว่าไฟล์เป็นนามสกุล .json ที่อ้างอิงจากระบบนี้');
+                    toast.error('ไม่สามารถอ่านไฟล์ได้ โปรดตรวจสอบว่าไฟล์เป็นนามสกุล .json ที่อ้างอิงจากระบบนี้');
                     console.error('JSON Parse Error:', err);
                 }
             };

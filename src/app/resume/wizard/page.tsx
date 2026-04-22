@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useResumeStore } from '@/store/resume.store'
 import { ArrowLeft, ArrowRight, User, Briefcase, GraduationCap, CheckSquare, FileText, Plus, Trash2, Globe, Award, Upload, X, Zap, Sparkles, AlertCircle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 import { generateSummary, rewriteText } from '@/lib/ai'
 import MonthYearPicker from '@/components/MonthYearPicker'
 import { UNIVERSITIES, FACULTY_MAJOR_MAP, FACULTIES } from '@/lib/education'
@@ -559,7 +560,7 @@ function ResumeWizardContent() {
                         }
                     } catch (error) {
                         console.error('Failed to generate summary:', error);
-                        alert('เกิดข้อผิดพลาดในการสร้างบทสรุป กรุณาลองใหม่อีกครั้ง');
+                        toast.error('เกิดข้อผิดพลาดในการสร้างบทสรุป กรุณาลองใหม่อีกครั้ง');
                     } finally {
                         setIsGeneratingSummary(false);
                     }
@@ -581,7 +582,7 @@ function ResumeWizardContent() {
                         }
                     } catch (error) {
                         console.error('Failed to rewrite summary:', error);
-                        alert('เกิดข้อผิดพลาดในการปรับปรุงบทสรุป กรุณาลองใหม่อีกครั้ง');
+                        toast.error('เกิดข้อผิดพลาดในการปรับปรุงบทสรุป กรุณาลองใหม่อีกครั้ง');
                     } finally {
                         setIsRewritingSummary(false);
                     }

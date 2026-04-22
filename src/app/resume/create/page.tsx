@@ -8,6 +8,7 @@ import { t } from '@/lib/i18n'
 import { analyzeATS, saveResume, fetchResumeById } from '@/lib/api'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import toast from 'react-hot-toast'
 import { useState, useRef, useEffect, Suspense } from 'react'
 import {
   User,
@@ -229,7 +230,7 @@ function ResumeCreateContent() {
         setErrors(newErrors)
         setIsSaveModalOpen(false)
         setActiveSection('contact')
-        alert('กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วนและถูกต้องในหัวข้อข้อมูลส่วนตัว')
+        toast.error('กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วนและถูกต้องในหัวข้อข้อมูลส่วนตัว')
         return
       }
       setErrors({})
@@ -297,12 +298,12 @@ function ResumeCreateContent() {
 
       const res = await saveResume(payload)
       if (res.success) {
-        alert('บันทึกข้อมูลเรียบร้อยแล้ว (Saved Successfully)')
+        toast.success('บันทึกข้อมูลเรียบร้อยแล้ว (Saved Successfully)')
       } else {
         throw new Error(res.error || 'Unknown error')
       }
     } catch (err) {
-      alert('เกิดข้อผิดพลาดในการบันทึก (Save Failed)')
+      toast.error('เกิดข้อผิดพลาดในการบันทึก (Save Failed)')
       console.error(err)
     } finally {
       setIsSaving(false)
@@ -346,7 +347,7 @@ function ResumeCreateContent() {
       update('summary', res.summary)
     } catch (e) {
       console.error(e)
-      alert('AI Summary Failed')
+      toast.error('AI Summary Failed')
     }
   }
 
@@ -364,7 +365,7 @@ function ResumeCreateContent() {
       }
     } catch (e) {
       console.error(e)
-      alert(t('action.rewrite', data.resumeLanguage as 'en' | 'th') + ' Failed')
+      toast.error(t('action.rewrite', data.resumeLanguage as 'en' | 'th') + ' Failed')
     }
   }
 
@@ -377,7 +378,7 @@ function ResumeCreateContent() {
       }
     } catch (e) {
       console.error(e)
-      alert('Translate Failed')
+      toast.error('Translate Failed')
     }
   }
 

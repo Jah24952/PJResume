@@ -1,21 +1,22 @@
 import { useState } from 'react'
 import { UserRoundCog, Download, FileJson, AlertTriangle, Trash2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function AccountSettings() {
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [deleteConfirmText, setDeleteConfirmText] = useState('')
 
     const handleExportData = () => {
-        alert('Downloading your account data in JSON format...')
+        toast.success('Downloading your account data in JSON format...')
     }
 
     const handleDownloadResumes = () => {
-        alert('Downloading all your resumes in a ZIP file...')
+        toast.success('Downloading all your resumes in a ZIP file...')
     }
 
     const handleDeleteAccount = () => {
         if (deleteConfirmText === 'DELETE') {
-            alert('Account deleted. Logging out...')
+            toast.success('Account deleted. Logging out...')
             // Call API -> Logout -> Redirect to home
         }
     }

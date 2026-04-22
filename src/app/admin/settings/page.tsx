@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { fetchAdminSettings, updateAdminSetting } from '@/lib/adminApi'
 import { Save, Settings2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function AdminSettingsPage() {
     const [settings, setSettings] = useState<Record<string, string>>({
@@ -36,9 +37,9 @@ export default function AdminSettingsPage() {
             for (const [key, value] of Object.entries(settings)) {
                 await updateAdminSetting(key, String(value))
             }
-            alert('Settings saved successfully!')
+            toast.success('Settings saved successfully!')
         } catch (e) {
-            alert('Failed to save settings')
+            toast.error('Failed to save settings')
         } finally {
             setSaving(false)
         }

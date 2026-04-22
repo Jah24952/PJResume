@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { fetchAdminTemplates, updateAdminTemplateStatus, addAdminTemplate, deleteAdminTemplate } from '@/lib/adminApi'
 import { LayoutTemplate, Plus, CheckCircle, XCircle, Trash2, X } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function AdminTemplatesPage() {
     const [templates, setTemplates] = useState<any[]>([])
@@ -29,7 +30,7 @@ export default function AdminTemplatesPage() {
             await updateAdminTemplateStatus(template.id, newStatus)
             setTemplates(templates.map(t => t.id === template.id ? { ...t, status: newStatus } : t))
         } catch (e) {
-            alert('Failed to update status')
+            toast.error('Failed to update status')
         }
     }
 
@@ -39,7 +40,7 @@ export default function AdminTemplatesPage() {
             await deleteAdminTemplate(id)
             setTemplates(templates.filter(t => t.id !== id))
         } catch (e) {
-            alert('Failed to delete template')
+            toast.error('Failed to delete template')
         }
     }
 
@@ -155,14 +156,14 @@ function AddTemplateModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!form.name.trim()) return alert('กรุณาใส่ชื่อเทมเพลต')
+        if (!form.name.trim()) return toast.error('กรุณาใส่ชื่อเทมเพลต')
 
         setSaving(true)
         try {
             await addAdminTemplate(form)
             onSuccess()
         } catch (err) {
-            alert('Failed to add template')
+            toast.error('Failed to add template')
         } finally {
             setSaving(false)
         }

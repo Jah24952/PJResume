@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { fetchAdminResumes, deleteAdminResume } from '@/lib/adminApi'
 import { FileText, Search, Trash2, Eye } from 'lucide-react'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 
 export default function AdminResumesPage() {
     const [resumes, setResumes] = useState<any[]>([])
@@ -29,7 +30,7 @@ export default function AdminResumesPage() {
             await deleteAdminResume(id)
             setResumes(resumes.filter(r => r.resume_id !== id))
         } catch (e) {
-            alert('Failed to delete resume')
+            toast.error('Failed to delete resume')
         }
     }
 

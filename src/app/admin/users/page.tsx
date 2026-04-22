@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { fetchAdminUsers, updateAdminUserRole, updateAdminUserStatus } from '@/lib/adminApi'
 import { Search, Shield, UserX, UserCheck, MoreVertical } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<any[]>([])
@@ -28,7 +29,7 @@ export default function AdminUsersPage() {
             await updateAdminUserRole(user.user_id, newRole)
             setUsers(users.map(u => u.user_id === user.user_id ? { ...u, role: newRole } : u))
         } catch (e) {
-            alert('Error updating role')
+            toast.error('Error updating role')
         }
     }
 
@@ -38,7 +39,7 @@ export default function AdminUsersPage() {
             await updateAdminUserStatus(user.user_id, newStatus)
             setUsers(users.map(u => u.user_id === user.user_id ? { ...u, status: newStatus } : u))
         } catch (e) {
-            alert('Error updating status')
+            toast.error('Error updating status')
         }
     }
 

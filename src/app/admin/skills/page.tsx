@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { fetchAdminSkills } from '@/lib/adminApi'
 import { Wrench, Plus, Trash2, Search } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function AdminSkillsPage() {
     const [skills, setSkills] = useState<any[]>([])
@@ -43,10 +44,10 @@ export default function AdminSkillsPage() {
                 setNewSkill({ name: '', type: 'hard' })
                 loadSkills()
             } else {
-                alert('Duplicate or invalid skill')
+                toast.error('Duplicate or invalid skill')
             }
         } catch (e) {
-            alert('Failed to add skill')
+            toast.error('Failed to add skill')
         }
     }
 
@@ -64,7 +65,7 @@ export default function AdminSkillsPage() {
                 setSkills(skills.filter(s => s.id !== id))
             }
         } catch (e) {
-            alert('Failed to delete skill')
+            toast.error('Failed to delete skill')
         }
     }
 

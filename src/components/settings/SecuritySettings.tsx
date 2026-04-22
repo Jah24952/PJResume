@@ -3,6 +3,7 @@ import { Shield, Key, Smartphone, Monitor, Globe, LogOut, X, QrCode } from 'luci
 import { changePassword } from '@/lib/api'
 import { useAuthStore } from '@/store/auth.store'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 export default function SecuritySettings({ user }: { user: any }) {
     const { logout } = useAuthStore()
@@ -66,9 +67,9 @@ export default function SecuritySettings({ user }: { user: any }) {
             setIs2FAEnabled(true)
             setShow2FAModal(false)
             setAuthCode('')
-            alert('เปิดใช้งาน 2FA สำเร็จแล้ว!')
+            toast.success('เปิดใช้งาน 2FA สำเร็จแล้ว!')
         } else {
-            alert('กรุณากรอกรหัส 6 หลักให้ครบถ้วน')
+            toast.error('กรุณากรอกรหัส 6 หลักให้ครบถ้วน')
         }
     }
 

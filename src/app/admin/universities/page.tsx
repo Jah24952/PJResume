@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { fetchAdminUniversities } from '@/lib/adminApi'
 import { GraduationCap, MapPin, Building, Trash2, Plus } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function AdminUniversitiesPage() {
     const [universities, setUniversities] = useState<any[]>([])
@@ -41,7 +42,7 @@ export default function AdminUniversitiesPage() {
                 loadData()
             }
         } catch (e) {
-            alert('Failed to add university')
+            toast.error('Failed to add university')
         }
     }
 
@@ -59,7 +60,7 @@ export default function AdminUniversitiesPage() {
                 setUniversities(universities.filter(u => u.id !== id))
             }
         } catch (e) {
-            alert('Failed to delete university')
+            toast.error('Failed to delete university')
         }
     }
 

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Check, X, Loader2 } from 'lucide-react'
+import toast from 'react-hot-toast'
+import toast from 'react-hot-toast'
 
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState('')
@@ -39,7 +41,7 @@ export default function RegisterPage() {
 
             if (data.success) {
                 // Success feedback
-                alert('ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ')
+                toast.success('ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ')
                 router.push('/login')
             } else {
                 setError(data.error || 'Registration failed')
