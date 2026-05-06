@@ -293,7 +293,7 @@ function ResumeWizardContent() {
                                     )}
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <MonthYearPicker label="สิ้นสุด" value={exp.endDate || ''} onChange={val => updateItem('experience', exp.id, { ...exp, endDate: val })} />
+                                        <MonthYearPicker label={exp.type === 'project' ? 'สิ้นสุดโปรเจกต์' : exp.type === 'internship' ? 'สิ้นสุดการฝึกงาน' : exp.type === 'activity' ? 'สิ้นสุดบทบาท/หน้าที่' : 'สิ้นสุดการทำงาน'} value={exp.endDate || ''} onChange={val => updateItem('experience', exp.id, { ...exp, endDate: val })} />
                                     </div>
                                 </div>
                             );
@@ -439,9 +439,8 @@ function ResumeWizardContent() {
                                     </div>
 
                                     {edu.status !== 'Studying' && (
-                                        <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-2 border-slate-100">
-                                            <MonthYearPicker label="เริ่ม" value={edu.startDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, startDate: val })} />
-                                            <MonthYearPicker label="สิ้นสุด" value={edu.endDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, endDate: val })} />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-2 border-slate-100">
+                                            <MonthYearPicker label="สิ้นสุดการศึกษา" value={edu.endDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, endDate: val })} />
                                         </div>
                                     )}
                                 </div>

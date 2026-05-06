@@ -813,7 +813,7 @@ function ResumeCreateContent() {
                       <textarea className="w-full p-2 border rounded bg-gray-50 h-24 text-black" value={exp.description || ''} onChange={e => updateItem('experience', exp.id, { ...exp, description: e.target.value })} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <MonthYearPicker label={data.resumeLanguage === 'en' ? 'End Date' : 'สิ้นสุด'} value={exp.endDate || ''} onChange={val => updateItem('experience', exp.id, { ...exp, endDate: val })} lang={data.resumeLanguage as 'th' | 'en'} />
+                      <MonthYearPicker label={data.resumeLanguage === 'en' ? 'End Date' : (exp.type === 'project' ? 'สิ้นสุดโปรเจกต์' : exp.type === 'internship' ? 'สิ้นสุดการฝึกงาน' : exp.type === 'activity' ? 'สิ้นสุดบทบาท/หน้าที่' : 'สิ้นสุดการทำงาน')} value={exp.endDate || ''} onChange={val => updateItem('experience', exp.id, { ...exp, endDate: val })} lang={data.resumeLanguage as 'th' | 'en'} />
                     </div>
                   </div>
                 )})}
@@ -925,9 +925,8 @@ function ResumeCreateContent() {
                       </div>
                     </div>
                     {edu.status !== 'Studying' && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <MonthYearPicker label={data.resumeLanguage === 'th' ? 'เริ่ม' : 'Start'} value={edu.startDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, startDate: val })} lang={data.resumeLanguage as 'th' | 'en'} />
-                        <MonthYearPicker label={data.resumeLanguage === 'th' ? 'สิ้นสุด' : 'End'} value={edu.endDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, endDate: val })} lang={data.resumeLanguage as 'th' | 'en'} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <MonthYearPicker label={data.resumeLanguage === 'th' ? 'สิ้นสุดการศึกษา' : 'Graduation Date'} value={edu.endDate || ''} onChange={val => updateItem('education', edu.id, { ...edu, endDate: val })} lang={data.resumeLanguage as 'th' | 'en'} />
                       </div>
                     )}
                   </div>

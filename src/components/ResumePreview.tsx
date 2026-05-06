@@ -121,7 +121,12 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>((props, ref
     const statusLabel = isEn ? 'Expected' : 'คาดว่าจะจบ';
 
     const isStudying = edu.status === 'Studying';
-    const dateStr = `${formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th')} - ${formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th')} ${isStudying ? `(${statusLabel})` : ''}`;
+    const startStr = formatMonthYear(edu.startDate, data.resumeLanguage as 'en' | 'th');
+    const endStr = formatMonthYear(edu.endDate, data.resumeLanguage as 'en' | 'th');
+    let dateStr = startStr && endStr ? `${startStr} - ${endStr}` : startStr || endStr;
+    if (isStudying) {
+      dateStr = `${dateStr} (${statusLabel})`;
+    }
 
     // Combine Faculty + Major or FieldOfStudy
     let fieldText = edu.fieldOfStudy || '';
