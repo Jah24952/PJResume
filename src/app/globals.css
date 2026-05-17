@@ -1,5 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+
+/* ========== Hero Section Sketch Buttons ========== */
+.hero-btn-primary {
+  background: transparent;
+  border: 2.5px solid #3a5a78;
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  /* Simulate hand-drawn border effect */
+  border-image: none;
+  box-shadow: 3px 3px 0px 0px rgba(58, 90, 120, 0.15);
+}
+
+.hero-btn-primary:hover {
+  background: rgba(67, 115, 147, 0.06);
+  box-shadow: 2px 2px 0px 0px rgba(58, 90, 120, 0.25);
+}
+
+.hero-btn-secondary {
+  background: transparent;
+  border: 2.5px solid #94a3b8;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px 0px rgba(148, 163, 184, 0.15);
+}
+
+.hero-btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.06);
+  border-color: #64748b;
+  box-shadow: 2px 2px 0px 0px rgba(148, 163, 184, 0.25);
+}
 
 @theme inline {
   --color-background: var(--background);

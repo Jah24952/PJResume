@@ -1,29 +1,52 @@
 'use client';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
-import { MapPin, Phone, Mail, Mic, Music, Film } from 'lucide-react';
+import { MapPin, Phone, Mail } from 'lucide-react';
+
 export default function HeroSection() {
     return (
-        <section className="w-full max-w-7xl mx-auto px-4 py-20 flex flex-col md:flex-row items-center gap-12 lg:gap-20">
-            <div className="flex-1 space-y-6 text-center md:text-left relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-sm font-medium mb-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                    </span>
-                    AI Resume Builder 2026
-                </div>
-                <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-slate-800 tracking-tight leading-[1.1]">
-                    สร้าง <br className="hidden md:block" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
-                        เรซูเม่ระดับโปร
-                    </span>
-                </h1>
-                <h2 className="text-2xl lg:text-3xl text-slate-500 font-medium">
-                    ทำให้คุณโดดเด่นกว่าใครแบบออนไลน์ฟรี
-                </h2>
+        <section className="w-full max-w-7xl mx-auto px-6 sm:px-8 pt-12 pb-16 flex flex-col lg:flex-row items-center gap-10 lg:gap-16 overflow-hidden">
+            {/* ========== LEFT CONTENT ========== */}
+            <div className="flex-1 space-y-4 text-center md:text-left relative z-10">
 
-                <div className="pt-6 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                {/* Large Resumate Branding */}
+                <div className="relative inline-block">
+                    {/* Decorative dots */}
+                    <span className="absolute -top-3 -left-4 w-3 h-3 rounded-full bg-[#437393]/70 animate-pulse hidden md:block"></span>
+                    <span className="absolute -top-1 -left-1 w-1.5 h-1.5 rounded-full bg-[#437393]/40 hidden md:block"></span>
+                    <span className="absolute top-1 right-0 w-2 h-2 rounded-full bg-[#437393]/30 hidden md:block"></span>
+
+                    <h1
+                        className="text-6xl sm:text-7xl md:text-8xl lg:text-[110px] font-bold tracking-tight leading-none"
+                        style={{
+                            fontFamily: "'Playfair Display', 'Georgia', serif",
+                            color: '#3a5a78',
+                            letterSpacing: '-2px',
+                        }}
+                    >
+                        Resumate<span className="text-[#437393]/40">.</span>
+                    </h1>
+                </div>
+
+                {/* Thai Subtitle */}
+                <div className="flex items-center justify-center md:justify-start gap-3">
+                    <h2
+                        className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#3a5a78]"
+                        style={{
+                            fontFamily: "'Prompt', sans-serif",
+                        }}
+                    >
+                        สร้างเรซูเม่
+                    </h2>
+                </div>
+
+                {/* Description */}
+                <p className="text-base sm:text-lg md:text-xl text-slate-500 max-w-lg mx-auto md:mx-0 leading-relaxed" style={{ fontFamily: "'Prompt', sans-serif" }}>
+                    ออกแบบ ประวัติส่วนตัวในฉบับของคุณได้ง่ายใน 5 ขั้นตอน
+                </p>
+
+                {/* CTA Buttons - Hand-drawn / Sketch style */}
+                <div className="pt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
                     <button
                         onClick={() => {
                             const user = useAuthStore.getState().user
@@ -33,33 +56,37 @@ export default function HeroSection() {
                                 window.location.href = '/resume/select-mode'
                             }
                         }}
-                        className="w-full sm:w-auto px-10 py-4 bg-indigo-600 text-white border border-transparent text-lg font-bold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-indigo-500/25 hover:-translate-y-1 active:translate-y-0 active:shadow-md transition-all duration-300 flex items-center justify-center gap-3"
+                        className="hero-btn-primary group relative px-8 py-3.5 text-lg font-semibold text-[#3a5a78] rounded-xl transition-all duration-300 hover:-translate-y-0.5"
+                        style={{ fontFamily: "'Prompt', sans-serif" }}
                     >
-                        เริ่มสร้างเรซูเม่เลย <span className="text-xl">✨</span>
+                        เริ่มสร้างเรซูเม่
                     </button>
                     <Link
                         href="/resume/templates"
-                        className="w-full sm:w-auto px-10 py-4 bg-white text-slate-700 border-2 border-slate-200 text-lg font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+                        className="hero-btn-secondary group relative px-8 py-3.5 text-lg font-semibold text-slate-600 rounded-xl transition-all duration-300 hover:-translate-y-0.5"
+                        style={{ fontFamily: "'Prompt', sans-serif" }}
                     >
                         ดูรูปแบบทั้งหมด
                     </Link>
                 </div>
 
-                <p className="text-slate-400 text-sm pt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2">
-                    <span className="flex items-center gap-1">
-                      <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                      รองรับภาษาไทยและภาษาอังกฤษ
+                {/* Bottom Features */}
+                <div className="pt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-6 text-slate-500 text-sm" style={{ fontFamily: "'Prompt', sans-serif" }}>
+                    <span className="flex items-center gap-2">
+                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                        รองรับภาษาไทย และ ภาษาอังกฤษ
                     </span>
                     <span className="hidden sm:block text-slate-300">•</span>
-                    <span className="flex items-center gap-1" title="โครงสร้าง PDF ถูกออกแบบมาให้อ่าน Text ได้เต็มประสิทธิภาพ ไม่มีตารางซ้อนทับ เพิ่มโอกาสผ่านระบบคัดกรอง ATS">
-                      <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      ATS-Optimized PDF
+                    <span className="flex items-center gap-2" title="โครงสร้าง PDF ถูกออกแบบมาให้อ่าน Text ได้เต็มประสิทธิภาพ ไม่มีตารางซ้อนทับ เพิ่มโอกาสผ่านระบบคัดกรอง ATS">
+                        <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        ATS-Optimized PDF
                     </span>
-                </p>
+                </div>
             </div>
 
-            <div className="flex-1 relative w-full mt-10 md:mt-0">
-                {/* Background Raw Input Layer (Raw-to-Pro Metaphor) */}
+            {/* ========== RIGHT CONTENT - Resume Preview ========== */}
+            <div className="flex-1 relative w-full mt-6 lg:mt-0">
+                {/* Background Raw Input Layer */}
                 <div className="absolute top-10 right-4 lg:-right-4 w-[75%] max-w-[350px] bg-white/70 backdrop-blur-sm border border-slate-200/60 rounded-xl shadow-sm rotate-6 z-0 p-5 hidden sm:block">
                     <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 rounded-full bg-red-400"></div>
@@ -105,7 +132,7 @@ export default function HeroSection() {
 
                     {/* ATS Score Badge */}
                     <div className="absolute -right-6 top-8 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1.5 rounded-lg shadow-lg z-30 hidden sm:block rotate-6 hover:rotate-0 transition-transform cursor-default border border-white/20">
-                        <span className="text-xs font-bold tracking-wide">🎯 ATS-Optimized</span>
+                        <span className="text-xs font-bold tracking-wide">ATS-Optimized</span>
                     </div>
 
                     {/* Main Resume Preview Card */}
@@ -119,7 +146,7 @@ export default function HeroSection() {
                                     <div className="w-2.5 h-2.5 rounded-full bg-purple-500 border-2 border-white shadow-sm relative"><div className="absolute inset-0 rounded-full bg-purple-500 animate-ping opacity-75"></div></div>
                                     <div className="h-px w-6 bg-purple-400"></div>
                                     <div className="bg-white border border-purple-200 text-purple-700 px-2 py-1 rounded shadow-md text-[9px] font-bold cursor-default flex items-center gap-1 hover:pr-3 transition-all duration-300 relative overflow-hidden group-hover/callout:bg-purple-50">
-                                        <span>✍️ Auto-Written</span>
+                                        <span>Auto-Written</span>
                                         <span className="hidden group-hover/callout:inline-block text-slate-600 font-medium ml-1 whitespace-nowrap animate-in fade-in slide-in-from-left-1">
                                             | AI generated professional summary
                                         </span>
@@ -133,9 +160,9 @@ export default function HeroSection() {
                                     <div className="w-2.5 h-2.5 rounded-full bg-blue-500 border-2 border-white shadow-sm relative"><div className="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-75"></div></div>
                                     <div className="h-px w-6 bg-blue-400"></div>
                                     <div className="bg-white border border-blue-200 text-blue-700 px-2 py-1 rounded shadow-md text-[9px] font-bold cursor-default flex items-center gap-1 hover:pr-3 transition-all duration-300 relative overflow-hidden group-hover/callout:bg-blue-50">
-                                        <span>✨ Action Verbs</span>
+                                        <span>Action Verbs</span>
                                         <span className="hidden group-hover/callout:inline-block text-slate-600 font-medium ml-1 whitespace-nowrap animate-in fade-in slide-in-from-left-1">
-                                            | Changed 'Did UI' to 'Spearheaded'
+                                            | Changed &apos;Did UI&apos; to &apos;Spearheaded&apos;
                                         </span>
                                     </div>
                                 </div>
@@ -196,7 +223,7 @@ export default function HeroSection() {
                                         <div className="mb-5 sm:mb-6">
                                             <h2 className="text-slate-800 font-bold text-[11px] sm:text-[13px] mb-2 uppercase tracking-wide border-b-2 border-indigo-100 inline-block pb-0.5">Summary</h2>
                                             <p className="text-[6.5px] sm:text-[8px] text-slate-600 leading-[1.6]">
-                                                <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">Creative</span> UI/UX Designer with a passion for <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">crafting</span> intuitive digital experiences. Proven ability to <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">optimize</span> user journeys and increase engagement.
+                                                <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">Auto-Written</span> with a passion for <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">crafting</span> intuitive digital experiences. Proven ability to <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">optimize</span> user journeys and increase engagement.
                                             </p>
                                         </div>
 
