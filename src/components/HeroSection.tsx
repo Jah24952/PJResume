@@ -45,78 +45,139 @@ export default function HeroSection() {
                     </Link>
                 </div>
 
-                <p className="text-slate-400 text-sm pt-4 flex items-center justify-center md:justify-start gap-2">
-                    <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                    รองรับภาษาไทยและภาษาอังกฤษ
+                <p className="text-slate-400 text-sm pt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2">
+                    <span className="flex items-center gap-1">
+                      <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                      รองรับภาษาไทยและภาษาอังกฤษ
+                    </span>
+                    <span className="hidden sm:block text-slate-300">•</span>
+                    <span className="flex items-center gap-1" title="โครงสร้าง PDF ถูกออกแบบมาให้อ่าน Text ได้เต็มประสิทธิภาพ ไม่มีตารางซ้อนทับ เพิ่มโอกาสผ่านระบบคัดกรอง ATS">
+                      <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      ATS-Optimized PDF
+                    </span>
                 </p>
             </div>
 
             <div className="flex-1 relative w-full mt-10 md:mt-0">
-                {/* Resume Preview Image */}
-                <div className="relative w-[85%] sm:w-[70%] max-w-[450px] mx-auto md:ml-auto">
-                    {/* Decorative Background Elements */}
-                    <div className="absolute top-4 -right-4 w-full h-full bg-gradient-to-br from-indigo-200 to-purple-200 rounded-2xl transform rotate-6 opacity-40 blur-[2px]"></div>
-                    <div className="absolute top-2 -right-2 w-full h-full bg-slate-50 border border-slate-200 rounded-2xl transform rotate-3 shadow-inner"></div>
+                {/* Background Raw Input Layer (Raw-to-Pro Metaphor) */}
+                <div className="absolute top-10 right-4 lg:-right-4 w-[75%] max-w-[350px] bg-white/70 backdrop-blur-sm border border-slate-200/60 rounded-xl shadow-sm rotate-6 z-0 p-5 hidden sm:block">
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                        <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                        <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                        <span className="text-[10px] text-slate-400 font-mono ml-2">raw_input.txt</span>
+                    </div>
+                    <div className="text-slate-500 font-mono text-[11px] opacity-70 space-y-1.5">
+                        <p className="text-indigo-500">{"// Prompt"}</p>
+                        <p>Write me a good resume for UI/UX designer role.</p>
+                        <p className="text-indigo-500 mt-2">{"// My rough experience"}</p>
+                        <p>- Did UI design at Tech Startup for 3 months</p>
+                        <p>- Got 1st place in university startup contest 2024</p>
+                        <p>- Have 3.65 GPA from university</p>
+                    </div>
+                </div>
 
-                    {/* Main Resume Preview */}
-                    <div className="relative w-full aspect-[1/1.4] bg-white shadow-2xl rounded-2xl overflow-hidden transform transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-3xl border border-slate-100 z-10 group">
+                <div className="relative w-[85%] sm:w-[70%] max-w-[450px] mx-auto md:ml-auto z-10">
+                    {/* Decorative Glowing Background */}
+                    <div className="absolute top-4 -right-4 w-full h-full bg-gradient-to-br from-indigo-300 to-purple-300 rounded-2xl transform rotate-3 opacity-50 blur-[8px]"></div>
+
+                    {/* AI Mini Dashboard */}
+                    <div className="absolute -left-8 lg:-left-16 top-16 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-indigo-100 z-30 hidden sm:block group/card hover:-translate-y-1 transition-transform cursor-default">
+                        <div className="flex items-center gap-1.5 mb-2.5">
+                            <svg className="w-3.5 h-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            <h4 className="text-[10px] font-bold text-indigo-900 uppercase tracking-wider">AI Analysis</h4>
+                        </div>
+                        <div className="space-y-2 text-[11px] font-medium">
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-slate-600">Grammar</span>
+                                <span className="text-emerald-600 font-bold flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Perfect</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-slate-600">Impact</span>
+                                <span className="text-emerald-600 font-bold flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> High</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-slate-600">Tone</span>
+                                <span className="text-indigo-600 font-bold flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Professional</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ATS Score Badge */}
+                    <div className="absolute -right-6 top-8 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1.5 rounded-lg shadow-lg z-30 hidden sm:block rotate-6 hover:rotate-0 transition-transform cursor-default border border-white/20">
+                        <span className="text-xs font-bold tracking-wide">🎯 ATS-Optimized</span>
+                    </div>
+
+                    {/* Main Resume Preview Card */}
+                    <div className="relative w-full aspect-[1/1.4] bg-white shadow-2xl rounded-2xl overflow-hidden transform transition-all duration-500 hover:-translate-y-2 hover:shadow-indigo-500/30 border border-slate-100 group">
+                        
+                        {/* Interactive Callout Badges (Hover-to-reveal) */}
+                        <div className="absolute inset-0 z-50 pointer-events-none">
+                            {/* Summary Badge */}
+                            <div className="absolute top-[32%] left-[38%] pointer-events-auto">
+                                <div className="group/callout flex items-center">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-purple-500 border-2 border-white shadow-sm relative"><div className="absolute inset-0 rounded-full bg-purple-500 animate-ping opacity-75"></div></div>
+                                    <div className="h-px w-6 bg-purple-400"></div>
+                                    <div className="bg-white border border-purple-200 text-purple-700 px-2 py-1 rounded shadow-md text-[9px] font-bold cursor-default flex items-center gap-1 hover:pr-3 transition-all duration-300 relative overflow-hidden group-hover/callout:bg-purple-50">
+                                        <span>✍️ Auto-Written</span>
+                                        <span className="hidden group-hover/callout:inline-block text-slate-600 font-medium ml-1 whitespace-nowrap animate-in fade-in slide-in-from-left-1">
+                                            | AI generated professional summary
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Action Verbs Badge */}
+                            <div className="absolute bottom-[20%] left-[28%] pointer-events-auto">
+                                <div className="group/callout flex items-center">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500 border-2 border-white shadow-sm relative"><div className="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-75"></div></div>
+                                    <div className="h-px w-6 bg-blue-400"></div>
+                                    <div className="bg-white border border-blue-200 text-blue-700 px-2 py-1 rounded shadow-md text-[9px] font-bold cursor-default flex items-center gap-1 hover:pr-3 transition-all duration-300 relative overflow-hidden group-hover/callout:bg-blue-50">
+                                        <span>✨ Action Verbs</span>
+                                        <span className="hidden group-hover/callout:inline-block text-slate-600 font-medium ml-1 whitespace-nowrap animate-in fade-in slide-in-from-left-1">
+                                            | Changed 'Did UI' to 'Spearheaded'
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Resume Layout Design */}
                         <div className="w-full h-full relative bg-[#fafafa] font-sans text-slate-800 overflow-hidden">
                             {/* Top Header Background */}
-                            <div className="absolute top-0 left-0 w-full h-[23%] bg-[#b4c6ff]"></div>
+                            <div className="absolute top-0 left-0 w-full h-[23%] bg-[#437393]"></div>
                             
-                            {/* Left Sidebar Column background */}
-                            <div className="absolute top-[23%] left-0 w-[38%] h-[77%] bg-[#eef2ff]"></div>
+                            {/* Left Sidebar Column */}
+                            <div className="absolute top-[23%] left-0 w-[38%] h-[77%] bg-[#eef2ff] border-r border-[#b4c6ff]/30"></div>
                             
-                            {/* The extended rounded part of the top header over the left sidebar */}
-                            <div className="absolute top-[23%] left-0 w-[38%] h-[12%] bg-[#b4c6ff] rounded-b-3xl"></div>
+                            {/* Header Extension */}
+                            <div className="absolute top-[23%] left-0 w-[38%] h-[12%] bg-[#437393] rounded-b-[40px]"></div>
 
                             {/* Profile Picture Placeholder */}
-                            <div className="absolute top-[20%] left-[19%] -translate-x-1/2 -translate-y-1/2 w-[24%] aspect-square bg-[#ffffff] rounded-full flex flex-col items-center justify-center overflow-hidden z-10 shadow-sm border-[4px] border-white">
-                                <div className="w-[45%] h-[45%] bg-slate-100 rounded-full mt-2"></div>
-                                <div className="w-[80%] h-[50%] bg-slate-100 rounded-t-full mt-1"></div>
+                            <div className="absolute top-[20%] left-[19%] -translate-x-1/2 -translate-y-1/2 w-[24%] aspect-square bg-white rounded-full flex flex-col items-center justify-center overflow-hidden z-10 shadow-md border-[4px] border-white group-hover:border-indigo-200 transition-colors duration-500">
+                                <div className="w-[45%] h-[45%] bg-slate-200 rounded-full mt-2"></div>
+                                <div className="w-[80%] h-[50%] bg-slate-200 rounded-t-full mt-1"></div>
                             </div>
 
                             {/* Text Content Overlay */}
                             <div className="absolute inset-0 z-20 flex">
                                 {/* Left Sidebar Content */}
                                 <div className="w-[38%] h-full pt-[42%] px-3 flex flex-col items-center text-center">
-                                    {/* ข้อมูลส่วนตัว */}
-                                    <h3 className="text-[#5a6b8c] font-bold text-xs sm:text-sm mb-3 sm:mb-4">ข้อมูลส่วนตัว</h3>
-                                    <div className="text-[#64748b] text-[6px] sm:text-[8px] space-y-2 mb-4 font-medium">
-                                        <p>26 มีนาคม 2548</p>
-                                        <p>18 ปี</p>
-                                        <p className="flex items-center justify-center gap-1.5 mt-3"><MapPin size={10} className="inline"/> 123 Anywhere St., Any City</p>
-                                        <p className="flex items-center justify-center gap-1.5"><Phone size={10} className="inline"/> +123-456-7890</p>
-                                        <p className="flex items-center justify-center gap-1.5"><Mail size={10} className="inline"/> hello@reallygreatsite.com</p>
+                                    <h3 className="text-[#5a6b8c] font-bold text-[10px] sm:text-xs mb-3">CONTACT</h3>
+                                    <div className="text-slate-500 text-[6px] sm:text-[7px] space-y-2 mb-5 font-medium w-full">
+                                        <p className="flex items-center justify-center gap-1.5"><MapPin size={8} className="inline text-slate-400"/> Bangkok, TH</p>
+                                        <p className="flex items-center justify-center gap-1.5"><Phone size={8} className="inline text-slate-400"/> +66 89 123 4567</p>
+                                        <p className="flex items-center justify-center gap-1.5"><Mail size={8} className="inline text-slate-400"/> ananya.s@email.com</p>
                                     </div>
 
-                                    <div className="w-10 h-px bg-[#a6b8ff]/40 mb-4 relative"><div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-[#b4c6ff]/80 rotate-45"></div></div>
+                                    <div className="w-8 h-[2px] bg-indigo-100 mb-5"></div>
 
-                                    {/* ทักษะด้านภาษา */}
-                                    <h3 className="text-[#5a6b8c] font-bold text-xs sm:text-sm mb-3 sm:mb-4">ทักษะด้านภาษา</h3>
-                                    <div className="text-[#64748b] text-[7px] sm:text-[9px] space-y-1.5 mb-4 font-medium">
-                                        <p>Thai</p>
-                                        <p>English</p>
-                                        <p>Chinese</p>
-                                    </div>
-
-                                    <div className="w-10 h-px bg-[#a6b8ff]/40 mb-4 relative"><div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-[#b4c6ff]/80 rotate-45"></div></div>
-
-                                    {/* ความสามารถพิเศษ */}
-                                    <h3 className="text-[#5a6b8c] font-bold text-xs sm:text-[13px] mb-3 sm:mb-4">ความสามารถพิเศษ</h3>
-                                    <div className="flex justify-center gap-2 sm:gap-3 text-[#64748b]">
-                                        <div className="flex flex-col items-center">
-                                            <Mic size={14} className="mb-1" />
-                                            <span className="text-[5px] sm:text-[6px]">ร้องเพลง</span>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <Music size={14} className="mb-1" />
-                                            <span className="text-[5px] sm:text-[6px]">เล่นดนตรี</span>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <Film size={14} className="mb-1" />
-                                            <span className="text-[5px] sm:text-[6px]">ตัดต่อวิดีโอ</span>
-                                        </div>
+                                    <h3 className="text-[#5a6b8c] font-bold text-[10px] sm:text-xs mb-3">SKILLS</h3>
+                                    <div className="flex flex-wrap justify-center gap-1 sm:gap-1.5 px-1">
+                                        <span className="bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded text-[5px] sm:text-[6px] font-semibold border border-indigo-100">Figma</span>
+                                        <span className="bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded text-[5px] sm:text-[6px] font-semibold border border-indigo-100">UI/UX</span>
+                                        <span className="bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded text-[5px] sm:text-[6px] font-semibold border border-indigo-100">Prototyping</span>
+                                        <span className="bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded text-[5px] sm:text-[6px] font-semibold border border-indigo-100">Wireframing</span>
                                     </div>
                                 </div>
 
@@ -124,68 +185,51 @@ export default function HeroSection() {
                                 <div className="w-[62%] h-full">
                                     {/* Header Text */}
                                     <div className="h-[23%] flex flex-col justify-center pl-6 pt-2">
-                                        <p className="text-white text-[11px] sm:text-sm font-medium tracking-wide opacity-90">Resume</p>
-                                        <h1 className="text-white text-3xl sm:text-[40px] font-bold leading-[1.1] mt-0.5 tracking-wide">Ananya<br/>Supakorn</h1>
+                                        <p className="text-indigo-300 text-[9px] sm:text-[11px] font-bold tracking-[0.2em] uppercase">UI/UX Designer</p>
+                                        <h1 className="text-white text-2xl sm:text-3xl font-extrabold leading-tight mt-1 tracking-tight">Ananya<br/>Supakorn</h1>
                                     </div>
 
                                     {/* Main Content Area */}
-                                    <div className="pt-6 sm:pt-8 pl-6 pr-6">
-                                        {/* ประวัติการศึกษา */}
-                                        <h2 className="text-[#5a6b8c] font-bold text-sm sm:text-[15px] mb-4 sm:mb-5">
-                                            ประวัติการศึกษา
-                                        </h2>
+                                    <div className="pt-6 sm:pt-7 pl-6 pr-6">
                                         
-                                        <div className="space-y-4 sm:space-y-5 mb-8">
-                                            <div className="flex items-center text-[7px] sm:text-[9px] gap-2 sm:gap-3">
-                                                <div className="w-[25%] shrink-0 text-[#5a6b8c] font-medium">ปี 2563-2566</div>
-                                                <div className="flex-1 border-l-2 border-[#eef2ff] pl-2 sm:pl-3 relative">
-                                                    <div className="absolute w-1.5 h-1.5 rounded-full bg-[#eef2ff] -left-[4px] top-1/2 -translate-y-1/2"></div>
-                                                    <p className="font-bold text-[#64748b] text-[9px] sm:text-[11px]">ระดับมัธยมปลาย</p>
-                                                    <p className="text-[#94a3b8] mt-0.5">โรงเรียน Borcelle</p>
-                                                </div>
-                                                <div className="bg-white px-2 py-1 rounded-full text-[5px] sm:text-[7px] text-[#7d93e8] font-semibold shadow-sm whitespace-nowrap">เกรดเฉลี่ย 3.30</div>
-                                            </div>
-                                            
-                                            <div className="flex items-center text-[7px] sm:text-[9px] gap-2 sm:gap-3">
-                                                <div className="w-[25%] shrink-0 text-[#5a6b8c] font-medium">ปี 2560-2563</div>
-                                                <div className="flex-1 border-l-2 border-[#eef2ff] pl-2 sm:pl-3 relative">
-                                                    <div className="absolute w-1.5 h-1.5 rounded-full bg-[#eef2ff] -left-[4px] top-1/2 -translate-y-1/2"></div>
-                                                    <p className="font-bold text-[#64748b] text-[9px] sm:text-[11px]">ระดับมัธยมต้น</p>
-                                                    <p className="text-[#94a3b8] mt-0.5">โรงเรียน Borcelle</p>
-                                                </div>
-                                                <div className="bg-white px-2 py-1 rounded-full text-[5px] sm:text-[7px] text-[#7d93e8] font-semibold shadow-sm whitespace-nowrap">เกรดเฉลี่ย 3.30</div>
-                                            </div>
-
-                                            <div className="flex items-center text-[7px] sm:text-[9px] gap-2 sm:gap-3">
-                                                <div className="w-[25%] shrink-0 text-[#5a6b8c] font-medium">ปี 2554-2560</div>
-                                                <div className="flex-1 border-l-2 border-[#eef2ff] pl-2 sm:pl-3 relative">
-                                                    <div className="absolute w-1.5 h-1.5 rounded-full bg-[#eef2ff] -left-[4px] top-1/2 -translate-y-1/2"></div>
-                                                    <p className="font-bold text-[#64748b] text-[9px] sm:text-[11px]">ระดับประถม</p>
-                                                    <p className="text-[#94a3b8] mt-0.5">โรงเรียน Rimberio</p>
-                                                </div>
-                                                <div className="bg-white px-2 py-1 rounded-full text-[5px] sm:text-[7px] text-[#7d93e8] font-semibold shadow-sm whitespace-nowrap">เกรดเฉลี่ย 3.30</div>
-                                            </div>
+                                        {/* Professional Summary */}
+                                        <div className="mb-5 sm:mb-6">
+                                            <h2 className="text-slate-800 font-bold text-[11px] sm:text-[13px] mb-2 uppercase tracking-wide border-b-2 border-indigo-100 inline-block pb-0.5">Summary</h2>
+                                            <p className="text-[6.5px] sm:text-[8px] text-slate-600 leading-[1.6]">
+                                                <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">Creative</span> UI/UX Designer with a passion for <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">crafting</span> intuitive digital experiences. Proven ability to <span className="bg-purple-100 text-purple-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-purple-200 cursor-default">optimize</span> user journeys and increase engagement.
+                                            </p>
                                         </div>
 
-                                        {/* เกียรติบัตร */}
-                                        <h2 className="text-[#5a6b8c] font-bold text-sm sm:text-[15px] mb-4 sm:mb-5">
-                                            เกียรติบัตร
+                                        {/* Experience Section */}
+                                        <h2 className="text-slate-800 font-bold text-[11px] sm:text-[13px] mb-3 uppercase tracking-wide border-b-2 border-indigo-100 inline-block pb-0.5">
+                                            Experience
                                         </h2>
                                         
                                         <div className="space-y-4">
-                                            <div className="flex gap-2 sm:gap-3 items-start text-[7px] sm:text-[9px]">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-[#b4c6ff] mt-1 shrink-0"></div>
-                                                <div>
-                                                    <p className="font-bold text-[#64748b] text-[9px] sm:text-[11px]">Lorem ipsum dolor sit amet</p>
-                                                    <p className="text-[#94a3b8] leading-tight mt-1 max-w-[85%]">consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt</p>
+                                            <div className="relative">
+                                                <div className="absolute left-[-9px] top-1.5 w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
+                                                <div className="absolute left-[-6px] top-3 bottom-[-16px] w-[1px] bg-slate-200"></div>
+                                                <div className="flex justify-between items-baseline mb-1">
+                                                    <p className="font-bold text-slate-800 text-[8px] sm:text-[10px]">Product Designer</p>
+                                                    <span className="text-slate-400 text-[6px] sm:text-[7px] font-medium">2025 - Present</span>
                                                 </div>
+                                                <p className="text-indigo-600 text-[6.5px] sm:text-[7.5px] font-semibold mb-1">Tech Startup Co.</p>
+                                                <ul className="text-slate-600 text-[6.5px] sm:text-[7.5px] space-y-1 list-disc pl-2.5">
+                                                    <li><span className="bg-blue-100 text-blue-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-blue-200 cursor-default">Spearheaded</span> the redesign of core mobile app.</li>
+                                                    <li><span className="bg-blue-100 text-blue-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-blue-200 cursor-default">Collaborated</span> with engineering teams.</li>
+                                                </ul>
                                             </div>
-                                            <div className="flex gap-2 sm:gap-3 items-start text-[7px] sm:text-[9px]">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-[#b4c6ff] mt-1 shrink-0"></div>
-                                                <div>
-                                                    <p className="font-bold text-[#64748b] text-[9px] sm:text-[11px]">Lorem ipsum dolor sit amet</p>
-                                                    <p className="text-[#94a3b8] leading-tight mt-1 max-w-[85%]">consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt</p>
+
+                                            <div className="relative">
+                                                <div className="absolute left-[-9px] top-1.5 w-1.5 h-1.5 rounded-full bg-indigo-300"></div>
+                                                <div className="flex justify-between items-baseline mb-1">
+                                                    <p className="font-bold text-slate-800 text-[8px] sm:text-[10px]">UI/UX Intern</p>
+                                                    <span className="text-slate-400 text-[6px] sm:text-[7px] font-medium">Summer 2024</span>
                                                 </div>
+                                                <p className="text-indigo-600 text-[6.5px] sm:text-[7.5px] font-semibold mb-1">Creative Agency</p>
+                                                <ul className="text-slate-600 text-[6.5px] sm:text-[7.5px] space-y-1 list-disc pl-2.5">
+                                                    <li><span className="bg-blue-100 text-blue-700 px-0.5 rounded-sm font-semibold transition-colors duration-300 hover:bg-blue-200 cursor-default">Awarded</span> 1st place in design hackathon.</li>
+                                                </ul>
                                             </div>
                                         </div>
 

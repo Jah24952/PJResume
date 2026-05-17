@@ -9,7 +9,7 @@ export default function SelectModePage() {
             {/* Header */}
             <header className="h-[60px] bg-white border-b px-6 flex items-center shadow-sm">
                 <Link href="/" className="text-2xl font-serif text-[#437393] font-bold">
-                    SRG-TJS
+                    Resumate
                 </Link>
             </header>
 

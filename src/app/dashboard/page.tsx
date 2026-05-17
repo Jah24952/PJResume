@@ -117,7 +117,7 @@ export default function DashboardPage() {
                         <ArrowLeft size={24} />
                     </Link>
                     <Link href="/" className="text-2xl font-serif text-[#437393] font-bold">
-                        SRG-TJS
+                        Resumate
                     </Link>
                 </div>
                 <div className="flex items-center gap-4">

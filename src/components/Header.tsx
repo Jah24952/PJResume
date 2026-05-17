@@ -19,7 +19,7 @@ export default function Header() {
   return (
     <header className="w-full h-[60px] bg-white border-b px-6 flex items-center justify-between shadow-sm sticky top-0 z-50">
       <Link href="/" className="text-2xl font-serif text-[#437393] font-bold">
-        SRG-TJS
+        Resumate
       </Link>
 
       <div className="flex items-center gap-4">

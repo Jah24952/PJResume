@@ -59,7 +59,7 @@ export default function ResumeUploadPage() {
             {/* Header */}
             <header className="h-[60px] bg-[#9CC5DF] px-6 flex items-center shadow-md">
                 <Link href="/" className="text-2xl font-serif text-[#437393] font-bold">
-                    SRG-TJS
+                    Resumate
                 </Link>
             </header>
 

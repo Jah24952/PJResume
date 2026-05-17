@@ -484,7 +484,7 @@ function ResumeCreateContent() {
             <ArrowLeft size={24} />
           </Link>
           <Link href="/" className="text-2xl font-serif text-[#437393] font-bold">
-            SRG-TJS
+            Resumate
           </Link>
         </div>
 
@@ -531,6 +531,7 @@ function ResumeCreateContent() {
             <button
               onClick={exportPDF}
               className="bg-white px-3 md:px-4 py-2 rounded-full flex items-center gap-1.5 md:gap-2 text-[#437393] font-medium hover:bg-slate-50 transition-colors shadow-sm text-sm"
+              title="ไฟล์ PDF รูปแบบ Native Text สามารถคลุมดำได้ เพิ่มโอกาสผ่านระบบคัดกรอง ATS สูงสุด"
             >
               <FileDown size={18} className="text-red-500" /> <span className="hidden md:inline">{t('nav.download.pdf', data.resumeLanguage as 'en' | 'th')}</span>
             </button>

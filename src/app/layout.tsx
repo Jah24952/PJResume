@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SRG TJS - สร้างเรซูเม่ฟรี",
+  title: "Resumate - สร้างเรซูเม่ฟรี",
   description: "สร้างเรซูเม่ professional ง่ายๆ ภาษาไทยและอังกฤษ",
 };
 

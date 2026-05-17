@@ -57,7 +57,7 @@ export default function SetupPage() {
                     <Link href="/resume/select-mode" className="text-slate-400 hover:text-[#437393] transition-colors">
                         <ArrowLeft size={24} />
                     </Link>
-                    <span className="text-xl font-serif text-[#437393] font-bold">SRG-TJS</span>
+                    <span className="text-xl font-serif text-[#437393] font-bold">Resumate</span>
                 </div>
                 <div className="text-sm text-slate-500 font-medium">
                     ตั้งค่าเริ่มต้น

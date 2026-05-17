@@ -745,7 +745,7 @@ function ResumeWizardContent() {
                     <Link href="/resume/templates" className="text-slate-400 hover:text-[#437393] transition-colors">
                         <ArrowLeft size={24} />
                     </Link>
-                    <span className="text-xl font-serif text-[#437393] font-bold">SRG-TJS Setup</span>
+                    <span className="text-xl font-serif text-[#437393] font-bold">Resumate Setup</span>
                 </div>
                 <div className="text-xs font-bold text-[#437393] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
                     ขั้นตอนที่ {currentStep} จาก {STEPS.length}
